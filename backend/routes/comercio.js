@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const { authAdminOrComercio } = require('../middleware/auth');
+const { body, param, validationResult } = require('express-validator');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -39,6 +40,87 @@ const uploadImagen = multer({
     cb(new Error('Solo se permiten imágenes JPG, PNG, WEBP o GIF'));
   }
 });
+function revisarValidacion(req, res, next) {
+  const errores = validationResult(req);
+
+  if (!errores.isEmpty()) {
+    return res.status(400).json({
+      error: 'Revisá los datos enviados',
+      detalles: errores.array().map(e => e.msg)
+    });
+  }
+
+  next();
+}
+
+const validarSlug = [
+  param('slug')
+    .trim()
+    .matches(/^[a-z0-9-]+$/i)
+    .withMessage('Slug inválido')
+];
+
+const validarPerfilComercio = [
+  ...validarSlug,
+
+  body('nombre')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 120 })
+    .withMessage('El nombre debe tener entre 2 y 120 caracteres')
+    .escape(),
+
+  body('slogan')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 180 })
+    .withMessage('El slogan no puede superar 180 caracteres')
+    .escape(),
+
+  body('telefono')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^[0-9+\s()-]{6,30}$/)
+    .withMessage('Teléfono inválido'),
+
+  body('whatsapp')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^[0-9+\s()-]{6,30}$/)
+    .withMessage('WhatsApp inválido'),
+
+  body('direccion')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('La dirección no puede superar 200 caracteres')
+    .escape(),
+
+  body('instagram_url')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('Instagram no puede superar 200 caracteres'),
+
+  body('color_acento')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage('Color inválido'),
+
+  body('moneda')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 1, max: 6 })
+    .withMessage('Moneda inválida')
+    .escape(),
+
+  body('imagen_fondo_url')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Imagen de fondo inválida')
+];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   uploadImagen.single('imagen')(req, res, (err) => {
     if (err) {
@@ -72,7 +154,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
 });
 
 // PUT /api/comercio/:slug/perfil — el dueño edita su perfil
-router.put('/:slug/perfil', authAdminOrComercio, async (req, res) => {
+router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
     const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
       'direccion','instagram_url','color_acento','color_fondo','moneda','imagen_fondo_url'];
