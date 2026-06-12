@@ -23,10 +23,29 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Rate limiting en endpoints de reserva y auth
-const limiter = rateLimit({ windowMs: 15*60*1000, max: 100, standardHeaders: true });
-app.use('/api/auth', limiter);
-app.use('/api/p', rateLimit({ windowMs: 15*60*1000, max: 200 }));
+// Rate limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Demasiados intentos de login. Probá de nuevo en unos minutos.'
+  }
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Demasiadas solicitudes. Probá de nuevo más tarde.'
+  }
+});
+
+app.use('/api/auth', authLimiter);
+app.use('/api/', apiLimiter);
 
 // Rutas API
 app.use('/api/auth',    require('./routes/auth'));
