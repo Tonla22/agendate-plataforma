@@ -3,9 +3,34 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
+const { body, validationResult } = require('express-validator');
+
+const validarLogin = [
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('Email inválido')
+    .normalizeEmail(),
+
+  body('password')
+    .isLength({ min: 6, max: 100 })
+    .withMessage('Contraseña inválida')
+];
+
+function revisarLogin(req, res, next) {
+  const errores = validationResult(req);
+
+  if (!errores.isEmpty()) {
+    return res.status(400).json({
+      error: 'Email o contraseña inválidos'
+    });
+  }
+
+  next();
+}
 
 // Login super-admin
-router.post('/admin/login', async (req, res) => {
+router.post('/admin/login', validarLogin, revisarLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
     const r = await pool.query('SELECT * FROM admins WHERE email=$1', [email]);
@@ -18,7 +43,7 @@ router.post('/admin/login', async (req, res) => {
 });
 
 // Login dueño de comercio
-router.post('/comercio/login', async (req, res) => {
+router.post('/comercio/login', validarLogin, revisarLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
     const r = await pool.query(
