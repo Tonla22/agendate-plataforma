@@ -373,6 +373,23 @@ function route() {
   const path = location.pathname.replace(/\/$/, '');
   const parts = path.split('/').filter(Boolean);
 
+  const tokenGuardado = localStorage.getItem('token');
+const tipoGuardado = localStorage.getItem('tipo');
+
+if (path === '/panel') {
+  if (!tokenGuardado || tipoGuardado !== 'comercio') {
+    navegar('/login');
+    return;
+  }
+}
+
+if (path === '/admin') {
+  if (!tokenGuardado || tipoGuardado !== 'admin') {
+    navegar('/login');
+    return;
+  }
+}
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('activa'));
 
   if (parts.length === 0 || path === '/') {
