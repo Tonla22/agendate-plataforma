@@ -3,13 +3,23 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares globales
-app.use(cors());
-app.use(express.json());
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || true,
+  credentials: true
+}));
+
+app.use(express.json({ limit: '1mb' }));
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
