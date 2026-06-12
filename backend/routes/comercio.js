@@ -159,6 +159,94 @@ const validarServicioComercio = [
     .isLength({ max: 500 })
     .withMessage('La imagen del servicio es inválida')
 ];
+function horaAMinBackend(hora) {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ''))) {
+    return null;
+  }
+
+  const [h, m] = String(hora).split(':').map(Number);
+  return h * 60 + m;
+}
+
+function validarLogicaHorarios(req, res, next) {
+  const horarios = req.body.horarios || [];
+
+  for (const h of horarios) {
+    if (!h.activo) continue;
+
+    if (!Array.isArray(h.bloques) || h.bloques.length === 0) {
+      return res.status(400).json({
+        error: 'Cada día activo debe tener al menos un bloque horario'
+      });
+    }
+
+    const bloques = h.bloques
+      .map(b => ({
+        abre: b.abre,
+        cierra: b.cierra,
+        abreMin: horaAMinBackend(b.abre),
+        cierraMin: horaAMinBackend(b.cierra)
+      }))
+      .sort((a, b) => a.abreMin - b.abreMin);
+
+    for (let i = 0; i < bloques.length; i++) {
+      const b = bloques[i];
+
+      if (b.abreMin === null || b.cierraMin === null) {
+        return res.status(400).json({
+          error: 'Formato de horario inválido. Usá HH:MM'
+        });
+      }
+
+      if (b.cierraMin <= b.abreMin) {
+        return res.status(400).json({
+          error: 'La hora de cierre debe ser mayor que la de apertura'
+        });
+      }
+
+      if (i > 0 && b.abreMin < bloques[i - 1].cierraMin) {
+        return res.status(400).json({
+          error: 'Los bloques horarios no pueden superponerse'
+        });
+      }
+    }
+  }
+
+  next();
+}
+
+const validarHorariosComercio = [
+  ...validarSlug,
+
+  body('horarios')
+    .isArray({ min: 0, max: 7 })
+    .withMessage('Horarios inválidos'),
+
+  body('horarios.*.dia_semana')
+    .isInt({ min: 0, max: 6 })
+    .withMessage('Día inválido')
+    .toInt(),
+
+  body('horarios.*.activo')
+    .isBoolean()
+    .withMessage('El estado del día debe ser verdadero o falso')
+    .toBoolean(),
+
+  body('horarios.*.bloques')
+    .optional()
+    .isArray({ max: 8 })
+    .withMessage('Demasiados bloques para un día'),
+
+  body('horarios.*.bloques.*.abre')
+    .optional()
+    .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .withMessage('Hora de apertura inválida'),
+
+  body('horarios.*.bloques.*.cierra')
+    .optional()
+    .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .withMessage('Hora de cierre inválida')
+];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   uploadImagen.single('imagen')(req, res, (err) => {
     if (err) {
@@ -209,7 +297,7 @@ router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarV
 });
 
 // PUT /api/comercio/:slug/horarios — guardar horarios con soporte de bloques
-router.put('/:slug/horarios', authAdminOrComercio, async (req, res) => {
+router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revisarValidacion, validarLogicaHorarios, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
