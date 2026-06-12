@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
+const { body, param, validationResult } = require('express-validator');
 
 // GET /api/p/:slug — datos públicos del comercio (sin autenticación)
 router.get('/:slug', async (req, res) => {
@@ -87,8 +88,69 @@ router.get('/:slug/disponibilidad', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+const validarReservaPublica = [
+  param('slug')
+    .trim()
+    .matches(/^[a-z0-9-]+$/i)
+    .withMessage('Slug de comercio inválido'),
+
+  body('servicio_id')
+    .isInt({ min: 1 })
+    .withMessage('Servicio inválido')
+    .toInt(),
+
+  body('fecha')
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('Fecha inválida'),
+
+  body('hora')
+    .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .withMessage('Hora inválida'),
+
+  body('nombre')
+    .trim()
+    .isLength({ min: 2, max: 80 })
+    .withMessage('El nombre debe tener entre 2 y 80 caracteres')
+    .escape(),
+
+  body('apellido')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 80 })
+    .withMessage('El apellido no puede superar 80 caracteres')
+    .escape(),
+
+  body('whatsapp')
+    .trim()
+    .matches(/^[0-9+\s()-]{6,25}$/)
+    .withMessage('WhatsApp inválido'),
+
+  body('email')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isEmail()
+    .withMessage('Email inválido')
+    .normalizeEmail(),
+
+  body('comentarios')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Los comentarios no pueden superar 500 caracteres')
+    .escape()
+];
+
 // POST /api/p/:slug/reservar
-router.post('/:slug/reservar', async (req, res) => {
+router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
+  const errores = validationResult(req);
+
+  if (!errores.isEmpty()) {
+    return res.status(400).json({
+      error: 'Revisá los datos de la reserva',
+      detalles: errores.array().map(e => e.msg)
+    });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
