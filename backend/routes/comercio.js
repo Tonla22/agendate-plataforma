@@ -121,6 +121,44 @@ const validarPerfilComercio = [
     .isLength({ max: 500 })
     .withMessage('Imagen de fondo inválida')
 ];
+const validarServicioComercio = [
+  ...validarSlug,
+
+  body('nombre')
+    .trim()
+    .isLength({ min: 2, max: 120 })
+    .withMessage('El nombre del servicio debe tener entre 2 y 120 caracteres')
+    .escape(),
+
+  body('precio')
+    .isFloat({ min: 0 })
+    .withMessage('El precio debe ser un número válido mayor o igual a 0')
+    .toFloat(),
+
+  body('duracion_min')
+    .isInt({ min: 5, max: 720 })
+    .withMessage('La duración debe estar entre 5 y 720 minutos')
+    .toInt(),
+
+  body('descripcion')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('La descripción no puede superar 500 caracteres')
+    .escape(),
+
+  body('activo')
+    .optional()
+    .isBoolean()
+    .withMessage('El estado activo debe ser verdadero o falso')
+    .toBoolean(),
+
+  body('imagen_url')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('La imagen del servicio es inválida')
+];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   uploadImagen.single('imagen')(req, res, (err) => {
     if (err) {
@@ -226,7 +264,7 @@ router.get('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.post('/:slug/servicios', authAdminOrComercio, async (req, res) => {
+router.post('/:slug/servicios', authAdminOrComercio, validarServicioComercio, revisarValidacion, async (req, res) => {
   try {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
@@ -239,7 +277,7 @@ router.post('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.put('/:slug/servicios/:id', authAdminOrComercio, async (req, res) => {
+router.put('/:slug/servicios/:id', authAdminOrComercio, validarServicioComercio, revisarValidacion, async (req, res) => {
   try {
     const { nombre, descripcion, precio, duracion_min, orden, activo, imagen_url } = req.body;
     const r = await pool.query(
