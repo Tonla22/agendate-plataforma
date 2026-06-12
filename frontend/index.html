@@ -2071,16 +2071,65 @@ async function pcConfirmar() {
 }
 
 function pcReiniciar() {
-  S.reserva = {};
+  S.reserva = {
+    servicio: null,
+    fecha: null,
+    hora: null,
+    nombre: '',
+    apellido: '',
+    wa: '',
+    email: '',
+    comentarios: ''
+  };
+
   S.paso = 1;
   S.calMes = new Date().getMonth();
   S.calAnio = new Date().getFullYear();
+
   document.querySelectorAll('.opc-s').forEach(el => el.classList.remove('sel'));
-  document.getElementById('pc-btn12').disabled = true;
-  ['pc-paso-ok','pc-paso5','pc-paso4','pc-paso3','pc-paso2'].forEach(id => document.getElementById(id)?.classList.remove('v'));
+  document.querySelectorAll('.hora-b').forEach(el => el.classList.remove('sel'));
+
+  const btn12 = document.getElementById('pc-btn12');
+  const btn23 = document.getElementById('pc-btn23');
+  const btn34 = document.getElementById('pc-btn34');
+  const btnConf = document.getElementById('pc-btn-conf');
+
+  if (btn12) btn12.disabled = true;
+  if (btn23) btn23.disabled = true;
+  if (btn34) btn34.disabled = true;
+
+  if (btnConf) {
+    btnConf.disabled = false;
+    btnConf.innerHTML = 'Confirmar turno ✓';
+  }
+
+  ['pc-nom', 'pc-ape', 'pc-wa', 'pc-email', 'pc-coment'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+
+  const err = document.getElementById('pc-datos-err');
+  if (err) err.textContent = '';
+
+  const horasGrid = document.getElementById('pc-horas-grid');
+  if (horasGrid) horasGrid.innerHTML = '';
+
+  const horasLoading = document.getElementById('pc-horas-loading');
+  if (horasLoading) horasLoading.style.display = 'none';
+
+  const paso3Sub = document.getElementById('pc-paso3-sub');
+  if (paso3Sub) paso3Sub.textContent = 'Turnos disponibles';
+
+  ['pc-paso-ok', 'pc-paso5', 'pc-paso4', 'pc-paso3', 'pc-paso2', 'pc-paso1'].forEach(id => {
+    document.getElementById(id)?.classList.remove('v');
+  });
+
   document.getElementById('pc-paso1')?.classList.add('v');
+
+  pcRenderCalendario();
   pcActualizarSteps(1);
-  document.getElementById('pc-reservas').scrollIntoView({ behavior: 'smooth' });
+
+  document.getElementById('pc-reservas')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 function pcIrPaso(n) {
