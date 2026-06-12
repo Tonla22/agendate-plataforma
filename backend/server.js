@@ -13,8 +13,10 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || true,
+  origin: allowedOrigin,
   credentials: true
 }));
 
@@ -62,5 +64,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+  console.log(`✅ Servidor corriendo en ${baseUrl}`);
 });

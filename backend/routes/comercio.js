@@ -4,31 +4,16 @@ const pool = require('../db/pool');
 const { authAdminOrComercio } = require('../middleware/auth');
 const { body, param, validationResult } = require('express-validator');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const { v2: cloudinary } = require('cloudinary');
 
-const uploadDir = path.join(__dirname, '..', 'uploads');
-
-fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-
-  filename: (req, file, cb) => {
-    const safeSlug = String(req.params.slug || 'comercio')
-      .replace(/[^a-z0-9_-]/gi, '')
-      .toLowerCase();
-
-    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
-
-    cb(null, `${safeSlug}-${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`);
-  }
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 const uploadImagen = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024
   },
@@ -40,6 +25,28 @@ const uploadImagen = multer({
     cb(new Error('Solo se permiten imágenes JPG, PNG, WEBP o GIF'));
   }
 });
+
+function subirBufferACloudinary(buffer, slug) {
+  return new Promise((resolve, reject) => {
+    const safeSlug = String(slug || 'comercio')
+      .replace(/[^a-z0-9_-]/gi, '')
+      .toLowerCase();
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: `agendate/${safeSlug}`,
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    uploadStream.end(buffer);
+  });
+}
+
 function revisarValidacion(req, res, next) {
   const errores = validationResult(req);
 
@@ -248,22 +255,40 @@ const validarHorariosComercio = [
     .withMessage('Hora de cierre inválida')
 ];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
-  uploadImagen.single('imagen')(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message || 'No se pudo subir la imagen'
+  uploadImagen.single('imagen')(req, res, async (err) => {
+    try {
+      if (err) {
+        return res.status(400).json({
+          error: err.message || 'No se pudo subir la imagen'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: 'No se recibió ninguna imagen'
+        });
+      }
+
+      if (
+        !process.env.CLOUDINARY_CLOUD_NAME ||
+        !process.env.CLOUDINARY_API_KEY ||
+        !process.env.CLOUDINARY_API_SECRET
+      ) {
+        return res.status(500).json({
+          error: 'Cloudinary no está configurado en el servidor'
+        });
+      }
+
+      const resultado = await subirBufferACloudinary(req.file.buffer, req.params.slug);
+
+      res.status(201).json({
+        url: resultado.secure_url
+      });
+    } catch (e) {
+      res.status(500).json({
+        error: 'No se pudo subir la imagen a Cloudinary'
       });
     }
-
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'No se recibió ninguna imagen'
-      });
-    }
-
-    res.status(201).json({
-      url: `/uploads/${req.file.filename}`
-    });
   });
 });
 
