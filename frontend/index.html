@@ -1191,10 +1191,12 @@ async function cargarComServicios() {
         <td>${s.precio}</td>
         <td>${s.duracion_min} min</td>
         <td><span class="badge ${s.activo ? 'badge-verde' : 'badge-gris'}">${s.activo ? 'Activo' : 'Oculto'}</span></td>
-        <td style="display:flex;gap:0.4rem">
-          <button class="btn btn-ghost btn-sm" onclick='abrirModalServicio(${JSON.stringify(s)})'>Editar</button>
-          <button class="btn btn-peligro btn-sm" onclick="eliminarServicio(${s.id})">Eliminar</button>
-        </td>
+        <td>
+  <div style="display:flex;gap:0.4rem;align-items:center;white-space:nowrap">
+    <button class="btn btn-ghost btn-sm" onclick='abrirModalServicio(${JSON.stringify(s)})'>Editar</button>
+    <button class="btn btn-peligro btn-sm" onclick="eliminarServicio(${s.id})">Eliminar</button>
+  </div>
+</td>
       </tr>`).join('')}</tbody></table></div>`;
   } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
 }
