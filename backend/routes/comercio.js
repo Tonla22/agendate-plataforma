@@ -297,7 +297,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT * FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
-    const servicios = await pool.query('SELECT * FROM servicios WHERE comercio_id=$1 ORDER BY orden,id', [c.rows[0].id]);
+    const servicios = await pool.query('SELECT * FROM servicios WHERE comercio_id=$1 AND activo=true', [c.rows[0].id]);
     const horarios = await pool.query('SELECT * FROM horarios WHERE comercio_id=$1 ORDER BY dia_semana', [c.rows[0].id]);
     const bloques = await pool.query('SELECT * FROM horario_bloques WHERE comercio_id=$1 ORDER BY dia_semana,orden', [c.rows[0].id]);
     res.json({ ...c.rows[0], servicios: servicios.rows, horarios: horarios.rows, horario_bloques: bloques.rows });
@@ -372,7 +372,7 @@ router.get('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
-    const r = await pool.query('SELECT * FROM servicios WHERE comercio_id=$1 ORDER BY orden,id', [c.rows[0].id]);
+    const r = await pool.query('SELECT * FROM servicios WHERE comercio_id=$1 AND activo=true', [c.rows[0].id]);
     res.json(r.rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -403,9 +403,28 @@ router.put('/:slug/servicios/:id', authAdminOrComercio, validarServicioComercio,
 
 router.delete('/:slug/servicios/:id', authAdminOrComercio, async (req, res) => {
   try {
-    await pool.query('DELETE FROM servicios WHERE id=$1', [req.params.id]);
+    const comercio = await pool.query(
+      'SELECT id FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercio.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const resultado = await pool.query(
+      'UPDATE servicios SET activo=false WHERE id=$1 AND comercio_id=$2 RETURNING id',
+      [req.params.id, comercio.rows[0].id]
+    );
+
+    if (!resultado.rows[0]) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+
     res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/comercio/:slug/reservas
