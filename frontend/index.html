@@ -71,16 +71,41 @@ input,select,textarea { font-family: inherit; }
 .modal { background: var(--bg2); border: 1px solid var(--borde); border-radius: 6px; padding: 2rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
 .modal h3 { margin-bottom: 1.5rem; color: var(--oro); }
 
-.tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-.tabla th { text-align: left; padding: 0.7rem 1rem; color: var(--texto2); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--borde2); }
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.88rem;
+}
+
+.tabla th {
+  text-align: left;
+  padding: 0.7rem 1rem;
+  color: var(--texto2);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--borde2);
+}
+
+.tabla tbody tr {
+  border-bottom: 1px solid var(--borde2);
+}
+
+.tabla tbody tr:last-child {
+  border-bottom: none;
+}
+
 .tabla td {
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--borde2);
+  border-bottom: none;
   vertical-align: middle;
   height: 64px;
 }
-.tabla tr:last-child td { border-bottom: none; }
-.tabla tr:hover td { background: rgba(255,255,255,0.02); }
+
+.tabla tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
 
 .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--bg3); border: 1px solid var(--borde); color: var(--texto); padding: 0.8rem 1.2rem; border-radius: 4px; font-size: 0.88rem; z-index: 9999; display: none; max-width: 320px; }
 .toast.show { display: block; animation: fadeIn 0.25s; }
