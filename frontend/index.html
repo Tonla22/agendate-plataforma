@@ -1105,7 +1105,7 @@ const fechaActual = window._comFiltroFecha;
 
   try {
   const params = fechaActual 
-    ? `xdesde=${fechaActual}&hasta=${fechaActual}` 
+    ? `?desde=${fechaActual}&hasta=${fechaActual}` 
     : '';
 
   const data = await api('GET', `/comercio/${S.slug}/reservas${params}`);
