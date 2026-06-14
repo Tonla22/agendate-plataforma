@@ -1189,11 +1189,34 @@ if (fechaFiltro !== null) {
 
 const fechaActual = window._comFiltroFecha;
 
+let trabajadoresFiltro = [];
+
+try {
+  trabajadoresFiltro = await api('GET', `/comercio/${S.slug}/trabajadores`);
+} catch (e) {
+  trabajadoresFiltro = [];
+}
+
   el.innerHTML = `
     <div class="com-header">
       <h1>Reservas</h1>
 
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <select class="input" id="filtro-trabajador" style="max-width:180px">
+  <option value="">Todos los profesionales</option>
+  ${trabajadoresFiltro.map(t => `
+    <option value="${t.id}" ${String(window._comFiltroTrabajador || '') === String(t.id) ? 'selected' : ''}>
+      ${t.nombre}
+    </option>
+  `).join('')}
+</select>
+
+<select class="input" id="filtro-estado" style="max-width:150px">
+  <option value="">Todos los estados</option>
+  <option value="confirmada" ${window._comFiltroEstado === 'confirmada' ? 'selected' : ''}>Confirmada</option>
+  <option value="completada" ${window._comFiltroEstado === 'completada' ? 'selected' : ''}>Completada</option>
+  <option value="cancelada" ${window._comFiltroEstado === 'cancelada' ? 'selected' : ''}>Cancelada</option>
+</select>
         <input 
           class="input" 
           type="date" 
@@ -1203,18 +1226,18 @@ const fechaActual = window._comFiltroFecha;
         >
 
         <button 
-          class="btn btn-ghost btn-sm" 
-          onclick="cargarComReservas(document.getElementById('filtro-fecha').value)"
-        >
-          Filtrar
-        </button>
+  class="btn btn-ghost btn-sm" 
+  onclick="aplicarFiltrosReservas()"
+>
+  Filtrar
+</button>
 
         <button 
-          class="btn btn-ghost btn-sm" 
-          onclick="cargarComReservas('')"
-        >
-          Ver todas
-        </button>
+  class="btn btn-ghost btn-sm" 
+  onclick="limpiarFiltrosReservas()"
+>
+  Ver todas
+</button>
       </div>
     </div>
 
@@ -1228,9 +1251,22 @@ const fechaActual = window._comFiltroFecha;
   `;
 
   try {
-  const params = fechaActual 
-    ? `?desde=${fechaActual}&hasta=${fechaActual}` 
-    : '';
+  const query = new URLSearchParams();
+
+if (fechaActual) {
+  query.set('desde', fechaActual);
+  query.set('hasta', fechaActual);
+}
+
+if (window._comFiltroTrabajador) {
+  query.set('trabajador_id', window._comFiltroTrabajador);
+}
+
+if (window._comFiltroEstado) {
+  query.set('estado', window._comFiltroEstado);
+}
+
+const params = query.toString() ? `?${query.toString()}` : '';
 
   const data = await api('GET', `/comercio/${S.slug}/reservas${params}`);
 
@@ -1309,6 +1345,19 @@ const lista = document.getElementById('reservas-lista');
   }
 }
 
+function aplicarFiltrosReservas() {
+  window._comFiltroFecha = document.getElementById('filtro-fecha').value;
+  window._comFiltroTrabajador = document.getElementById('filtro-trabajador').value;
+  window._comFiltroEstado = document.getElementById('filtro-estado').value;
+  cargarComReservas(window._comFiltroFecha);
+}
+
+function limpiarFiltrosReservas() {
+  window._comFiltroFecha = '';
+  window._comFiltroTrabajador = '';
+  window._comFiltroEstado = '';
+  cargarComReservas('');
+}
 
 async function cambiarEstadoReserva(id, estado) {
   try {

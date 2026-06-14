@@ -703,7 +703,7 @@ router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
-    const { desde, hasta, estado } = req.query;
+    const { desde, hasta, estado, trabajador_id } = req.query;
     let q = `SELECT r.*, s.nombre as servicio_nombre, s.precio, t.nombre as trabajador_nombre
              FROM reservas r
              JOIN servicios s ON s.id=r.servicio_id
@@ -711,6 +711,10 @@ router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
              WHERE r.comercio_id=$1`;
     const params = [c.rows[0].id];
     if (desde) { params.push(desde); q += ` AND r.fecha>=$${params.length}`; }
+    if (trabajador_id) {
+  params.push(trabajador_id);
+  q += ` AND r.trabajador_id=$${params.length}`;
+}
     if (hasta) { params.push(hasta); q += ` AND r.fecha<=$${params.length}`; }
     if (estado) { params.push(estado); q += ` AND r.estado=$${params.length}`; }
     q += ' ORDER BY r.fecha DESC, r.hora DESC';
