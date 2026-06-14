@@ -99,6 +99,17 @@ CREATE TABLE IF NOT EXISTS horario_bloques (
   orden INTEGER DEFAULT 0
 );
 
+-- Bloques de horario por trabajador/profesional
+CREATE TABLE IF NOT EXISTS trabajador_horario_bloques (
+  id SERIAL PRIMARY KEY,
+  trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE CASCADE,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  dia_semana INTEGER NOT NULL CHECK (dia_semana BETWEEN 0 AND 6),
+  abre TIME NOT NULL,
+  cierra TIME NOT NULL,
+  orden INTEGER DEFAULT 0
+);
+
 -- Reservas
 CREATE TABLE IF NOT EXISTS reservas (
   id SERIAL PRIMARY KEY,
@@ -125,6 +136,7 @@ CREATE INDEX IF NOT EXISTS idx_trabajadores_comercio ON trabajadores(comercio_id
 CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horario_bloques_comercio ON horario_bloques(comercio_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_reservas_trabajador_fecha ON reservas(trabajador_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_trabajador_horario_bloques ON trabajador_horario_bloques(trabajador_id, dia_semana);
 
 -- Columnas nuevas (para migraciones en BD existente â€” ignorar si ya existen)
 DO $$ BEGIN

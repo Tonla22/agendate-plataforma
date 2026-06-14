@@ -64,10 +64,24 @@ router.get('/:slug/disponibilidad', async (req, res) => {
     const fechaObj = new Date(fecha + 'T12:00:00');
     const diaSemana = fechaObj.getDay();
 
-    const bloques = await pool.query(
-      'SELECT abre,cierra FROM horario_bloques WHERE comercio_id=$1 AND dia_semana=$2 ORDER BY orden',
-      [cid, diaSemana]
-    );
+    let bloques;
+
+if (trabajadorId) {
+  bloques = await pool.query(
+    `SELECT abre,cierra
+     FROM trabajador_horario_bloques
+     WHERE trabajador_id=$1 AND comercio_id=$2 AND dia_semana=$3
+     ORDER BY orden`,
+    [trabajadorId, cid, diaSemana]
+  );
+}
+
+if (!bloques || !bloques.rows.length) {
+  bloques = await pool.query(
+    'SELECT abre,cierra FROM horario_bloques WHERE comercio_id=$1 AND dia_semana=$2 ORDER BY orden',
+    [cid, diaSemana]
+  );
+}
 
     const toMin = t => {
       const [h, m] = t.split(':').map(Number);

@@ -452,6 +452,89 @@ router.delete('/:slug/trabajadores/:id', authAdminOrComercio, async (req, res) =
     res.status(500).json({ error: e.message });
   }
 });
+
+// GET/PUT horarios de un trabajador
+router.get('/:slug/trabajadores/:id/horarios', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const trabajador = await pool.query(
+      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+      [req.params.id, c.rows[0].id]
+    );
+
+    if (!trabajador.rows[0]) return res.status(404).json({ error: 'Trabajador no encontrado' });
+
+    const bloques = await pool.query(
+      `SELECT dia_semana, abre, cierra, orden
+       FROM trabajador_horario_bloques
+       WHERE trabajador_id=$1 AND comercio_id=$2
+       ORDER BY dia_semana, orden`,
+      [req.params.id, c.rows[0].id]
+    );
+
+    res.json({ horario_bloques: bloques.rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/:slug/trabajadores/:id/horarios', authAdminOrComercio, validarHorariosComercio, revisarValidacion, validarLogicaHorarios, async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const c = await client.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const cid = c.rows[0].id;
+
+    const trabajador = await client.query(
+      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+      [req.params.id, cid]
+    );
+
+    if (!trabajador.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Trabajador no encontrado' });
+    }
+
+    await client.query(
+      'DELETE FROM trabajador_horario_bloques WHERE trabajador_id=$1 AND comercio_id=$2',
+      [req.params.id, cid]
+    );
+
+    for (const h of req.body.horarios || []) {
+      if (!h.activo) continue;
+
+      const bloques = h.bloques?.length
+        ? h.bloques
+        : [{ abre: h.abre, cierra: h.cierra }];
+
+      for (let i = 0; i < bloques.length; i++) {
+        await client.query(
+          `INSERT INTO trabajador_horario_bloques (trabajador_id,comercio_id,dia_semana,abre,cierra,orden)
+           VALUES ($1,$2,$3,$4,$5,$6)`,
+          [req.params.id, cid, h.dia_semana, bloques[i].abre, bloques[i].cierra, i]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ ok: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
 // GET/POST/PUT/DELETE servicios
 router.get('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   try {

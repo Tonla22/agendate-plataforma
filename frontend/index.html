@@ -1243,7 +1243,8 @@ async function cargarComTrabajadores() {
         <td>
           <div style="display:flex;gap:0.4rem;align-items:center;white-space:nowrap">
             <button class="btn btn-ghost btn-sm" onclick='abrirModalTrabajador(${JSON.stringify(t)})'>Editar</button>
-            <button class="btn btn-peligro btn-sm" onclick="eliminarTrabajador(${t.id})">Eliminar</button>
+<button class="btn btn-ghost btn-sm" onclick='abrirHorariosTrabajador(${JSON.stringify(t)})'>Horarios</button>
+<button class="btn btn-peligro btn-sm" onclick="eliminarTrabajador(${t.id})">Eliminar</button>
           </div>
         </td>
       </tr>`).join('')}</tbody></table></div>`;
@@ -1330,6 +1331,112 @@ function abrirModalTrabajador(t = null) {
     toast(t ? 'Profesional actualizado' : 'Profesional creado');
     cargarComTrabajadores();
   });
+}
+
+async function abrirHorariosTrabajador(t) {
+  const el = document.getElementById('com-trabajadores');
+
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Horarios de ${t.nombre}</h1>
+        <p style="color:var(--texto2);font-size:0.85rem;margin-top:0.25rem">
+          Estos horarios se usan solo para la agenda de este profesional.
+        </p>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="cargarComTrabajadores()">Volver</button>
+    </div>
+
+    <div id="trabajador-horarios-form">
+      <span class="loader-inline claro"></span> Cargando horarios...
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/trabajadores/${t.id}/horarios`);
+
+    const bloquesPorDia = {};
+    (data.horario_bloques || []).forEach(b => {
+      if (!bloquesPorDia[b.dia_semana]) bloquesPorDia[b.dia_semana] = [];
+      bloquesPorDia[b.dia_semana].push({
+        abre: String(b.abre).slice(0,5),
+        cierra: String(b.cierra).slice(0,5)
+      });
+    });
+
+    window._trabajadorHorariosEditor = DIAS_FULL.map((_, i) => {
+      const bloques = bloquesPorDia[i] || [];
+      return {
+        dia_semana: i,
+        activo: bloques.length > 0,
+        bloques: bloques.length ? bloques : [{ abre: '09:00', cierra: '18:00' }]
+      };
+    });
+
+    renderHorariosTrabajadorForm(t);
+  } catch (e) {
+    document.getElementById('trabajador-horarios-form').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function renderHorariosTrabajadorForm(t) {
+  const el = document.getElementById('trabajador-horarios-form');
+
+  el.innerHTML = `
+    <div class="card">
+      ${DIAS_FULL.map((dia, i) => {
+        const item = window._trabajadorHorariosEditor[i];
+
+        return `
+          <div class="hor-dia-row">
+            <label style="min-width:120px;display:flex;gap:0.5rem;align-items:center">
+              <input 
+                type="checkbox" 
+                ${item.activo ? 'checked' : ''}
+                onchange="window._trabajadorHorariosEditor[${i}].activo=this.checked;renderHorariosTrabajadorForm(window._trabajadorActual)"
+              >
+              ${dia}
+            </label>
+
+            <div style="flex:1;${item.activo ? '' : 'opacity:0.35;pointer-events:none'}">
+              ${item.bloques.map((b, bi) => `
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap">
+                  <input class="input" type="time" style="max-width:130px" value="${b.abre}" onchange="window._trabajadorHorariosEditor[${i}].bloques[${bi}].abre=this.value">
+                  <span style="color:var(--texto2)">a</span>
+                  <input class="input" type="time" style="max-width:130px" value="${b.cierra}" onchange="window._trabajadorHorariosEditor[${i}].bloques[${bi}].cierra=this.value">
+                  <button class="btn btn-ghost btn-sm" onclick="window._trabajadorHorariosEditor[${i}].bloques.splice(${bi},1);renderHorariosTrabajadorForm(window._trabajadorActual)">Quitar</button>
+                </div>
+              `).join('')}
+
+              <button class="btn btn-ghost btn-sm" onclick="window._trabajadorHorariosEditor[${i}].bloques.push({abre:'09:00',cierra:'18:00'});renderHorariosTrabajadorForm(window._trabajadorActual)">+ Bloque</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+
+      <div style="display:flex;justify-content:flex-end;margin-top:1.5rem">
+        <button class="btn btn-oro" onclick="guardarHorariosTrabajador(${t.id})">Guardar horarios</button>
+      </div>
+    </div>
+  `;
+
+  window._trabajadorActual = t;
+}
+
+async function guardarHorariosTrabajador(id) {
+  const horarios = window._trabajadorHorariosEditor.map(h => ({
+    dia_semana: h.dia_semana,
+    activo: h.activo,
+    bloques: h.activo ? h.bloques : []
+  }));
+
+  try {
+    await api('PUT', `/comercio/${S.slug}/trabajadores/${id}/horarios`, { horarios });
+    toast('Horarios del profesional guardados');
+    cargarComTrabajadores();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
 }
 
 async function eliminarTrabajador(id) {
