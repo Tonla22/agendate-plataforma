@@ -70,6 +70,12 @@ const validarSlug = [
 const validarPerfilComercio = [
   ...validarSlug,
 
+body('logo_url')
+  .optional({ nullable: true, checkFalsy: true })
+  .trim()
+  .isLength({ max: 500 })
+  .withMessage('Logo invalido'),
+
   body('nombre')
     .optional({ checkFalsy: true })
     .trim()
@@ -308,7 +314,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
 router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
     const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
-      'direccion','instagram_url','color_acento','color_fondo','moneda','imagen_fondo_url'];
+      'direccion','instagram_url','color_acento','color_fondo','moneda','logo_url','imagen_fondo_url'];
     const sets = []; const vals = [];
     campos.forEach(c => {
       if (req.body[c] !== undefined) { sets.push(`${c}=$${sets.length+1}`); vals.push(req.body[c]); }

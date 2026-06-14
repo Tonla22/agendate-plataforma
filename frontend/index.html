@@ -144,6 +144,15 @@ input,select,textarea { font-family: inherit; }
 .pc-slogan { color:var(--texto2); font-size:1rem; font-style:italic; font-family:Georgia,serif; margin-bottom:2.5rem; }
 .pc-cta { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
 .pc-divider { width:1px; height:50px; background:linear-gradient(to bottom,var(--oro),transparent); margin:2rem auto 0; }
+.pc-brand { display:flex; align-items:center; gap:0.65rem; min-width:0; }
+.pc-brand-img { width:34px; height:34px; object-fit:cover; border-radius:50%; border:1px solid var(--borde); background:#111; }
+.pc-hero-logo { width:96px; height:96px; object-fit:cover; border-radius:50%; border:1px solid var(--borde); margin:0 auto 1rem; background:#111; }
+.pc-float-wa { position:fixed; right:18px; bottom:18px; z-index:120; background:#25D366; color:#07130c; padding:0.8rem 1rem; border-radius:999px; font-weight:800; box-shadow:0 12px 30px rgba(0,0,0,0.35); }
+.pc-float-wa:hover { opacity:0.9; color:#07130c; }
+.pc-reserva-apartado { display:none; min-height:100vh; padding-top:88px !important; }
+.pc-reserva-apartado.abierto { display:block; }
+.pc-back-info { margin-bottom:1.25rem; }
+.pc-ubicacion-actions { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem; }
 
 #pc-servicios { padding:5rem 2rem; }
 .pc-sec-label { font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--oro); margin-bottom:0.6rem; }
@@ -310,7 +319,9 @@ input,select,textarea { font-family: inherit; }
 .stat-card { background:var(--bg2); border:1px solid var(--borde2); border-radius:4px; padding:1.2rem; }
 .stat-num { font-size:2rem; font-weight:700; color:var(--oro); }
 .stat-lbl { font-size:0.75rem; color:var(--texto2); margin-top:0.2rem; letter-spacing:0.05em; }
-.admin-secciones { }
+.admin-secciones {
+  min-height: 100vh;
+}
 .admin-sec { display:none; }
 .admin-sec.act { display:block; }
 .table-wrap { overflow-x:auto; background:var(--bg2); border:1px solid var(--borde2); border-radius:4px; }
@@ -2176,7 +2187,17 @@ async function cargarComPerfil() {
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
     document.getElementById('perfil-form').innerHTML = `
-      <div style="max-width:520px">
+      <div class="form-group" style="margin-top:0.5rem">
+  <label class="label">Logo del comercio</label>
+  <input class="input" type="file" id="pf-logo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-logo-preview')">
+  <input type="hidden" id="pf-logo" value="${data.logo_url||''}">
+  <small style="color:var(--texto2);font-size:0.72rem">Subi el logo desde tu computadora. Recomendado: cuadrado.</small>
+  ${data.logo_url 
+    ? `<img id="pf-logo-preview" class="img-preview visible" src="${data.logo_url}" alt="preview logo">` 
+    : `<img id="pf-logo-preview" class="img-preview" alt="preview logo">`
+  }
+</div>
+    <div style="max-width:520px">
         <div class="form-group"><label class="label">Nombre del comercio</label><input class="input" id="pf-nom" value="${data.nombre||''}"></div>
         <div class="form-group"><label class="label">Slogan</label><input class="input" id="pf-slo" value="${data.slogan||''}"></div>
         <div class="input-grid-2">
@@ -2225,6 +2246,14 @@ async function guardarPerfil() {
   try {
     let imagen_fondo_url = document.getElementById('pf-fondo')?.value || null;
 
+let logo_url = document.getElementById('pf-logo')?.value || null;
+const archivoLogo = document.getElementById('pf-logo-file')?.files?.[0];
+
+if (archivoLogo) {
+  const subidaLogo = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoLogo);
+  logo_url = subidaLogo.url;
+}
+
     const archivoFondo = document.getElementById('pf-fondo-file')?.files?.[0];
 
     if (archivoFondo) {
@@ -2241,7 +2270,8 @@ async function guardarPerfil() {
       instagram_url: document.getElementById('pf-ig').value,
       color_acento: document.getElementById('pf-col').value,
       moneda: document.getElementById('pf-mon').value,
-      imagen_fondo_url
+      imagen_fondo_url,
+      logo_url,
     });
 
     toast('Perfil actualizado');
@@ -2328,6 +2358,9 @@ function renderComercioPublico(d) {
     </div>`).join('');
   const trabajadores = d.trabajadores || [];
   const requiereTrabajador = trabajadores.length > 0;
+  const waNumero = String(d.whatsapp || '').replace(/\D/g, '');
+const waUrl = waNumero ? `https://wa.me/${waNumero}` : '#';
+const mapsUrl = d.direccion ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.direccion)}` : '#';
 
   const opcsTrabHTML = requiereTrabajador
     ? trabajadores.map(t => `
@@ -2346,21 +2379,25 @@ function renderComercioPublico(d) {
   document.getElementById('pagina-comercio').innerHTML = `
     <style>:root{--oro:${acento}}</style>
     <nav id="pc-nav">
-      <div class="pc-logo" style="color:${acento}">${d.nombre}</div>
+      <div class="pc-brand">
+  ${d.logo_url ? `<img class="pc-brand-img" src="${d.logo_url}" alt="${d.nombre}">` : ''}
+  <div class="pc-logo" style="color:${acento}">${d.nombre}</div>
+</div>
       <div class="pc-nav-links">
   <a href="#" onclick="event.preventDefault();document.getElementById('pc-servicios')?.scrollIntoView({behavior:'smooth'});">Servicios</a>
   <a href="#" onclick="event.preventDefault();document.getElementById('pc-horarios')?.scrollIntoView({behavior:'smooth'});">Horarios</a>
   <a href="#" onclick="event.preventDefault();document.getElementById('pc-reservas')?.scrollIntoView({behavior:'smooth'});">Reservar</a>
 </div>
-      <button class="btn btn-oro btn-sm" onclick="document.getElementById('pc-reservas').scrollIntoView({behavior:'smooth'})">Reservar turno</button>
+      <button class="btn btn-oro btn-sm" onclick="abrirReservaPublica()">Reservar turno</button>
     </nav>
     <section id="pc-hero" ${d.imagen_fondo_url ? `class="con-imagen" style="background-image:url('${d.imagen_fondo_url}')"` : ''}>
       <div>
+        ${d.logo_url ? `<img class="pc-hero-logo" src="${d.logo_url}" alt="${d.nombre}">` : ''}
         <div class="pc-ornamento">✦ Reservas online ✦</div>
         <h1 class="pc-titulo" style="font-family:Georgia,serif">${d.nombre}</h1>
         ${d.slogan ? `<p class="pc-slogan">${d.slogan}</p>` : ''}
         <div class="pc-cta">
-          <button class="btn btn-oro" style="padding:0.9rem 2rem;font-size:0.9rem;letter-spacing:0.1em" onclick="document.getElementById('pc-reservas').scrollIntoView({behavior:'smooth'})">Reservar ahora</button>
+          <button class="btn btn-oro" style="padding:0.9rem 2rem;font-size:0.9rem;letter-spacing:0.1em" onclick="abrirReservaPublica()">Reservar ahora</button>
           <button class="btn btn-ghost" style="padding:0.9rem 2rem" onclick="document.getElementById('pc-servicios').scrollIntoView({behavior:'smooth'})">Ver servicios</button>
         </div>
         <div class="pc-divider"></div>
@@ -2379,12 +2416,18 @@ function renderComercioPublico(d) {
         <div class="pc-sec-label">Atención</div>
         <div class="pc-sec-titulo" style="font-family:Georgia,serif">Horarios</div>
         <div class="pc-linea"></div>
-        ${d.direccion ? `<p style="color:var(--texto2);margin-bottom:1.5rem">${d.direccion}</p>` : ''}
+        ${d.direccion ? `
+  <div class="pc-ubicacion-actions">
+    <p style="color:var(--texto2);margin:0">${d.direccion}</p>
+    <a class="btn btn-ghost btn-sm" href="${mapsUrl}" target="_blank" rel="noopener">Como llegar</a>
+  </div>
+` : ''}
         <div class="pc-horarios-grid">${horariosHTML}</div>
       </div>
     </section>
-    <section id="pc-reservas" style="padding:5rem 2rem;background:var(--bg2)">
+    <section id="pc-reservas" class="pc-reserva-apartado" style="padding:5rem 2rem;background:var(--bg2)">
       <div style="max-width:1100px;margin:0 auto">
+        <button class="btn btn-ghost btn-sm pc-back-info" onclick="volverAInfoPublica()">&larr; Volver a la informacion</button>
         <div class="pc-sec-label">Agenda tu turno</div>
         <div class="pc-sec-titulo" style="font-family:Georgia,serif">Reservar online</div>
         <div class="pc-linea"></div>
@@ -2527,14 +2570,28 @@ function renderComercioPublico(d) {
     © 2026 ${d.nombre}
   </div>
 </footer>
+${waNumero ? `<a class="pc-float-wa" href="${waUrl}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
 `;
 
   pcRenderCalendario();
 }
 
+function abrirReservaPublica() {
+  const sec = document.getElementById('pc-reservas');
+  if (!sec) return;
+  sec.classList.add('abierto');
+  sec.scrollIntoView({ behavior: 'smooth' });
+}
+
+function volverAInfoPublica() {
+  const sec = document.getElementById('pc-reservas');
+  sec?.classList.remove('abierto');
+  document.getElementById('pc-servicios')?.scrollIntoView({ behavior: 'smooth' });
+}
+
 function elegirServicioDesdeCard(id) {
-  document.getElementById('pc-reservas').scrollIntoView({ behavior: 'smooth' });
-  setTimeout(() => elegirServicioReserva(id), 400);
+  abrirReservaPublica();
+  setTimeout(() => elegirServicioReserva(id), 250);
 }
 
 function elegirServicioReserva(id) {
