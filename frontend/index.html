@@ -2011,7 +2011,7 @@ function renderComercioPublico(d) {
           </div>
 
           <div id="pc-paso1" class="paso v">
-            <div class="paso-tit">Que servicio queresx</div>
+          <div class="paso-tit">Que servicio queres?</div>
             <div class="paso-sub">Selecciona uno para continuar</div>
             <div class="opcs-serv">${opcsServHTML}</div>
             <div class="pasos-nav">
@@ -2021,7 +2021,7 @@ function renderComercioPublico(d) {
           </div>
 
           <div id="pc-paso2" class="paso">
-            <div class="paso-tit">Con quien queres atendertex</div>
+            <div class="paso-tit">Con quien queres atenderte?</div>
             <div class="paso-sub">Elegi una agenda disponible</div>
             <div class="opcs-serv">${opcsTrabHTML}</div>
             <div class="pasos-nav">
@@ -2031,7 +2031,7 @@ function renderComercioPublico(d) {
           </div>
 
           <div id="pc-paso3" class="paso">
-            <div class="paso-tit">Que dia venisx</div>
+            <div class="paso-tit">Que dia venis?</div>
             <div class="paso-sub">Los dias tachados no tenemos atencion</div>
             <div class="cal-hdr">
               <button class="cal-btn" onclick="pcCambiarMes(-1)">&#8249;</button>
@@ -2046,7 +2046,7 @@ function renderComercioPublico(d) {
           </div>
 
           <div id="pc-paso4" class="paso">
-            <div class="paso-tit">A que horax</div>
+            <div class="paso-tit">A que hora?</div>
             <div class="paso-sub" id="pc-paso3-sub">Turnos disponibles</div>
             <div id="pc-horas-loading" style="display:none;padding:1rem;color:var(--texto2)"><span class="loader-inline claro"></span> Consultando disponibilidad...</div>
             <div class="horas-grid" id="pc-horas-grid"></div>
@@ -2249,7 +2249,7 @@ async function pcCargarHoras() {
   loading.style.display = 'block';
   try {
     const trabajadorParam = S.reserva.trabajador ? `&trabajador_id=${S.reserva.trabajador.id}` : '';
-    const data = await api('GET', `/p/${S.comercio.slug}/disponibilidadxfecha=${fStr}&servicio_id=${S.reserva.servicio.id}${trabajadorParam}`);
+    const data = await api('GET', `/p/${S.comercio.slug}/disponibilidad?fecha=${fStr}&servicio_id=${S.reserva.servicio.id}${trabajadorParam}`);
     loading.style.display = 'none';
     if (!data.horas?.length) { grid.innerHTML = '<p style="color:var(--texto2);padding:1rem">Sin horarios disponibles para este día.</p>'; return; }
     grid.innerHTML = data.horas.map(h => `<button class="hora-b${S.reserva.hora===h?' sel':''}" onclick="pcElegirHora('${h}',this)">${h}</button>`).join('');
