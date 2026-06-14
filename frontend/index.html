@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agendaté</title>
+<title>AgendatÃ©</title>
 <style>
 :root {
   --bg: #0D0D0D; --bg2: #1A1A1A; --bg3: #222;
@@ -118,7 +118,7 @@ input,select,textarea { font-family: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==================================================================
-   PÁGINA PÚBLICA DE CADA COMERCIO
+   PÃGINA PÃšBLICA DE CADA COMERCIO
    ================================================================== */
 #pagina-comercio { min-height:100vh; }
 
@@ -316,7 +316,7 @@ input,select,textarea { font-family: inherit; }
 .table-wrap { overflow-x:auto; background:var(--bg2); border:1px solid var(--borde2); border-radius:4px; }
 
 /* ==================================================================
-   PANEL COMERCIO (dueño)
+   PANEL COMERCIO (dueÃ±o)
    ================================================================== */
 #panel-comercio { min-height:100vh; display:grid; grid-template-columns:200px 1fr; }
 .com-sidebar { background:var(--bg2); border-right:1px solid var(--borde2); padding:0; display:flex; flex-direction:column; }
@@ -363,7 +363,7 @@ input,select,textarea { font-family: inherit; }
 </head>
 <body>
 <div id="app">
-  <!-- Páginas -->
+  <!-- PÃ¡ginas -->
   <div id="pagina-comercio" class="page"></div>
   <div id="pagina-login"    class="page"></div>
   <div id="panel-admin"     class="page"></div>
@@ -380,7 +380,7 @@ const S = {
   tipo: localStorage.getItem('tipo'),       // 'admin' | 'comercio'
   slug: localStorage.getItem('slug'),
   nombre: localStorage.getItem('nombre'),
-  comercio: null,     // datos del comercio público actual
+  comercio: null,     // datos del comercio pÃºblico actual
   reserva: {},        // reserva en curso
   calMes: new Date().getMonth(),
   calAnio: new Date().getFullYear(),
@@ -388,8 +388,8 @@ const S = {
 };
 
 const API = '/api';
-const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const DIAS_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DIAS = ['Dom','Lun','Mar','MiÃ©','Jue','Vie','SÃ¡b'];
+const DIAS_FULL = ['Domingo','Lunes','Martes','MiÃ©rcoles','Jueves','Viernes','SÃ¡bado'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 // ============================================================
@@ -423,7 +423,7 @@ if (path === '/admin') {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('activa'));
 
   if (parts.length === 0 || path === '/') {
-    // Home → si logueado ir al panel, si no login
+    // Home â†’ si logueado ir al panel, si no login
     if (S.token && S.tipo) return irPanel();
     mostrarLogin();
   } else if (parts[0] === 'admin') {
@@ -488,7 +488,7 @@ function previewArchivoImagen(input, previewId) {
   const file = input.files[0];
 
   if (!file.type.startsWith('image/')) {
-    toast('Elegí un archivo de imagen', 'error');
+    toast('ElegÃ­ un archivo de imagen', 'error');
     input.value = '';
     return;
   }
@@ -531,7 +531,7 @@ function previewArchivoImagen(input, previewId) {
   const file = input.files[0];
 
   if (!file.type.startsWith('image/')) {
-    toast('Elegí un archivo de imagen', 'error');
+    toast('ElegÃ­ un archivo de imagen', 'error');
     input.value = '';
     return;
   }
@@ -568,8 +568,8 @@ function mostrarLogin() {
   document.getElementById('pagina-login').classList.add('activa');
   document.getElementById('pagina-login').innerHTML = `
     <div class="login-box">
-      <div class="login-logo">Agendaté</div>
-      <p class="login-sub">Panel de gestión</p>
+      <div class="login-logo">AgendatÃ©</div>
+      <p class="login-sub">Panel de gestiÃ³n</p>
       <div class="card">
         <div class="login-tabs">
           <button class="login-tab act" onclick="loginTab('admin', this)">Super Admin</button>
@@ -581,8 +581,8 @@ function mostrarLogin() {
             <input class="input" id="l-email" type="email" placeholder="admin@ejemplo.com" onkeydown="if(event.key==='Enter')doLogin()">
           </div>
           <div class="form-group">
-            <label class="label">Contraseña</label>
-            <input class="input" id="l-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+            <label class="label">ContraseÃ±a</label>
+            <input class="input" id="l-pass" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" onkeydown="if(event.key==='Enter')doLogin()">
           </div>
           <div id="l-error" class="form-error" style="margin-bottom:0.8rem"></div>
           <button class="btn btn-oro btn-full" onclick="doLogin()" id="btn-login">Ingresar</button>
@@ -604,7 +604,7 @@ async function doLogin() {
   const btn   = document.getElementById('btn-login');
   const errEl = document.getElementById('l-error');
   errEl.textContent = '';
-  if (!email || !pass) { errEl.textContent = 'Completá todos los campos'; return; }
+  if (!email || !pass) { errEl.textContent = 'CompletÃ¡ todos los campos'; return; }
   btn.innerHTML = '<span class="loader-inline claro"></span> Ingresando...';
   btn.disabled = true;
   try {
@@ -637,15 +637,15 @@ async function mostrarAdmin() {
   el.classList.add('activa');
   el.innerHTML = `
     <aside class="admin-sidebar">
-      <div class="admin-sidebar-logo">Agendaté <span>Panel de Control</span></div>
+      <div class="admin-sidebar-logo">AgendatÃ© <span>Panel de Control</span></div>
       <nav class="admin-nav">
-        <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">📊 Dashboard</a>
-        <a href="#" onclick="adminSec('comercios');return false" id="an-comercios">🏪 Comercios</a>
-        <a href="#" onclick="adminSec('reservas');return false" id="an-reservas">📅 Reservas</a>
+        <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">ðŸ“Š Dashboard</a>
+        <a href="#" onclick="adminSec('comercios');return false" id="an-comercios">ðŸª Comercios</a>
+        <a href="#" onclick="adminSec('reservas');return false" id="an-reservas">ðŸ“… Reservas</a>
       </nav>
       <div class="admin-sidebar-bot">
         <div style="font-size:0.78rem;color:var(--texto2);margin-bottom:0.5rem">${S.nombre}</div>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesiÃ³n</button>
       </div>
     </aside>
     <main class="admin-main">
@@ -693,7 +693,7 @@ async function cargarAdminComercios() {
   try {
     const data = await api('GET', '/admin/comercios');
     const wrap = document.getElementById('tabla-comercios-wrap');
-    if (!data.length) { wrap.innerHTML = '<p style="padding:2rem;color:var(--texto2)">No hay comercios todavía.</p>'; return; }
+    if (!data.length) { wrap.innerHTML = '<p style="padding:2rem;color:var(--texto2)">No hay comercios todavÃ­a.</p>'; return; }
     wrap.innerHTML = `<table class="tabla">
       <thead><tr><th>Comercio</th><th>Slug</th><th>Servicios</th><th>Reservas</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(c => `
@@ -704,7 +704,7 @@ async function cargarAdminComercios() {
           <td>${c.total_reservas}</td>
           <td><span class="badge ${c.activo ? 'badge-verde' : 'badge-rojo'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
           <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
-            <button class="btn btn-ghost btn-sm" onclick="window.open('/${c.slug}','_blank')">Ver página</button>
+            <button class="btn btn-ghost btn-sm" onclick="window.open('/${c.slug}','_blank')">Ver pÃ¡gina</button>
             <button class="btn btn-ghost btn-sm" onclick="toggleComercio(${c.id},${c.activo})">${c.activo ? 'Desactivar' : 'Activar'}</button>
             <button class="btn btn-peligro btn-sm" onclick="eliminarComercio(${c.id},'${c.nombre}')">Eliminar</button>
           </td>
@@ -721,7 +721,7 @@ async function toggleComercio(id, activo) {
 }
 
 async function eliminarComercio(id, nombre) {
-  if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer y borrará todas sus reservas.`)) return;
+  if (!confirm(`Â¿Eliminar "${nombre}"? Esta acciÃ³n no se puede deshacer y borrarÃ¡ todas sus reservas.`)) return;
   try {
     await api('DELETE', `/admin/comercios/${id}`);
     toast('Comercio eliminado');
@@ -745,7 +745,7 @@ async function cargarAdminReservas() {
     </div>
 
     <div id="admin-reservas-lista">
-      <p style="color:var(--texto2)">Elegí un comercio para ver sus reservas.</p>
+      <p style="color:var(--texto2)">ElegÃ­ un comercio para ver sus reservas.</p>
     </div>
   `;
 
@@ -760,10 +760,10 @@ async function cargarAdminReservas() {
     }
 
     select.innerHTML = `
-      <option value="">Elegí un comercio</option>
+      <option value="">ElegÃ­ un comercio</option>
       ${comercios.map(c => `
         <option value="${c.id}">
-          ${c.nombre} /${c.slug} — ${c.total_reservas || 0} reservas
+          ${c.nombre} /${c.slug} â€” ${c.total_reservas || 0} reservas
         </option>
       `).join('')}
     `;
@@ -778,7 +778,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
   const lista = document.getElementById('admin-reservas-lista');
 
   if (!comercioId) {
-    lista.innerHTML = `<p style="color:var(--texto2)">Elegí un comercio para ver sus reservas.</p>`;
+    lista.innerHTML = `<p style="color:var(--texto2)">ElegÃ­ un comercio para ver sus reservas.</p>`;
     return;
   }
 
@@ -790,7 +790,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
     if (!data.length) {
       lista.innerHTML = `
         <p style="color:var(--texto2);padding:1rem">
-          Este comercio todavía no tiene reservas.
+          Este comercio todavÃ­a no tiene reservas.
         </p>
       `;
       return;
@@ -803,6 +803,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
             <tr>
               <th>Cliente</th>
               <th>Servicio</th>
+              <th>Profesional</th>
               <th>Fecha</th>
               <th>Hora</th>
               <th>Estado</th>
@@ -816,7 +817,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
                 <td>${r.cliente_nombre || ''} ${r.cliente_apellido || ''}</td>
 
                 <td>
-                  ${r.servicio_nombre || '—'}
+                  ${r.servicio_nombre || 'â€”'}
                   <br>
                   <small style="color:var(--texto2)">
                     $ ${parseFloat(r.precio || 0).toLocaleString()}
@@ -825,7 +826,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
 
                 <td>${r.fecha}</td>
 
-                <td>${r.hora?.slice(0,5) || '—'}</td>
+                <td>${r.hora?.slice(0,5) || 'â€”'}</td>
 
                 <td>
                   <span class="badge ${
@@ -840,7 +841,7 @@ async function cargarAdminReservasDeComercio(comercioId) {
                 <td>
                   ${r.cliente_whatsapp 
                     ? `<a href="https://wa.me/${String(r.cliente_whatsapp).replace(/\D/g,'')}" target="_blank" style="font-size:0.78rem">${r.cliente_whatsapp}</a>` 
-                    : '—'
+                    : 'â€”'
                   }
                 </td>
               </tr>
@@ -866,33 +867,33 @@ function abrirModalNuevoComercio() {
 
   mostrarModal('Nuevo comercio', `
     <div class="input-grid-2">
-      <div class="form-group"><label class="label">Nombre del comercio *</label><input class="input" id="nc-nombre" placeholder="El Navajón"></div>
+      <div class="form-group"><label class="label">Nombre del comercio *</label><input class="input" id="nc-nombre" placeholder="El NavajÃ³n"></div>
       <div class="form-group"><label class="label">Slug (URL) *</label><input class="input" id="nc-slug" placeholder="el-najajon" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"></div>
     </div>
-    <div class="form-group"><label class="label">Slogan</label><input class="input" id="nc-slogan" placeholder="Cortes con carácter"></div>
+    <div class="form-group"><label class="label">Slogan</label><input class="input" id="nc-slogan" placeholder="Cortes con carÃ¡cter"></div>
     <div class="input-grid-2">
-      <div class="form-group"><label class="label">Teléfono</label><input class="input" id="nc-tel" placeholder="+598 91 000 000"></div>
-      <div class="form-group"><label class="label">WhatsApp (solo números)</label><input class="input" id="nc-wa" placeholder="59891000000"></div>
+      <div class="form-group"><label class="label">TelÃ©fono</label><input class="input" id="nc-tel" placeholder="+598 91 000 000"></div>
+      <div class="form-group"><label class="label">WhatsApp (solo nÃºmeros)</label><input class="input" id="nc-wa" placeholder="59891000000"></div>
     </div>
     <div class="input-grid-2">
       <div class="form-group"><label class="label">Email contacto</label><input class="input" id="nc-email" type="email"></div>
       <div class="form-group"><label class="label">Email notificaciones</label><input class="input" id="nc-emailnot" type="email"></div>
     </div>
-    <div class="form-group"><label class="label">Dirección</label><input class="input" id="nc-dir" placeholder="Av. 18 de Julio 1234, Montevideo"></div>
+    <div class="form-group"><label class="label">DirecciÃ³n</label><input class="input" id="nc-dir" placeholder="Av. 18 de Julio 1234, Montevideo"></div>
     <div class="input-grid-2">
       <div class="form-group"><label class="label">Color acento</label><input class="input" id="nc-acento" type="color" value="#C9A84C" style="height:40px;padding:0.2rem"></div>
       <div class="form-group"><label class="label">Moneda</label><input class="input" id="nc-moneda" placeholder="$" style="max-width:80px"></div>
     </div>
     <div class="form-group"><label class="label">Webhook (n8n/Google Calendar)</label><input class="input" id="nc-webhook" placeholder="https://tu-n8n.com/webhook/..."></div>
     <hr style="border-color:var(--borde2);margin:1rem 0">
-    <h4 style="margin-bottom:1rem;color:var(--texto2)">Acceso del dueño</h4>
+    <h4 style="margin-bottom:1rem;color:var(--texto2)">Acceso del dueÃ±o</h4>
     <div class="input-grid-2">
-      <div class="form-group"><label class="label">Nombre dueño</label><input class="input" id="nc-dnom" placeholder="Juan García"></div>
-      <div class="form-group"><label class="label">Email dueño *</label><input class="input" id="nc-demail" type="email"></div>
+      <div class="form-group"><label class="label">Nombre dueÃ±o</label><input class="input" id="nc-dnom" placeholder="Juan GarcÃ­a"></div>
+      <div class="form-group"><label class="label">Email dueÃ±o *</label><input class="input" id="nc-demail" type="email"></div>
     </div>
-    <div class="form-group"><label class="label">Contraseña dueño *</label><input class="input" id="nc-dpass" type="password" placeholder="mínimo 6 caracteres"></div>
+    <div class="form-group"><label class="label">ContraseÃ±a dueÃ±o *</label><input class="input" id="nc-dpass" type="password" placeholder="mÃ­nimo 6 caracteres"></div>
     <hr style="border-color:var(--borde2);margin:1rem 0">
-    <h4 style="margin-bottom:1rem;color:var(--texto2)">Horarios de atención</h4>
+    <h4 style="margin-bottom:1rem;color:var(--texto2)">Horarios de atenciÃ³n</h4>
     <div style="font-size:0.72rem;color:var(--texto2);margin-bottom:0.8rem;display:grid;grid-template-columns:120px 1fr 1fr 60px;gap:0.75rem"><span></span><span>Activo</span><span>Abre</span><span>Cierra</span></div>
     ${diasHTML}
   `, async () => {
@@ -901,8 +902,8 @@ function abrirModalNuevoComercio() {
     const demail = document.getElementById('nc-demail').value.trim();
     const dpass  = document.getElementById('nc-dpass').value;
     if (!nombre || !slug) { toast('Nombre y slug son obligatorios', 'error'); return false; }
-    if (!demail || !dpass) { toast('Email y contraseña del dueño son obligatorios', 'error'); return false; }
-    if (dpass.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'error'); return false; }
+    if (!demail || !dpass) { toast('Email y contraseÃ±a del dueÃ±o son obligatorios', 'error'); return false; }
+    if (dpass.length < 6) { toast('La contraseÃ±a debe tener al menos 6 caracteres', 'error'); return false; }
 
     const horarios = DIAS_FULL.map((_,i) => ({
       dia_semana: i,
@@ -933,7 +934,7 @@ function abrirModalNuevoComercio() {
 }
 
 // ============================================================
-// PANEL COMERCIO (dueño)
+// PANEL COMERCIO (dueÃ±o)
 // ============================================================
 async function mostrarPanelComercio() {
   if (!S.token || S.tipo !== 'comercio') { navegar('/login'); return; }
@@ -946,19 +947,21 @@ async function mostrarPanelComercio() {
         <div class="slug" id="cs-slug"></div>
       </div>
       <nav class="com-nav">
-        <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">📅 Reservas</a>
-        <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">✂️ Servicios</a>
-        <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">🕐 Horarios</a>
-        <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">⚙️ Perfil</a>
+        <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">ðŸ“… Reservas</a>
+        <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
+        <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">âœ‚ï¸ Servicios</a>
+        <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">ðŸ• Horarios</a>
+        <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">âš™ï¸ Perfil</a>
       </nav>
       <div style="padding:1rem;border-top:1px solid var(--borde2)">
-        <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="window.open('/${S.slug}','_blank')">Ver mi página</button>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
+        <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="window.open('/${S.slug}','_blank')">Ver mi pÃ¡gina</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesiÃ³n</button>
       </div>
     </aside>
     <main class="com-main">
       <div class="com-secciones">
         <div id="com-reservas" class="com-sec act"></div>
+        <div id="com-trabajadores" class="com-sec"></div>
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
         <div id="com-perfil" class="com-sec"></div>
@@ -979,6 +982,7 @@ function comSec(sec) {
   document.getElementById('com-' + sec).classList.add('act');
   document.getElementById('cn-' + sec).classList.add('act');
   if (sec === 'reservas') cargarComReservas();
+  if (sec === 'trabajadores') cargarComTrabajadores();
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
   if (sec === 'perfil') cargarComPerfil();
@@ -993,7 +997,7 @@ function fechaHoyLocal() {
 }
 
 function formatearFechaReserva(fecha) {
-  if (!fecha) return '—';
+  if (!fecha) return 'â€”';
 
   const limpia = String(fecha).slice(0, 10);
   const partes = limpia.split('-');
@@ -1145,6 +1149,8 @@ const lista = document.getElementById('reservas-lista');
                   </small>
                 </td>
 
+                <td>${r.trabajador_nombre || 'Sin asignar'}</td>
+
                 <td>${formatearFechaReserva(r.fecha)}</td>
 
                 <td>${r.hora?.slice(0,5)}</td>
@@ -1163,7 +1169,7 @@ const lista = document.getElementById('reservas-lista');
                 <td>
                   ${r.cliente_whatsapp 
                     ? `<a href="https://wa.me/${r.cliente_whatsapp.replace(/\D/g,'')}" target="_blank" style="font-size:0.78rem">${r.cliente_whatsapp}</a>` 
-                    : '—'
+                    : 'â€”'
                   }
                 </td>
               </tr>
@@ -1200,6 +1206,112 @@ async function cambiarEstadoReserva(id, estado) {
   }
 }
 
+async function cargarComTrabajadores() {
+  const el = document.getElementById('com-trabajadores');
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Profesionales</h1>
+      <button class="btn btn-oro btn-sm" onclick="abrirModalTrabajador()">+ Agregar</button>
+    </div>
+    <div id="trabajadores-lista"><span class="loader-inline claro"></span> Cargando...</div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/trabajadores`);
+    const lista = document.getElementById('trabajadores-lista');
+
+    if (!data.length) {
+      lista.innerHTML = `
+        <div class="card" style="color:var(--texto2)">
+          Todavia no hay profesionales cargados. Agrega al menos uno para usar agendas separadas.
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = `<div class="table-wrap"><table class="tabla">
+      <thead><tr><th>Profesional</th><th>Descripcion</th><th>Orden</th><th>Acciones</th></tr></thead>
+      <tbody>${data.map(t => `<tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            ${t.foto_url ? `<img src="${t.foto_url}" alt="${t.nombre}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid var(--borde2)">` : `<div style="width:42px;height:42px;border-radius:50%;background:var(--bg3);border:1px solid var(--borde2);display:flex;align-items:center;justify-content:center;color:var(--oro);font-weight:700">${String(t.nombre || '?').charAt(0).toUpperCase()}</div>`}
+            <strong>${t.nombre}</strong>
+          </div>
+        </td>
+        <td style="color:var(--texto2)">${t.descripcion || 'Sin descripcion'}</td>
+        <td>${t.orden || 0}</td>
+        <td>
+          <div style="display:flex;gap:0.4rem;align-items:center;white-space:nowrap">
+            <button class="btn btn-ghost btn-sm" onclick='abrirModalTrabajador(${JSON.stringify(t)})'>Editar</button>
+            <button class="btn btn-peligro btn-sm" onclick="eliminarTrabajador(${t.id})">Eliminar</button>
+          </div>
+        </td>
+      </tr>`).join('')}</tbody></table></div>`;
+  } catch (e) {
+    document.getElementById('trabajadores-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function abrirModalTrabajador(t = null) {
+  mostrarModal(t ? 'Editar profesional' : 'Nuevo profesional', `
+    <div class="form-group">
+      <label class="label">Nombre *</label>
+      <input class="input" id="tr-nom" value="${t?.nombre || ''}" placeholder="Juan Perez">
+    </div>
+
+    <div class="form-group">
+      <label class="label">Descripcion</label>
+      <textarea class="input" id="tr-desc" rows="2" placeholder="Barbero, colorista, manicura...">${t?.descripcion || ''}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="label">Foto URL</label>
+      <input class="input" id="tr-foto" value="${t?.foto_url || ''}" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label class="label">Orden</label>
+      <input class="input" id="tr-orden" type="number" value="${t?.orden || 0}">
+    </div>
+  `, async () => {
+    const nombre = document.getElementById('tr-nom').value.trim();
+
+    if (!nombre) {
+      toast('El nombre es obligatorio', 'error');
+      return false;
+    }
+
+    const body = {
+      nombre,
+      descripcion: document.getElementById('tr-desc').value.trim(),
+      foto_url: document.getElementById('tr-foto').value.trim() || null,
+      orden: parseInt(document.getElementById('tr-orden').value || '0', 10),
+      activo: true
+    };
+
+    if (t) {
+      await api('PUT', `/comercio/${S.slug}/trabajadores/${t.id}`, body);
+    } else {
+      await api('POST', `/comercio/${S.slug}/trabajadores`, body);
+    }
+
+    toast(t ? 'Profesional actualizado' : 'Profesional creado');
+    cargarComTrabajadores();
+  });
+}
+
+async function eliminarTrabajador(id) {
+  if (!confirm('Eliminar este profesional? Sus reservas anteriores se mantienen.')) return;
+
+  try {
+    await api('DELETE', `/comercio/${S.slug}/trabajadores/${id}`);
+    toast('Profesional eliminado');
+    cargarComTrabajadores();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
 async function cargarComServicios() {
   const el = document.getElementById('com-servicios');
   el.innerHTML = `
@@ -1209,10 +1321,10 @@ async function cargarComServicios() {
     const data = await api('GET', `/comercio/${S.slug}/servicios`);
     const lista = document.getElementById('servicios-lista');
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
-      <thead><tr><th>Imagen</th><th>Servicio</th><th>Precio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Imagen</th><th>Servicio</th><th>Precio</th><th>DuraciÃ³n</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(s => `<tr>
-        <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">—</span>'}</td>
-        <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'…':''}</small>` : ''}</td>
+        <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">â€”</span>'}</td>
+        <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'â€¦':''}</small>` : ''}</td>
         <td>${s.precio}</td>
         <td>${s.duracion_min} min</td>
         <td><span class="badge ${s.activo ? 'badge-verde' : 'badge-gris'}">${s.activo ? 'Activo' : 'Oculto'}</span></td>
@@ -1234,7 +1346,7 @@ function abrirModalServicio(s = null) {
   mostrarModal(s ? 'Editar servicio' : 'Nuevo servicio', `
     <div class="form-group">
       <label class="label">Nombre *</label>
-      <input class="input" id="sv-nom" value="${s?.nombre||''}" placeholder="Corte clásico">
+      <input class="input" id="sv-nom" value="${s?.nombre||''}" placeholder="Corte clÃ¡sico">
     </div>
 
     <div class="input-grid-2">
@@ -1244,13 +1356,13 @@ function abrirModalServicio(s = null) {
       </div>
 
       <div class="form-group">
-        <label class="label">Duración (min) *</label>
+        <label class="label">DuraciÃ³n (min) *</label>
         <input class="input" id="sv-dur" type="number" value="${s?.duracion_min||30}" placeholder="30">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="label">Descripción</label>
+      <label class="label">DescripciÃ³n</label>
       <textarea class="input" id="sv-desc" rows="2">${s?.descripcion||''}</textarea>
     </div>
 
@@ -1268,7 +1380,7 @@ function abrirModalServicio(s = null) {
       <input type="hidden" id="sv-img-url" value="${s?.imagen_url||''}">
 
       <small style="color:var(--texto2);font-size:0.72rem">
-        Subí una imagen desde tu computadora. Máximo 5 MB.
+        SubÃ­ una imagen desde tu computadora. MÃ¡ximo 5 MB.
       </small>
 
       ${imagenActualHTML}
@@ -1281,7 +1393,7 @@ function abrirModalServicio(s = null) {
     const duracion_min = document.getElementById('sv-dur').value;
 
     if (!nombre || !precio || !duracion_min) {
-      toast('Completá todos los campos obligatorios', 'error');
+      toast('CompletÃ¡ todos los campos obligatorios', 'error');
       return false;
     }
 
@@ -1323,7 +1435,7 @@ function prevImgUrl(inputId, previewId) {
 }
 
 async function eliminarServicio(id) {
-  if (!confirm('¿Eliminar este servicio?')) return;
+  if (!confirm('Â¿Eliminar este servicio?')) return;
   try { await api('DELETE', `/comercio/${S.slug}/servicios/${id}`); toast('Eliminado'); cargarComServicios(); }
   catch (e) { toast(e.message, 'error'); }
 }
@@ -1333,9 +1445,9 @@ async function cargarComHorarios() {
 
   el.innerHTML = `
     <div class="com-header">
-      <h1>Horarios de atención</h1>
+      <h1>Horarios de atenciÃ³n</h1>
       <small style="color:var(--texto2)">
-        Configurá el horario de trabajo y los descansos donde no se puede reservar.
+        ConfigurÃ¡ el horario de trabajo y los descansos donde no se puede reservar.
       </small>
     </div>
 
@@ -1417,7 +1529,7 @@ function renderHorariosForm() {
     <div style="max-width:850px">
       <p style="color:var(--texto2);font-size:0.82rem;margin-bottom:1rem;line-height:1.5">
         Ejemplo: si el comercio trabaja de <b>09:00 a 20:00</b>, pero descansa de 
-        <b>14:00 a 18:30</b>, el cliente solo podrá reservar de 
+        <b>14:00 a 18:30</b>, el cliente solo podrÃ¡ reservar de 
         <b>09:00 a 14:00</b> y de <b>18:30 a 20:00</b>.
       </p>
 
@@ -1435,7 +1547,7 @@ function renderHorariosForm() {
                   ${dia.activo ? 'checked' : ''} 
                   onchange="window._horariosEditor[${i}].activo=this.checked;renderHorariosForm()"
                 >
-                Atiende este día
+                Atiende este dÃ­a
               </label>
             </div>
 
@@ -1490,7 +1602,7 @@ function renderHorariosForm() {
                         class="btn btn-ghost btn-sm" 
                         onclick="window._horariosEditor[${i}].descansos.splice(${bi},1);renderHorariosForm()"
                       >
-                        ✕
+                        âœ•
                       </button>
                     </div>
                   `).join('')
@@ -1551,13 +1663,13 @@ function construirBloquesTrabajo(dia) {
 
     if (d.desdeMin === null || d.hastaMin === null || d.hastaMin <= d.desdeMin) {
       return {
-        error: `El descanso ${i + 1} está mal cargado`
+        error: `El descanso ${i + 1} estÃ¡ mal cargado`
       };
     }
 
     if (d.desdeMin < abreMin || d.hastaMin > cierraMin) {
       return {
-        error: `El descanso ${i + 1} debe estar dentro del horario de atención`
+        error: `El descanso ${i + 1} debe estar dentro del horario de atenciÃ³n`
       };
     }
 
@@ -1648,17 +1760,17 @@ async function cargarComPerfil() {
         <div class="form-group"><label class="label">Nombre del comercio</label><input class="input" id="pf-nom" value="${data.nombre||''}"></div>
         <div class="form-group"><label class="label">Slogan</label><input class="input" id="pf-slo" value="${data.slogan||''}"></div>
         <div class="input-grid-2">
-          <div class="form-group"><label class="label">Teléfono</label><input class="input" id="pf-tel" value="${data.telefono||''}"></div>
+          <div class="form-group"><label class="label">TelÃ©fono</label><input class="input" id="pf-tel" value="${data.telefono||''}"></div>
           <div class="form-group"><label class="label">WhatsApp</label><input class="input" id="pf-wa" value="${data.whatsapp||''}"></div>
         </div>
-        <div class="form-group"><label class="label">Dirección</label><input class="input" id="pf-dir" value="${data.direccion||''}"></div>
+        <div class="form-group"><label class="label">DirecciÃ³n</label><input class="input" id="pf-dir" value="${data.direccion||''}"></div>
        <div class="form-group"><label class="label">Instagram del comercio</label><input class="input" id="pf-ig" value="${data.instagram_url||''}" placeholder="@usuario o link de Instagram"></div>
         <div class="input-grid-2">
           <div class="form-group"><label class="label">Color acento</label><input class="input" id="pf-col" type="color" value="${data.color_acento||'#C9A84C'}" style="height:40px;padding:0.2rem"></div>
           <div class="form-group"><label class="label">Moneda</label><input class="input" id="pf-mon" value="${data.moneda||'$'}" style="max-width:80px"></div>
         </div>
         <div class="form-group" style="margin-top:0.5rem">
-  <label class="label">Imagen de fondo de la página inicial</label>
+  <label class="label">Imagen de fondo de la pÃ¡gina inicial</label>
 
   <input 
     class="input" 
@@ -1671,7 +1783,7 @@ async function cargarComPerfil() {
   <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url||''}">
 
   <small style="color:var(--texto2);font-size:0.72rem">
-    Subí una imagen desde tu computadora. Recomendado: horizontal, 1920x1080. Máximo 5 MB.
+    SubÃ­ una imagen desde tu computadora. Recomendado: horizontal, 1920x1080. MÃ¡ximo 5 MB.
   </small>
 
   ${data.imagen_fondo_url 
@@ -1720,7 +1832,7 @@ async function guardarPerfil() {
 }
 
 // ============================================================
-// PÁGINA PÚBLICA DE CADA COMERCIO
+// PÃGINA PÃšBLICA DE CADA COMERCIO
 // ============================================================
 async function cargarComercioPublico(slug) {
   const el = document.getElementById('pagina-comercio');
@@ -1733,12 +1845,12 @@ async function cargarComercioPublico(slug) {
     S.paso = 1;
     S.calMes = new Date().getMonth();
     S.calAnio = new Date().getFullYear();
-    document.title = data.nombre + ' · Reservas';
+    document.title = data.nombre + ' Â· Reservas';
     renderComercioPublico(data);
   } catch (e) {
     el.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem">
       <h2>Comercio no encontrado</h2>
-      <p style="color:var(--texto2)">El enlace puede ser incorrecto o el comercio está inactivo.</p></div>`;
+      <p style="color:var(--texto2)">El enlace puede ser incorrecto o el comercio estÃ¡ inactivo.</p></div>`;
   }
 }
 
@@ -1748,7 +1860,7 @@ function renderComercioPublico(d) {
   const acento = d.color_acento || '#C9A84C';
   const diasHorario = {};
   (d.horarios||[]).forEach(h => diasHorario[h.dia_semana] = h);
-  // Agrupar bloques por día
+  // Agrupar bloques por dÃ­a
   const diasBloques = {};
   (d.horario_bloques||[]).forEach(b => {
     if (!diasBloques[b.dia_semana]) diasBloques[b.dia_semana] = [];
@@ -1761,9 +1873,9 @@ function renderComercioPublico(d) {
       <div class="pc-serv-body">
         <div class="pc-serv-nombre">${s.nombre}</div>
         <div class="pc-serv-precio">${d.moneda} ${parseFloat(s.precio).toLocaleString()}</div>
-        <div class="pc-serv-dur">⏱ ${s.duracion_min} min</div>
+        <div class="pc-serv-dur">â± ${s.duracion_min} min</div>
         ${s.descripcion ? `<div style="font-size:0.8rem;color:var(--texto2);margin-top:0.4rem">${s.descripcion}</div>` : ''}
-        <button class="pc-serv-btn" onclick="elegirServicioDesdeCard(${s.id})">Reservar →</button>
+        <button class="pc-serv-btn" onclick="elegirServicioDesdeCard(${s.id})">Reservar â†’</button>
       </div>
     </div>`).join('');
 
@@ -1774,11 +1886,11 @@ function renderComercioPublico(d) {
     if (bloques && bloques.length > 0) {
       // Mostrar bloques con descansos
       horarioContent = bloques.map((b, idx) => {
-        const sep = (idx > 0) ? '<span class="pc-hor-descanso">— descanso —</span>' : '';
-        return `${sep}<span class="pc-hor-bloque">${formatTime(b.abre)} – ${formatTime(b.cierra)}</span>`;
+        const sep = (idx > 0) ? '<span class="pc-hor-descanso">â€” descanso â€”</span>' : '';
+        return `${sep}<span class="pc-hor-bloque">${formatTime(b.abre)} â€“ ${formatTime(b.cierra)}</span>`;
       }).join('');
     } else if (h) {
-      horarioContent = `<span class="pc-hor-hora">${formatTime(h.abre)} – ${formatTime(h.cierra)}</span>`;
+      horarioContent = `<span class="pc-hor-hora">${formatTime(h.abre)} â€“ ${formatTime(h.cierra)}</span>`;
     } else {
       horarioContent = `<span class="pc-hor-cerrado">Cerrado</span>`;
     }
@@ -1789,11 +1901,27 @@ function renderComercioPublico(d) {
   }).join('');
 
   const opcsServHTML = (d.servicios||[]).map(s => `
-    <div class="opc-s" data-id="${s.id}" onclick="elegirServicioReserva(${s.id})">
+    <div class="opc-s opc-serv" data-id="${s.id}" onclick="elegirServicioReserva(${s.id})">
       <div class="nom">${s.nombre}</div>
       <div class="pre">${d.moneda} ${parseFloat(s.precio).toLocaleString()}</div>
-      <div class="dur">⏱ ${s.duracion_min} min</div>
+      <div class="dur">â± ${s.duracion_min} min</div>
     </div>`).join('');
+  const trabajadores = d.trabajadores || [];
+  const requiereTrabajador = trabajadores.length > 0;
+
+  const opcsTrabHTML = requiereTrabajador
+    ? trabajadores.map(t => `
+      <div class="opc-s opc-trab" data-trabajador-id="${t.id}" onclick="elegirTrabajadorReserva(${t.id})">
+        ${t.foto_url ? `<img src="${t.foto_url}" alt="${t.nombre}" style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:1px solid var(--borde2);margin-bottom:0.6rem">` : ''}
+        <div class="nom">${t.nombre}</div>
+        ${t.descripcion ? `<div class="dur">${t.descripcion}</div>` : '<div class="dur">Profesional</div>'}
+      </div>`).join('')
+    : `
+      <div class="opc-s opc-trab sel" data-trabajador-id="">
+        <div class="nom">Cualquier profesional</div>
+        <div class="dur">Te asignamos una agenda disponible</div>
+      </div>
+    `;
 
   document.getElementById('pagina-comercio').innerHTML = `
     <style>:root{--oro:${acento}}</style>
@@ -1808,7 +1936,7 @@ function renderComercioPublico(d) {
     </nav>
     <section id="pc-hero" ${d.imagen_fondo_url ? `class="con-imagen" style="background-image:url('${d.imagen_fondo_url}')"` : ''}>
       <div>
-        <div class="pc-ornamento">✦ Reservas online ✦</div>
+        <div class="pc-ornamento">âœ¦ Reservas online âœ¦</div>
         <h1 class="pc-titulo" style="font-family:Georgia,serif">${d.nombre}</h1>
         ${d.slogan ? `<p class="pc-slogan">${d.slogan}</p>` : ''}
         <div class="pc-cta">
@@ -1828,7 +1956,7 @@ function renderComercioPublico(d) {
     </section>
     <section id="pc-horarios" style="padding:5rem 2rem;background:var(--bg2)">
       <div style="max-width:1100px;margin:0 auto">
-        <div class="pc-sec-label">Atención</div>
+        <div class="pc-sec-label">AtenciÃ³n</div>
         <div class="pc-sec-titulo" style="font-family:Georgia,serif">Horarios</div>
         <div class="pc-linea"></div>
         ${d.direccion ? `<p style="color:var(--texto2);margin-bottom:1.5rem">${d.direccion}</p>` : ''}
@@ -1842,73 +1970,90 @@ function renderComercioPublico(d) {
         <div class="pc-linea"></div>
         <div class="reserva-box">
           <div class="steps-bar">
-            ${[1,2,3,4,5].map((n,i,arr) => `
+            ${[1,2,3,4,5,6].map((n,i) => `
               <div class="step-item">
                 <div class="step-num ${n===1?'on':''}" id="pcsn${n}">${n}</div>
-                <span class="step-lbl ${n===1?'on':''}" id="pcsl${n}">${['Servicio','Fecha','Hora','Datos','Confirmar'][i]}</span>
+                <span class="step-lbl ${n===1?'on':''}" id="pcsl${n}">${['Servicio','Profesional','Fecha','Hora','Datos','Confirmar'][i]}</span>
               </div>
-              ${i<4?`<div class="step-line" id="pcsl${n}${n+1}"></div>`:''}`).join('')}
+              ${i<5?`<div class="step-line" id="pcsl${n}${n+1}"></div>`:''}`).join('')}
           </div>
+
           <div id="pc-paso1" class="paso v">
-            <div class="paso-tit">¿Qué servicio querés?</div>
-            <div class="paso-sub">Seleccioná uno para continuar</div>
+            <div class="paso-tit">Que servicio queres?</div>
+            <div class="paso-sub">Selecciona uno para continuar</div>
             <div class="opcs-serv">${opcsServHTML}</div>
-            <div class="pasos-nav"><div></div><button class="btn-sig" id="pc-btn12" onclick="pcIrPaso(2)" disabled>Elegir fecha →</button></div>
+            <div class="pasos-nav">
+              <div></div>
+              <button class="btn-sig" id="pc-btn12" onclick="pcIrPaso(2)" disabled>Elegir profesional &rarr;</button>
+            </div>
           </div>
+
           <div id="pc-paso2" class="paso">
-            <div class="paso-tit">¿Qué día venís?</div>
-            <div class="paso-sub">Los días tachados no tenemos atención</div>
+            <div class="paso-tit">Con quien queres atenderte?</div>
+            <div class="paso-sub">Elegi una agenda disponible</div>
+            <div class="opcs-serv">${opcsTrabHTML}</div>
+            <div class="pasos-nav">
+              <button class="btn-atras" onclick="pcIrPaso(1)">&larr; Atras</button>
+              <button class="btn-sig" id="pc-btn23" onclick="pcIrPaso(3)" ${requiereTrabajador ? 'disabled' : ''}>Elegir fecha &rarr;</button>
+            </div>
+          </div>
+
+          <div id="pc-paso3" class="paso">
+            <div class="paso-tit">Que dia venis?</div>
+            <div class="paso-sub">Los dias tachados no tenemos atencion</div>
             <div class="cal-hdr">
-              <button class="cal-btn" onclick="pcCambiarMes(-1)">‹</button>
+              <button class="cal-btn" onclick="pcCambiarMes(-1)">&#8249;</button>
               <span class="cal-mes-txt" id="pc-cal-tit"></span>
-              <button class="cal-btn" onclick="pcCambiarMes(1)">›</button>
+              <button class="cal-btn" onclick="pcCambiarMes(1)">&#8250;</button>
             </div>
             <div class="cal-grid" id="pc-cal-grid"></div>
             <div class="pasos-nav">
-              <button class="btn-atras" onclick="pcIrPaso(1)">← Atrás</button>
-              <button class="btn-sig" id="pc-btn23" onclick="pcIrPaso(3)" disabled>Elegir horario →</button>
+              <button class="btn-atras" onclick="pcIrPaso(2)">&larr; Atras</button>
+              <button class="btn-sig" id="pc-btn34" onclick="pcIrPaso(4)" disabled>Elegir horario &rarr;</button>
             </div>
           </div>
-          <div id="pc-paso3" class="paso">
-            <div class="paso-tit">¿A qué hora?</div>
+
+          <div id="pc-paso4" class="paso">
+            <div class="paso-tit">A que hora?</div>
             <div class="paso-sub" id="pc-paso3-sub">Turnos disponibles</div>
             <div id="pc-horas-loading" style="display:none;padding:1rem;color:var(--texto2)"><span class="loader-inline claro"></span> Consultando disponibilidad...</div>
             <div class="horas-grid" id="pc-horas-grid"></div>
             <div class="pasos-nav">
-              <button class="btn-atras" onclick="pcIrPaso(2)">← Atrás</button>
-              <button class="btn-sig" id="pc-btn34" onclick="pcIrPaso(4)" disabled>Mis datos →</button>
+              <button class="btn-atras" onclick="pcIrPaso(3)">&larr; Atras</button>
+              <button class="btn-sig" id="pc-btn45" onclick="pcIrPaso(5)" disabled>Mis datos &rarr;</button>
             </div>
           </div>
-          <div id="pc-paso4" class="paso">
+
+          <div id="pc-paso5" class="paso">
             <div class="paso-tit">Tus datos</div>
             <div class="paso-sub">Para confirmar tu turno</div>
             <div class="input-grid-2">
               <div class="form-group"><label class="label">Nombre *</label><input class="input" id="pc-nom" placeholder="Tu nombre"></div>
               <div class="form-group"><label class="label">Apellido *</label><input class="input" id="pc-ape" placeholder="Tu apellido"></div>
             </div>
-            <div class="form-group"><label class="label">WhatsApp * <small style="color:var(--texto2);text-transform:none">(para confirmación)</small></label><input class="input" id="pc-wa" type="tel" placeholder="+598 91 000 000"></div>
+            <div class="form-group"><label class="label">WhatsApp * <small style="color:var(--texto2);text-transform:none">(para confirmacion)</small></label><input class="input" id="pc-wa" type="tel" placeholder="+598 91 000 000"></div>
             <div class="form-group"><label class="label">Email <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><input class="input" id="pc-email" type="email"></div>
-            <div class="form-group"><label class="label">Comentarios <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><textarea class="input" id="pc-coment" rows="2" placeholder="Referencia de corte, aclaración..."></textarea></div>
+            <div class="form-group"><label class="label">Comentarios <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><textarea class="input" id="pc-coment" rows="2" placeholder="Referencia de corte, aclaracion..."></textarea></div>
             <div id="pc-datos-err" class="form-error"></div>
             <div class="pasos-nav">
-              <button class="btn-atras" onclick="pcIrPaso(3)">← Atrás</button>
-              <button class="btn-sig" onclick="pcValidarDatos()">Revisar →</button>
+              <button class="btn-atras" onclick="pcIrPaso(4)">&larr; Atras</button>
+              <button class="btn-sig" onclick="pcValidarDatos()">Revisar &rarr;</button>
             </div>
           </div>
-          <div id="pc-paso5" class="paso">
-            <div class="paso-tit">Revisá tu reserva</div>
-            <div class="paso-sub">Confirmá antes de agendar</div>
+
+          <div id="pc-paso6" class="paso">
+            <div class="paso-tit">Revisa tu reserva</div>
+            <div class="paso-sub">Confirma antes de agendar</div>
             <div class="resumen-card" id="pc-resumen"></div>
-            <div style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">💡 El pago se realiza en el local el día del turno.</div>
+            <div style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">El pago se realiza en el local el dia del turno.</div>
             <div class="pasos-nav">
-              <button class="btn-atras" onclick="pcIrPaso(4)">← Modificar</button>
-              <button class="btn-sig" id="pc-btn-conf" onclick="pcConfirmar()">Confirmar turno ✓</button>
+              <button class="btn-atras" onclick="pcIrPaso(5)">&larr; Modificar</button>
+              <button class="btn-sig" id="pc-btn-conf" onclick="pcConfirmar()">Confirmar turno</button>
             </div>
-          </div>
-          <div id="pc-paso-ok" class="paso">
+          </div>          <div id="pc-paso-ok" class="paso">
             <div class="pc-confirmacion">
-              <div class="pc-check">✓</div>
-              <h2>¡Turno confirmado!</h2>
+              <div class="pc-check">âœ“</div>
+              <h2>Â¡Turno confirmado!</h2>
               <p style="color:var(--texto2);margin-top:0.5rem">Te enviamos los detalles por WhatsApp.</p>
               <div class="pc-conf-detalle" id="pc-conf-det"></div>
               <button class="btn btn-oro" onclick="pcReiniciar()">Hacer otra reserva</button>
@@ -1944,9 +2089,9 @@ function renderComercioPublico(d) {
 
       <div style="display:flex;align-items:center;gap:0.75rem;color:#f5f5f5;font-size:0.95rem">
         <span style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1.25rem">
-          📍
+          ðŸ“
         </span>
-        <span>${d.direccion || 'Dirección no cargada'}</span>
+        <span>${d.direccion || 'DirecciÃ³n no cargada'}</span>
       </div>
 
     </div>
@@ -1959,7 +2104,7 @@ function renderComercioPublico(d) {
   </div>
 
   <div style="text-align:center;color:#b8b8b8;font-size:0.8rem;margin-top:2rem">
-    © 2026 ${d.nombre}
+    Â© 2026 ${d.nombre}
   </div>
 </footer>
 `;
@@ -1973,15 +2118,44 @@ function elegirServicioDesdeCard(id) {
 }
 
 function elegirServicioReserva(id) {
-  const s = S.comercio.servicios.find(x => x.id === id);
+  const s = S.comercio.servicios.find(x => Number(x.id) === Number(id));
   if (!s) return;
   S.reserva.servicio = s;
-  document.querySelectorAll('.opc-s').forEach(el => el.classList.remove('sel'));
-  document.querySelector(`.opc-s[data-id="${id}"]`)?.classList.add('sel');
+  S.reserva.fecha = null;
+  S.reserva.hora = null;
+  document.querySelectorAll('.opc-serv').forEach(el => el.classList.remove('sel'));
+  document.querySelector(`.opc-serv[data-id="${id}"]`)?.classList.add('sel');
   document.getElementById('pc-btn12').disabled = false;
+
+  if (!(S.comercio.trabajadores || []).length) {
+    const btnTrab = document.getElementById('pc-btn23');
+    if (btnTrab) btnTrab.disabled = false;
+  }
+}
+function elegirTrabajadorReserva(id) {
+  const t = (S.comercio.trabajadores || []).find(x => Number(x.id) === Number(id));
+  if (!t) return;
+
+  S.reserva.trabajador = t;
+  S.reserva.fecha = null;
+  S.reserva.hora = null;
+
+  document.querySelectorAll('[data-trabajador-id]').forEach(el => el.classList.remove('sel'));
+  document.querySelector(`[data-trabajador-id="${id}"]`)?.classList.add('sel');
+
+  const btn = document.getElementById('pc-btn23');
+  if (btn) btn.disabled = false;
+
+  const btnFecha = document.getElementById('pc-btn34');
+  if (btnFecha) btnFecha.disabled = true;
+
+  const btnHora = document.getElementById('pc-btn45');
+  if (btnHora) btnHora.disabled = true;
+
+  pcRenderCalendario();
 }
 
-// CALENDARIO PÚBLICO
+// CALENDARIO PÃšBLICO
 function pcRenderCalendario() {
   const tit = document.getElementById('pc-cal-tit');
   if (!tit) return;
@@ -1990,7 +2164,7 @@ function pcRenderCalendario() {
   const hoy = new Date(); hoy.setHours(0,0,0,0);
   const diasHorario = {};
   (S.comercio.horarios||[]).forEach(h => diasHorario[h.dia_semana] = h);
-  // También considerar días con bloques como habilitados
+  // TambiÃ©n considerar dÃ­as con bloques como habilitados
   (S.comercio.horario_bloques||[]).forEach(b => { if (!diasHorario[b.dia_semana]) diasHorario[b.dia_semana] = b; });
 
   let html = DIAS.map(d => `<div class="cal-dn">${d}</div>`).join('');
@@ -2025,7 +2199,9 @@ function pcCambiarMes(d) {
 function pcElegirFecha(a, m, d) {
   S.reserva.fecha = new Date(a, m, d);
   S.reserva.hora = null;
-  document.getElementById('pc-btn23').disabled = false;
+  document.getElementById('pc-btn34').disabled = false;
+  const btnHora = document.getElementById('pc-btn45');
+  if (btnHora) btnHora.disabled = true;
   pcRenderCalendario();
 }
 
@@ -2035,20 +2211,22 @@ async function pcCargarHoras() {
   if (!S.reserva.fecha || !S.reserva.servicio) return;
   const fStr = S.reserva.fecha.toISOString().split('T')[0];
   const fDisplay = S.reserva.fecha.toLocaleDateString('es-UY', { weekday:'long', day:'numeric', month:'long' });
-  document.getElementById('pc-paso3-sub').textContent = 'Disponibilidad para ' + fDisplay.charAt(0).toUpperCase() + fDisplay.slice(1);
+  const prof = S.reserva.trabajador ? ` con ${S.reserva.trabajador.nombre}` : '';
+  document.getElementById('pc-paso3-sub').textContent = 'Disponibilidad para ' + fDisplay.charAt(0).toUpperCase() + fDisplay.slice(1) + prof;
   grid.innerHTML = '';
   loading.style.display = 'block';
   try {
-    const data = await api('GET', `/p/${S.comercio.slug}/disponibilidad?fecha=${fStr}&servicio_id=${S.reserva.servicio.id}`);
+    const trabajadorParam = S.reserva.trabajador ? `&trabajador_id=${S.reserva.trabajador.id}` : '';
+    const data = await api('GET', `/p/${S.comercio.slug}/disponibilidad?fecha=${fStr}&servicio_id=${S.reserva.servicio.id}${trabajadorParam}`);
     loading.style.display = 'none';
-    if (!data.horas?.length) { grid.innerHTML = '<p style="color:var(--texto2);padding:1rem">Sin horarios disponibles para este día.</p>'; return; }
+    if (!data.horas?.length) { grid.innerHTML = '<p style="color:var(--texto2);padding:1rem">Sin horarios disponibles para este dÃ­a.</p>'; return; }
     grid.innerHTML = data.horas.map(h => `<button class="hora-b${S.reserva.hora===h?' sel':''}" onclick="pcElegirHora('${h}',this)">${h}</button>`).join('');
   } catch(e) { loading.style.display = 'none'; grid.innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`; }
 }
 
 function pcElegirHora(hora, btn) {
   S.reserva.hora = hora;
-  document.getElementById('pc-btn34').disabled = false;
+  document.getElementById('pc-btn45').disabled = false;
   document.querySelectorAll('.hora-b').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
 }
@@ -2059,13 +2237,13 @@ function pcValidarDatos() {
   const wa  = document.getElementById('pc-wa').value.trim();
   const errEl = document.getElementById('pc-datos-err');
   if (!nom || !ape || !wa || wa.replace(/\D/g,'').length < 8) {
-    errEl.textContent = 'Completá nombre, apellido y WhatsApp válido'; return;
+    errEl.textContent = 'CompletÃ¡ nombre, apellido y WhatsApp vÃ¡lido'; return;
   }
   errEl.textContent = '';
   S.reserva.nombre = nom; S.reserva.apellido = ape; S.reserva.wa = wa;
   S.reserva.email = document.getElementById('pc-email').value.trim();
   S.reserva.comentarios = document.getElementById('pc-coment').value.trim();
-  pcIrPaso(5);
+  pcIrPaso(6);
 }
 
 function pcRenderResumen() {
@@ -2074,9 +2252,10 @@ function pcRenderResumen() {
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   document.getElementById('pc-resumen').innerHTML = `
     <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${r.servicio.nombre}</span></div>
+    ${r.trabajador ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${r.trabajador.nombre}</span></div>` : ''}
     <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${cap(fDisplay)}</span></div>
     <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${r.hora} hs</span></div>
-    <div class="res-fila"><span class="res-k">Duración</span><span class="res-v">${r.servicio.duracion_min} min</span></div>
+    <div class="res-fila"><span class="res-k">DuraciÃ³n</span><span class="res-v">${r.servicio.duracion_min} min</span></div>
     <div class="res-fila"><span class="res-k">Nombre</span><span class="res-v">${r.nombre} ${r.apellido}</span></div>
     <div class="res-fila"><span class="res-k">WhatsApp</span><span class="res-v">${r.wa}</span></div>
     <div class="res-fila res-total"><span class="res-k">Total a pagar</span><span class="res-v">${S.comercio.moneda} ${parseFloat(r.servicio.precio).toLocaleString()}</span></div>`;
@@ -2090,6 +2269,7 @@ async function pcConfirmar() {
   try {
     const data = await api('POST', `/p/${S.comercio.slug}/reservar`, {
       servicio_id:  r.servicio.id,
+      trabajador_id: r.trabajador?.id || null,
       fecha:        r.fecha.toISOString().split('T')[0],
       hora:         r.hora,
       nombre:       r.nombre,
@@ -2099,13 +2279,14 @@ async function pcConfirmar() {
       comentarios:  r.comentarios,
     });
 
-    // Mostrar confirmación
-    document.getElementById('pc-paso5').classList.remove('v');
+    // Mostrar confirmaciÃ³n
+    document.getElementById('pc-paso6').classList.remove('v');
     document.getElementById('pc-paso-ok').classList.add('v');
     const fDisplay = r.fecha.toLocaleDateString('es-UY', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
     document.getElementById('pc-conf-det').innerHTML = `
       <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${r.servicio.nombre}</span></div>
+      ${r.trabajador ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${r.trabajador.nombre}</span></div>` : ''}
       <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${cap(fDisplay)}</span></div>
       <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${r.hora} hs</span></div>
       <div class="res-fila res-total"><span class="res-k">Total</span><span class="res-v">${S.comercio.moneda} ${parseFloat(r.servicio.precio).toLocaleString()}</span></div>`;
@@ -2114,7 +2295,7 @@ async function pcConfirmar() {
 
   } catch (e) {
     btn.disabled = false;
-    btn.innerHTML = 'Confirmar turno ✓';
+    btn.innerHTML = 'Confirmar turno âœ“';
     toast(e.message, 'error');
   }
 }
@@ -2122,6 +2303,7 @@ async function pcConfirmar() {
 function pcReiniciar() {
   S.reserva = {
     servicio: null,
+    trabajador: null,
     fecha: null,
     hora: null,
     nombre: '',
@@ -2141,15 +2323,17 @@ function pcReiniciar() {
   const btn12 = document.getElementById('pc-btn12');
   const btn23 = document.getElementById('pc-btn23');
   const btn34 = document.getElementById('pc-btn34');
+  const btn45 = document.getElementById('pc-btn45');
   const btnConf = document.getElementById('pc-btn-conf');
 
   if (btn12) btn12.disabled = true;
   if (btn23) btn23.disabled = true;
   if (btn34) btn34.disabled = true;
+  if (btn45) btn45.disabled = true;
 
   if (btnConf) {
     btnConf.disabled = false;
-    btnConf.innerHTML = 'Confirmar turno ✓';
+    btnConf.innerHTML = 'Confirmar turno âœ“';
   }
 
   ['pc-nom', 'pc-ape', 'pc-wa', 'pc-email', 'pc-coment'].forEach(id => {
@@ -2169,7 +2353,7 @@ function pcReiniciar() {
   const paso3Sub = document.getElementById('pc-paso3-sub');
   if (paso3Sub) paso3Sub.textContent = 'Turnos disponibles';
 
-  ['pc-paso-ok', 'pc-paso5', 'pc-paso4', 'pc-paso3', 'pc-paso2', 'pc-paso1'].forEach(id => {
+  ['pc-paso-ok', 'pc-paso6', 'pc-paso5', 'pc-paso4', 'pc-paso3', 'pc-paso2', 'pc-paso1'].forEach(id => {
     document.getElementById(id)?.classList.remove('v');
   });
 
@@ -2182,8 +2366,8 @@ function pcReiniciar() {
 }
 
 function pcIrPaso(n) {
-  if (n === 3) pcCargarHoras();
-  if (n === 5) pcRenderResumen();
+  if (n === 4) pcCargarHoras();
+  if (n === 6) pcRenderResumen();
   const ant = document.getElementById('pc-paso' + S.paso) || document.getElementById('pc-paso-ok');
   ant?.classList.remove('v');
   document.getElementById('pc-paso' + n)?.classList.add('v');
@@ -2193,16 +2377,16 @@ function pcIrPaso(n) {
 }
 
 function pcActualizarSteps(actual) {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 6; i++) {
     const num = document.getElementById('pcsn' + i);
     const lbl = document.getElementById('pcsl' + i);
     if (!num) continue;
     num.className = 'step-num';
     lbl.className = 'step-lbl';
-    if (i < actual) { num.classList.add('done'); num.textContent = '✓'; }
+    if (i < actual) { num.classList.add('done'); num.textContent = 'âœ“'; }
     else { num.textContent = i; }
     if (i === actual) { num.classList.add('on'); lbl.classList.add('on'); }
-    if (i < 5) {
+    if (i < 6) {
       const linea = document.getElementById(`pcsl${i}${i+1}`);
       if (linea) linea.className = 'step-line' + (i < actual ? ' done' : '');
     }
@@ -2210,7 +2394,7 @@ function pcActualizarSteps(actual) {
 }
 
 // ============================================================
-// MODAL GENÉRICO
+// MODAL GENÃ‰RICO
 // ============================================================
 function mostrarModal(titulo, contenido, onConfirmar) {
   let overlay = document.getElementById('modal-overlay');
@@ -2224,7 +2408,7 @@ function mostrarModal(titulo, contenido, onConfirmar) {
     <div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
         <h3 style="margin:0;color:var(--oro)">${titulo}</h3>
-        <button onclick="cerrarModal()" style="background:none;border:none;color:var(--texto2);font-size:1.3rem;cursor:pointer">✕</button>
+        <button onclick="cerrarModal()" style="background:none;border:none;color:var(--texto2);font-size:1.3rem;cursor:pointer">âœ•</button>
       </div>
       ${contenido}
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem">

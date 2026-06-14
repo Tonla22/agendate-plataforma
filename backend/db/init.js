@@ -1,11 +1,11 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 const SQL = `
--- Tabla de super-admins (vos, el dueño de la plataforma)
+-- Tabla de super-admins (vos, el dueÃ±o de la plataforma)
 CREATE TABLE IF NOT EXISTS admins (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS comercios (
   actualizado_en TIMESTAMP DEFAULT NOW()
 );
 
--- Usuarios de cada comercio (dueño del comercio)
+-- Usuarios de cada comercio (dueÃ±o del comercio)
 CREATE TABLE IF NOT EXISTS usuarios_comercio (
   id SERIAL PRIMARY KEY,
   comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
@@ -67,7 +67,18 @@ CREATE TABLE IF NOT EXISTS servicios (
   creado_en TIMESTAMP DEFAULT NOW()
 );
 
--- Horarios por comercio (un registro por día de semana)
+-- Trabajadores / profesionales por comercio
+CREATE TABLE IF NOT EXISTS trabajadores (
+  id SERIAL PRIMARY KEY,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  nombre VARCHAR(255) NOT NULL,
+  descripcion TEXT,
+  foto_url VARCHAR(500),
+  activo BOOLEAN DEFAULT true,
+  orden INTEGER DEFAULT 0,
+  creado_en TIMESTAMP DEFAULT NOW()
+);
+-- Horarios por comercio (un registro por dÃ­a de semana)
 CREATE TABLE IF NOT EXISTS horarios (
   id SERIAL PRIMARY KEY,
   comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
@@ -94,6 +105,7 @@ CREATE TABLE IF NOT EXISTS reservas (
   uuid VARCHAR(36) UNIQUE NOT NULL,
   comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
   servicio_id INTEGER REFERENCES servicios(id),
+  trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL,
   fecha DATE NOT NULL,
   hora TIME NOT NULL,
   duracion_min INTEGER NOT NULL,
@@ -106,16 +118,19 @@ CREATE TABLE IF NOT EXISTS reservas (
   creado_en TIMESTAMP DEFAULT NOW()
 );
 
--- Índices para performance
+-- Ãndices para performance
 CREATE INDEX IF NOT EXISTS idx_reservas_comercio_fecha ON reservas(comercio_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_servicios_comercio ON servicios(comercio_id);
+CREATE INDEX IF NOT EXISTS idx_trabajadores_comercio ON trabajadores(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horario_bloques_comercio ON horario_bloques(comercio_id, dia_semana);
+CREATE INDEX IF NOT EXISTS idx_reservas_trabajador_fecha ON reservas(trabajador_id, fecha);
 
--- Columnas nuevas (para migraciones en BD existente — ignorar si ya existen)
+-- Columnas nuevas (para migraciones en BD existente â€” ignorar si ya existen)
 DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS imagen_fondo_url VARCHAR(500);
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
 EXCEPTION WHEN others THEN NULL;
 END $$;
 `;
@@ -139,7 +154,7 @@ async function init() {
       console.log(`Admin creado: ${adminEmail} / ${adminPass}`);
     }
 
-    console.log('✅ Base de datos inicializada correctamente');
+    console.log('âœ… Base de datos inicializada correctamente');
   } finally {
     client.release();
     pool.end();

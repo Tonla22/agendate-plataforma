@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const { authAdminOrComercio } = require('../middleware/auth');
@@ -22,7 +22,7 @@ const uploadImagen = multer({
       return cb(null, true);
     }
 
-    cb(new Error('Solo se permiten imágenes JPG, PNG, WEBP o GIF'));
+    cb(new Error('Solo se permiten imÃ¡genes JPG, PNG, WEBP o GIF'));
   }
 });
 
@@ -52,7 +52,7 @@ function revisarValidacion(req, res, next) {
 
   if (!errores.isEmpty()) {
     return res.status(400).json({
-      error: 'Revisá los datos enviados',
+      error: 'RevisÃ¡ los datos enviados',
       detalles: errores.array().map(e => e.msg)
     });
   }
@@ -64,7 +64,7 @@ const validarSlug = [
   param('slug')
     .trim()
     .matches(/^[a-z0-9-]+$/i)
-    .withMessage('Slug inválido')
+    .withMessage('Slug invÃ¡lido')
 ];
 
 const validarPerfilComercio = [
@@ -88,19 +88,19 @@ const validarPerfilComercio = [
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\s()-]{6,30}$/)
-    .withMessage('Teléfono inválido'),
+    .withMessage('TelÃ©fono invÃ¡lido'),
 
   body('whatsapp')
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\s()-]{6,30}$/)
-    .withMessage('WhatsApp inválido'),
+    .withMessage('WhatsApp invÃ¡lido'),
 
   body('direccion')
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 200 })
-    .withMessage('La dirección no puede superar 200 caracteres')
+    .withMessage('La direcciÃ³n no puede superar 200 caracteres')
     .escape(),
 
   body('instagram_url')
@@ -113,20 +113,20 @@ const validarPerfilComercio = [
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^#[0-9A-Fa-f]{6}$/)
-    .withMessage('Color inválido'),
+    .withMessage('Color invÃ¡lido'),
 
   body('moneda')
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 1, max: 6 })
-    .withMessage('Moneda inválida')
+    .withMessage('Moneda invÃ¡lida')
     .escape(),
 
   body('imagen_fondo_url')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Imagen de fondo inválida')
+    .withMessage('Imagen de fondo invÃ¡lida')
 ];
 const validarServicioComercio = [
   ...validarSlug,
@@ -139,19 +139,19 @@ const validarServicioComercio = [
 
   body('precio')
     .isFloat({ min: 0 })
-    .withMessage('El precio debe ser un número válido mayor o igual a 0')
+    .withMessage('El precio debe ser un nÃºmero vÃ¡lido mayor o igual a 0')
     .toFloat(),
 
   body('duracion_min')
     .isInt({ min: 5, max: 720 })
-    .withMessage('La duración debe estar entre 5 y 720 minutos')
+    .withMessage('La duraciÃ³n debe estar entre 5 y 720 minutos')
     .toInt(),
 
   body('descripcion')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('La descripción no puede superar 500 caracteres')
+    .withMessage('La descripciÃ³n no puede superar 500 caracteres')
     .escape(),
 
   body('activo')
@@ -164,7 +164,7 @@ const validarServicioComercio = [
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('La imagen del servicio es inválida')
+    .withMessage('La imagen del servicio es invÃ¡lida')
 ];
 function horaAMinBackend(hora) {
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ''))) {
@@ -183,7 +183,7 @@ function validarLogicaHorarios(req, res, next) {
 
     if (!Array.isArray(h.bloques) || h.bloques.length === 0) {
       return res.status(400).json({
-        error: 'Cada día activo debe tener al menos un bloque horario'
+        error: 'Cada dÃ­a activo debe tener al menos un bloque horario'
       });
     }
 
@@ -201,7 +201,7 @@ function validarLogicaHorarios(req, res, next) {
 
       if (b.abreMin === null || b.cierraMin === null) {
         return res.status(400).json({
-          error: 'Formato de horario inválido. Usá HH:MM'
+          error: 'Formato de horario invÃ¡lido. UsÃ¡ HH:MM'
         });
       }
 
@@ -227,32 +227,32 @@ const validarHorariosComercio = [
 
   body('horarios')
     .isArray({ min: 0, max: 7 })
-    .withMessage('Horarios inválidos'),
+    .withMessage('Horarios invÃ¡lidos'),
 
   body('horarios.*.dia_semana')
     .isInt({ min: 0, max: 6 })
-    .withMessage('Día inválido')
+    .withMessage('DÃ­a invÃ¡lido')
     .toInt(),
 
   body('horarios.*.activo')
     .isBoolean()
-    .withMessage('El estado del día debe ser verdadero o falso')
+    .withMessage('El estado del dÃ­a debe ser verdadero o falso')
     .toBoolean(),
 
   body('horarios.*.bloques')
     .optional()
     .isArray({ max: 8 })
-    .withMessage('Demasiados bloques para un día'),
+    .withMessage('Demasiados bloques para un dÃ­a'),
 
   body('horarios.*.bloques.*.abre')
     .optional()
     .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
-    .withMessage('Hora de apertura inválida'),
+    .withMessage('Hora de apertura invÃ¡lida'),
 
   body('horarios.*.bloques.*.cierra')
     .optional()
     .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
-    .withMessage('Hora de cierre inválida')
+    .withMessage('Hora de cierre invÃ¡lida')
 ];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   uploadImagen.single('imagen')(req, res, async (err) => {
@@ -265,7 +265,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
 
       if (!req.file) {
         return res.status(400).json({
-          error: 'No se recibió ninguna imagen'
+          error: 'No se recibiÃ³ ninguna imagen'
         });
       }
 
@@ -275,7 +275,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
         !process.env.CLOUDINARY_API_SECRET
       ) {
         return res.status(500).json({
-          error: 'Cloudinary no está configurado en el servidor'
+          error: 'Cloudinary no estÃ¡ configurado en el servidor'
         });
       }
 
@@ -292,7 +292,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   });
 });
 
-// GET /api/comercio/:slug/perfil — datos del comercio (auth requerida)
+// GET /api/comercio/:slug/perfil â€” datos del comercio (auth requerida)
 router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT * FROM comercios WHERE slug=$1', [req.params.slug]);
@@ -304,7 +304,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// PUT /api/comercio/:slug/perfil — el dueño edita su perfil
+// PUT /api/comercio/:slug/perfil â€” el dueÃ±o edita su perfil
 router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
     const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
@@ -321,7 +321,7 @@ router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarV
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// PUT /api/comercio/:slug/horarios — guardar horarios con soporte de bloques
+// PUT /api/comercio/:slug/horarios â€” guardar horarios con soporte de bloques
 router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revisarValidacion, validarLogicaHorarios, async (req, res) => {
   const client = await pool.connect();
   try {
@@ -344,7 +344,7 @@ router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revi
               );
             }
           }
-          // Guardar también en horarios el primer bloque (compatibilidad)
+          // Guardar tambiÃ©n en horarios el primer bloque (compatibilidad)
           const primerBloque = h.bloques.find(b => b.abre && b.cierra);
           if (primerBloque) {
             await client.query(
@@ -367,6 +367,91 @@ router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revi
   finally { client.release(); }
 });
 
+// GET/POST/PUT/DELETE trabajadores
+router.get('/:slug/trabajadores', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const r = await pool.query(
+      'SELECT * FROM trabajadores WHERE comercio_id=$1 AND activo=true ORDER BY orden,id',
+      [c.rows[0].id]
+    );
+
+    res.json(r.rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/:slug/trabajadores', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const { nombre, descripcion, foto_url, orden } = req.body;
+
+    if (!nombre || String(nombre).trim().length < 2) {
+      return res.status(400).json({ error: 'El nombre del trabajador es obligatorio' });
+    }
+
+    const r = await pool.query(
+      `INSERT INTO trabajadores (comercio_id,nombre,descripcion,foto_url,orden)
+       VALUES ($1,$2,$3,$4,$5)
+       RETURNING *`,
+      [c.rows[0].id, nombre.trim(), descripcion || null, foto_url || null, orden || 0]
+    );
+
+    res.status(201).json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/:slug/trabajadores/:id', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const { nombre, descripcion, foto_url, activo, orden } = req.body;
+
+    if (!nombre || String(nombre).trim().length < 2) {
+      return res.status(400).json({ error: 'El nombre del trabajador es obligatorio' });
+    }
+
+    const r = await pool.query(
+      `UPDATE trabajadores
+       SET nombre=$1, descripcion=$2, foto_url=$3, activo=$4, orden=$5
+       WHERE id=$6 AND comercio_id=$7
+       RETURNING *`,
+      [nombre.trim(), descripcion || null, foto_url || null, activo !== false, orden || 0, req.params.id, c.rows[0].id]
+    );
+
+    if (!r.rows[0]) return res.status(404).json({ error: 'Trabajador no encontrado' });
+
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.delete('/:slug/trabajadores/:id', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const r = await pool.query(
+      'UPDATE trabajadores SET activo=false WHERE id=$1 AND comercio_id=$2 RETURNING id',
+      [req.params.id, c.rows[0].id]
+    );
+
+    if (!r.rows[0]) return res.status(404).json({ error: 'Trabajador no encontrado' });
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 // GET/POST/PUT/DELETE servicios
 router.get('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   try {
@@ -433,8 +518,10 @@ router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
     const { desde, hasta, estado } = req.query;
-    let q = `SELECT r.*, s.nombre as servicio_nombre, s.precio
-             FROM reservas r JOIN servicios s ON s.id=r.servicio_id
+    let q = `SELECT r.*, s.nombre as servicio_nombre, s.precio, t.nombre as trabajador_nombre
+             FROM reservas r
+             JOIN servicios s ON s.id=r.servicio_id
+             LEFT JOIN trabajadores t ON t.id=r.trabajador_id
              WHERE r.comercio_id=$1`;
     const params = [c.rows[0].id];
     if (desde) { params.push(desde); q += ` AND r.fecha>=$${params.length}`; }
