@@ -948,6 +948,7 @@ async function mostrarPanelComercio() {
       </div>
       <nav class="com-nav">
         <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">Reservas</a>
+        <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">Metricas</a>
         <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
         <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">Servicios</a>
         <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">Horarios</a>
@@ -961,6 +962,7 @@ async function mostrarPanelComercio() {
     <main class="com-main">
       <div class="com-secciones">
         <div id="com-reservas" class="com-sec act"></div>
+        <div id="com-metricas" class="com-sec"></div>
         <div id="com-trabajadores" class="com-sec"></div>
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
@@ -982,6 +984,7 @@ function comSec(sec) {
   document.getElementById('com-' + sec).classList.add('act');
   document.getElementById('cn-' + sec).classList.add('act');
   if (sec === 'reservas') cargarComReservas();
+  if (sec === 'metricas') cargarComMetricas();
   if (sec === 'trabajadores') cargarComTrabajadores();
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
@@ -1007,6 +1010,127 @@ function formatearFechaReserva(fecha) {
   const [yyyy, mm, dd] = partes;
 
   return `${dd}/${mm}/${yyyy}`;
+}
+
+function formatoDinero(valor, moneda = '$') {
+  return `${moneda} ${Number(valor || 0).toLocaleString()}`;
+}
+
+function inicioMesActual() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
+function finMesActual() {
+  const d = new Date();
+  const fin = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return `${fin.getFullYear()}-${String(fin.getMonth() + 1).padStart(2, '0')}-${String(fin.getDate()).padStart(2, '0')}`;
+}
+async function cargarComMetricas() {
+  const el = document.getElementById('com-metricas');
+
+  const desde = window._metricasDesde || inicioMesActual();
+  const hasta = window._metricasHasta || fechaHoyLocal();
+
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Metricas</h1>
+
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <input class="input" type="date" id="met-desde" style="max-width:160px" value="${desde}">
+        <input class="input" type="date" id="met-hasta" style="max-width:160px" value="${hasta}">
+        <button class="btn btn-ghost btn-sm" onclick="aplicarFiltroMetricas()">Filtrar</button>
+      </div>
+    </div>
+
+    <div id="metricas-contenido">
+      <span class="loader-inline claro"></span> Cargando metricas...
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/metricas?desde=${desde}&hasta=${hasta}`);
+    const moneda = data.moneda || '$';
+    const resumen = data.resumen || {};
+    const hoy = data.hoy || {};
+
+    document.getElementById('metricas-contenido').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem">
+        <div class="stat-card">
+          <div class="stat-lbl">Ingresos hoy</div>
+          <div class="stat-num">${formatoDinero(hoy.ingresos_hoy, moneda)}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-lbl">Ingresos del periodo</div>
+          <div class="stat-num">${formatoDinero(resumen.ingresos, moneda)}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-lbl">Reservas completadas</div>
+          <div class="stat-num">${resumen.completadas || 0}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-lbl">Reservas pendientes</div>
+          <div class="stat-num">${resumen.confirmadas || 0}</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem">
+        <div class="card">
+          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Servicio mas vendido</div>
+          <div style="font-size:1.1rem;font-weight:700">${data.servicio_top?.nombre || 'Sin datos'}</div>
+          <small style="color:var(--texto2)">${data.servicio_top?.cantidad || 0} reservas completadas</small>
+        </div>
+
+        <div class="card">
+          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Profesional con mas reservas</div>
+          <div style="font-size:1.1rem;font-weight:700">${data.trabajador_top?.nombre || 'Sin datos'}</div>
+          <small style="color:var(--texto2)">${data.trabajador_top?.cantidad || 0} reservas completadas</small>
+        </div>
+
+        <div class="card">
+          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Canceladas</div>
+          <div style="font-size:1.1rem;font-weight:700">${resumen.canceladas || 0}</div>
+          <small style="color:var(--texto2)">En el periodo seleccionado</small>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Reservas</th>
+              <th>Ingresos</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(data.ultimos_dias || []).map(d => `
+              <tr>
+                <td>${formatearFechaReserva(d.fecha)}</td>
+                <td>${d.reservas}</td>
+                <td>${formatoDinero(d.ingresos, moneda)}</td>
+              </tr>
+            `).join('') || `
+              <tr>
+                <td colspan="3" style="color:var(--texto2)">Sin datos en los ultimos dias</td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('metricas-contenido').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function aplicarFiltroMetricas() {
+  window._metricasDesde = document.getElementById('met-desde').value;
+  window._metricasHasta = document.getElementById('met-hasta').value;
+  cargarComMetricas();
 }
 
 function renderResumenIngresosDia(reservasHoy) {

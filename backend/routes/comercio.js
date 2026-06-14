@@ -595,6 +595,109 @@ router.delete('/:slug/servicios/:id', authAdminOrComercio, async (req, res) => {
   }
 });
 
+// GET /api/comercio/:slug/metricas?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
+router.get('/:slug/metricas', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id, moneda FROM comercios WHERE slug=$1', [req.params.slug]);
+
+    if (!c.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const comercio = c.rows[0];
+
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0, 10);
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).toISOString().slice(0, 10);
+
+    const desde = req.query.desde || inicioMes;
+    const hasta = req.query.hasta || finMes;
+
+    const params = [comercio.id, desde, hasta];
+
+    const resumen = await pool.query(`
+      SELECT
+        COALESCE(SUM(CASE WHEN r.estado='completada' THEN s.precio ELSE 0 END), 0) AS ingresos,
+        COUNT(*) FILTER (WHERE r.estado='completada') AS completadas,
+        COUNT(*) FILTER (WHERE r.estado='confirmada') AS confirmadas,
+        COUNT(*) FILTER (WHERE r.estado='cancelada') AS canceladas,
+        COUNT(*) AS total_reservas
+      FROM reservas r
+      JOIN servicios s ON s.id = r.servicio_id
+      WHERE r.comercio_id=$1
+        AND r.fecha >= $2
+        AND r.fecha <= $3
+    `, params);
+
+    const hoyStr = new Date().toISOString().slice(0, 10);
+
+    const hoyRes = await pool.query(`
+      SELECT
+        COALESCE(SUM(CASE WHEN r.estado='completada' THEN s.precio ELSE 0 END), 0) AS ingresos_hoy,
+        COUNT(*) FILTER (WHERE r.estado='completada') AS completadas_hoy,
+        COUNT(*) FILTER (WHERE r.estado='confirmada') AS confirmadas_hoy,
+        COUNT(*) AS reservas_hoy
+      FROM reservas r
+      JOIN servicios s ON s.id = r.servicio_id
+      WHERE r.comercio_id=$1
+        AND r.fecha = $2
+    `, [comercio.id, hoyStr]);
+
+    const servicioTop = await pool.query(`
+      SELECT s.nombre, COUNT(*) AS cantidad
+      FROM reservas r
+      JOIN servicios s ON s.id = r.servicio_id
+      WHERE r.comercio_id=$1
+        AND r.fecha >= $2
+        AND r.fecha <= $3
+        AND r.estado='completada'
+      GROUP BY s.nombre
+      ORDER BY cantidad DESC
+      LIMIT 1
+    `, params);
+
+    const trabajadorTop = await pool.query(`
+      SELECT COALESCE(t.nombre, 'Sin asignar') AS nombre, COUNT(*) AS cantidad
+      FROM reservas r
+      LEFT JOIN trabajadores t ON t.id = r.trabajador_id
+      WHERE r.comercio_id=$1
+        AND r.fecha >= $2
+        AND r.fecha <= $3
+        AND r.estado='completada'
+      GROUP BY COALESCE(t.nombre, 'Sin asignar')
+      ORDER BY cantidad DESC
+      LIMIT 1
+    `, params);
+
+    const ultimosDias = await pool.query(`
+      SELECT
+        r.fecha::text AS fecha,
+        COUNT(*) AS reservas,
+        COALESCE(SUM(CASE WHEN r.estado='completada' THEN s.precio ELSE 0 END), 0) AS ingresos
+      FROM reservas r
+      JOIN servicios s ON s.id = r.servicio_id
+      WHERE r.comercio_id=$1
+        AND r.fecha >= (CURRENT_DATE - INTERVAL '6 days')
+        AND r.fecha <= CURRENT_DATE
+      GROUP BY r.fecha
+      ORDER BY r.fecha ASC
+    `, [comercio.id]);
+
+    res.json({
+      moneda: comercio.moneda || '$',
+      desde,
+      hasta,
+      resumen: resumen.rows[0],
+      hoy: hoyRes.rows[0],
+      servicio_top: servicioTop.rows[0] || null,
+      trabajador_top: trabajadorTop.rows[0] || null,
+      ultimos_dias: ultimosDias.rows
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/comercio/:slug/reservas
 router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
   try {
