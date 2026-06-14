@@ -2562,33 +2562,37 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
       </div>
     </section>
     ${d.direccion ? `
-  <section id="pc-ubicacion" style="padding:5rem 2rem;background:#24211f;text-align:center">
-    <div style="max-width:1050px;margin:0 auto">
-      <div style="font-family:Georgia,serif;font-style:italic;font-size:clamp(2rem,5vw,3.8rem);margin-bottom:2.5rem;color:#f5f0e8">
-        Donde nos encontramos?
+  <section id="pc-ubicacion" style="padding:3.5rem 2rem;background:#171717">
+    <div style="max-width:920px;margin:0 auto">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.4rem">
+        <div>
+          <div class="pc-sec-label">Ubicacion</div>
+          <div class="pc-sec-titulo" style="font-family:Georgia,serif;font-size:clamp(1.7rem,3vw,2.4rem);margin-bottom:0.35rem">
+            Donde atenderte
+          </div>
+          <p style="color:var(--texto2);font-size:0.95rem;margin:0;line-height:1.6">
+            ${d.direccion}
+          </p>
+        </div>
+
+        <a class="btn btn-oro btn-sm" href="${mapsUrl}" target="_blank" rel="noopener">
+          Como llegar
+        </a>
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:center;gap:0.9rem;flex-wrap:wrap;margin-bottom:2.5rem">
-        <span style="font-size:2.2rem;line-height:1">&#128205;</span>
-        <h2 style="font-size:clamp(1.8rem,4vw,3rem);color:#d8d8d8;margin:0">${d.direccion}</h2>
-      </div>
-
-      <div style="border:1px solid var(--borde2);max-width:900px;margin:0 auto;overflow:hidden;background:#111">
+      <div style="border:1px solid var(--borde2);border-radius:6px;overflow:hidden;background:#111;max-width:820px">
         <iframe
           src="${mapsEmbedUrl}"
           width="100%"
-          height="360"
-          style="border:0;display:block"
+          height="280"
+          style="border:0;display:block;filter:saturate(0.85)"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade">
         </iframe>
       </div>
-
-      <a class="btn btn-oro" href="${mapsUrl}" target="_blank" rel="noopener" style="margin-top:1.5rem;display:inline-block">
-        Abrir en Google Maps
-      </a>
     </div>
   </section>
+` : ''}
 ` : ''}
    <footer id="pc-footer" style="padding:3rem 2rem 2rem;border-top:1px solid var(--borde);background:#050505">
   <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:2rem;flex-wrap:wrap">
