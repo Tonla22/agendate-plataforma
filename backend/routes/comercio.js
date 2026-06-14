@@ -595,6 +595,61 @@ router.delete('/:slug/servicios/:id', authAdminOrComercio, async (req, res) => {
   }
 });
 
+// GET /api/comercio/:slug/clientes
+router.get('/:slug/clientes', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id, moneda FROM comercios WHERE slug=$1', [req.params.slug]);
+
+    if (!c.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const comercio = c.rows[0];
+
+    const clientes = await pool.query(`
+      WITH base AS (
+        SELECT
+          r.cliente_whatsapp,
+          MAX(TRIM(CONCAT(r.cliente_nombre, ' ', r.cliente_apellido))) AS nombre,
+          MAX(r.cliente_email) AS email,
+          COUNT(*) AS reservas_totales,
+          COUNT(*) FILTER (WHERE r.estado='completada') AS reservas_completadas,
+          MAX(r.fecha) AS ultima_visita,
+          COALESCE(SUM(CASE WHEN r.estado='completada' THEN s.precio ELSE 0 END), 0) AS total_gastado
+        FROM reservas r
+        JOIN servicios s ON s.id = r.servicio_id
+        WHERE r.comercio_id=$1
+        GROUP BY r.cliente_whatsapp
+      ),
+      favoritos AS (
+        SELECT DISTINCT ON (r.cliente_whatsapp)
+          r.cliente_whatsapp,
+          s.nombre AS servicio_favorito,
+          COUNT(*) AS cantidad
+        FROM reservas r
+        JOIN servicios s ON s.id = r.servicio_id
+        WHERE r.comercio_id=$1
+          AND r.estado='completada'
+        GROUP BY r.cliente_whatsapp, s.nombre
+        ORDER BY r.cliente_whatsapp, COUNT(*) DESC
+      )
+      SELECT
+        base.*,
+        favoritos.servicio_favorito
+      FROM base
+      LEFT JOIN favoritos ON favoritos.cliente_whatsapp = base.cliente_whatsapp
+      ORDER BY base.ultima_visita DESC
+    `, [comercio.id]);
+
+    res.json({
+      moneda: comercio.moneda || '$',
+      clientes: clientes.rows
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/comercio/:slug/metricas?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
 router.get('/:slug/metricas', authAdminOrComercio, async (req, res) => {
   try {

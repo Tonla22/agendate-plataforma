@@ -949,6 +949,7 @@ async function mostrarPanelComercio() {
       <nav class="com-nav">
         <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">Reservas</a>
         <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">Metricas</a>
+        <a href="#" onclick="comSec('clientes');return false" id="cn-clientes">Clientes</a>
         <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
         <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">Servicios</a>
         <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">Horarios</a>
@@ -963,6 +964,7 @@ async function mostrarPanelComercio() {
       <div class="com-secciones">
         <div id="com-reservas" class="com-sec act"></div>
         <div id="com-metricas" class="com-sec"></div>
+        <div id="com-clientes" class="com-sec"></div>
         <div id="com-trabajadores" class="com-sec"></div>
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
@@ -985,6 +987,7 @@ function comSec(sec) {
   document.getElementById('cn-' + sec).classList.add('act');
   if (sec === 'reservas') cargarComReservas();
   if (sec === 'metricas') cargarComMetricas();
+  if (sec === 'clientes') cargarComClientes();
   if (sec === 'trabajadores') cargarComTrabajadores();
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
@@ -1025,6 +1028,111 @@ function finMesActual() {
   const d = new Date();
   const fin = new Date(d.getFullYear(), d.getMonth() + 1, 0);
   return `${fin.getFullYear()}-${String(fin.getMonth() + 1).padStart(2, '0')}-${String(fin.getDate()).padStart(2, '0')}`;
+}
+async function cargarComClientes() {
+  const el = document.getElementById('com-clientes');
+
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Clientes</h1>
+    </div>
+
+    <div id="clientes-lista">
+      <span class="loader-inline claro"></span> Cargando clientes...
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/clientes`);
+    const moneda = data.moneda || '$';
+    const clientes = data.clientes || [];
+
+    const lista = document.getElementById('clientes-lista');
+
+    if (!clientes.length) {
+      lista.innerHTML = `
+        <div class="card" style="color:var(--texto2)">
+          Todavia no hay clientes para mostrar.
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem">
+        <div class="stat-card">
+          <div class="stat-lbl">Clientes registrados</div>
+          <div class="stat-num">${clientes.length}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-lbl">Clientes frecuentes</div>
+          <div class="stat-num">${clientes.filter(c => Number(c.reservas_completadas || 0) >= 3).length}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-lbl">Mayor gasto</div>
+          <div class="stat-num">${formatoDinero(Math.max(...clientes.map(c => Number(c.total_gastado || 0))), moneda)}</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>WhatsApp</th>
+              <th>Reservas</th>
+              <th>Ultima visita</th>
+              <th>Total gastado</th>
+              <th>Servicio favorito</th>
+              <th>Accion</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${clientes.map(c => {
+              const esFrecuente = Number(c.reservas_completadas || 0) >= 3;
+
+              return `
+                <tr>
+                  <td>
+                    <strong>${c.nombre || 'Sin nombre'}</strong>
+                    ${esFrecuente ? `<br><span class="badge badge-verde">Frecuente</span>` : ''}
+                  </td>
+
+                  <td>${c.cliente_whatsapp || '-'}</td>
+
+                  <td>
+                    ${c.reservas_totales || 0}
+                    <br>
+                    <small style="color:var(--texto2)">
+                      ${c.reservas_completadas || 0} completadas
+                    </small>
+                  </td>
+
+                  <td>${formatearFechaReserva(c.ultima_visita)}</td>
+
+                  <td>${formatoDinero(c.total_gastado, moneda)}</td>
+
+                  <td>${c.servicio_favorito || 'Sin datos'}</td>
+
+                  <td>
+                    ${c.cliente_whatsapp 
+                      ? `<a class="btn btn-ghost btn-sm" href="https://wa.me/${String(c.cliente_whatsapp).replace(/\D/g,'')}" target="_blank">WhatsApp</a>` 
+                      : '-'
+                    }
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('clientes-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
 }
 async function cargarComMetricas() {
   const el = document.getElementById('com-metricas');
