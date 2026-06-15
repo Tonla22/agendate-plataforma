@@ -34,13 +34,42 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
+function fechaHoraMsUY(fecha, hora) {
+  const [y, mo, d] = String(fecha).split('-').map(Number);
+  const [h, mi] = String(hora).slice(0, 5).split(':').map(Number);
+  return Date.UTC(y, mo - 1, d, h, mi);
+}
+
+function ahoraMsUY() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Montevideo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(new Date()).reduce((acc, p) => {
+    acc[p.type] = p.value;
+    return acc;
+  }, {});
+
+  return Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute)
+  );
+}
+
 // GET /api/p/:slug/disponibilidad?fecha=YYYY-MM-DD&servicio_id=N&trabajador_id=N
 router.get('/:slug/disponibilidad', async (req, res) => {
   try {
     const { fecha, servicio_id, trabajador_id } = req.query;
     if (!fecha || !servicio_id) return res.status(400).json({ error: 'Faltan parametros' });
 
-    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1 AND activo=true', [req.params.slug]);
+    const c = await pool.query('SELECT id, anticipacion_reserva_min FROM comercios WHERE slug=$1 AND activo=true', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
     const cid = c.rows[0].id;
 
@@ -66,22 +95,22 @@ router.get('/:slug/disponibilidad', async (req, res) => {
 
     let bloques;
 
-if (trabajadorId) {
-  bloques = await pool.query(
-    `SELECT abre,cierra
-     FROM trabajador_horario_bloques
-     WHERE trabajador_id=$1 AND comercio_id=$2 AND dia_semana=$3
-     ORDER BY orden`,
-    [trabajadorId, cid, diaSemana]
-  );
-}
+    if (trabajadorId) {
+      bloques = await pool.query(
+        `SELECT abre,cierra
+         FROM trabajador_horario_bloques
+         WHERE trabajador_id=$1 AND comercio_id=$2 AND dia_semana=$3
+         ORDER BY orden`,
+        [trabajadorId, cid, diaSemana]
+      );
+    }
 
-if (!bloques || !bloques.rows.length) {
-  bloques = await pool.query(
-    'SELECT abre,cierra FROM horario_bloques WHERE comercio_id=$1 AND dia_semana=$2 ORDER BY orden',
-    [cid, diaSemana]
-  );
-}
+    if (!bloques || !bloques.rows.length) {
+      bloques = await pool.query(
+        'SELECT abre,cierra FROM horario_bloques WHERE comercio_id=$1 AND dia_semana=$2 ORDER BY orden',
+        [cid, diaSemana]
+      );
+    }
 
     const toMin = t => {
       const [h, m] = t.split(':').map(Number);
@@ -134,7 +163,13 @@ if (!bloques || !bloques.rows.length) {
       for (let m = inicio; m < inicio + r.duracion_min; m += duracion) ocupadasSet.add(toStr(m));
     }
 
-    const disponibles = slots.filter(s => !ocupadasSet.has(s));
+    const anticipacionMin = Number(c.rows[0].anticipacion_reserva_min || 0);
+    const limiteMs = ahoraMsUY() + anticipacionMin * 60000;
+
+    const disponibles = slots.filter(s => {
+      if (ocupadasSet.has(s)) return false;
+      return fechaHoraMsUY(fecha, s) >= limiteMs;
+    });
     res.json({ horas: disponibles });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -216,10 +251,25 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
     await client.query('BEGIN');
 
     const c = await client.query('SELECT * FROM comercios WHERE slug=$1 AND activo=true', [req.params.slug]);
-    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+    if (!c.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
     const comercio = c.rows[0];
 
     const { servicio_id, trabajador_id, fecha, hora, nombre, apellido, whatsapp, email, comentarios } = req.body;
+
+    const anticipacionMin = Number(comercio.anticipacion_reserva_min || 0);
+    const limiteMs = ahoraMsUY() + anticipacionMin * 60000;
+
+    if (fechaHoraMsUY(fecha, hora) < limiteMs) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: anticipacionMin > 0
+          ? `Las reservas deben hacerse con al menos ${anticipacionMin} minutos de anticipacion.`
+          : 'No se puede reservar un horario pasado.'
+      });
+    }
 
     const servicio = await client.query('SELECT * FROM servicios WHERE id=$1 AND comercio_id=$2', [servicio_id, comercio.id]);
     if (!servicio.rows[0]) {

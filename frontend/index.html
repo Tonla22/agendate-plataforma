@@ -1930,6 +1930,11 @@ async function cargarComHorarios() {
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
 
+    window._politicasHorario = {
+      anticipacion_reserva_min: data.anticipacion_reserva_min || 0,
+      anticipacion_cancelacion_min: data.anticipacion_cancelacion_min || 0
+    };
+
     const horMap = {};
     (data.horarios || []).forEach(h => {
       horMap[h.dia_semana] = h;
@@ -1998,6 +2003,23 @@ function renderHorariosForm() {
 
   el.innerHTML = `
     <div style="max-width:850px">
+      <div class="card" style="margin-bottom:1rem">
+        <h3 style="margin-bottom:0.8rem;color:var(--oro)">Politicas de reserva</h3>
+
+        <div class="input-grid-2">
+          <div class="form-group">
+            <label class="label">Minutos antes para reservar</label>
+            <input class="input" id="hor-ant-res" type="number" min="0" value="${window._politicasHorario?.anticipacion_reserva_min || 0}">
+            <small style="color:var(--texto2)">Ejemplo: 120 = minimo 2 horas antes.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Minutos antes para cancelar</label>
+            <input class="input" id="hor-ant-can" type="number" min="0" value="${window._politicasHorario?.anticipacion_cancelacion_min || 0}">
+            <small style="color:var(--texto2)">Se usara cuando activemos cancelacion online.</small>
+          </div>
+        </div>
+      </div>
       <p style="color:var(--texto2);font-size:0.82rem;margin-bottom:1rem;line-height:1.5">
         Ejemplo: si el comercio trabaja de <b>09:00 a 20:00</b>, pero descansa de 
         <b>14:00 a 18:30</b>, el cliente solo podrá reservar de 
@@ -2213,6 +2235,11 @@ async function guardarHorarios() {
   }
 
   try {
+    await api('PUT', `/comercio/${S.slug}/perfil`, {
+      anticipacion_reserva_min: Number(document.getElementById('hor-ant-res')?.value || 0),
+      anticipacion_cancelacion_min: Number(document.getElementById('hor-ant-can')?.value || 0)
+    });
+
     await api('PUT', `/comercio/${S.slug}/horarios`, { horarios });
     toast('Horarios guardados correctamente');
     cargarComHorarios();

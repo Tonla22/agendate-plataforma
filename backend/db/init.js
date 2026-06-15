@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS comercios (
   color_fondo VARCHAR(20) DEFAULT '#0D0D0D',
   moneda VARCHAR(10) DEFAULT '$',
   duracion_turno_min INTEGER DEFAULT 30,
+  anticipacion_reserva_min INTEGER DEFAULT 0,
+  anticipacion_cancelacion_min INTEGER DEFAULT 0,
   activo BOOLEAN DEFAULT true,
   plan VARCHAR(50) DEFAULT 'activo',
   fecha_pago_hasta DATE,
@@ -143,6 +145,8 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS imagen_fondo_url VARCHAR(500);
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_reserva_min INTEGER DEFAULT 0;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_cancelacion_min INTEGER DEFAULT 0;
 EXCEPTION WHEN others THEN NULL;
 END $$;
 `;

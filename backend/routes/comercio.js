@@ -70,11 +70,23 @@ const validarSlug = [
 const validarPerfilComercio = [
   ...validarSlug,
 
-body('logo_url')
-  .optional({ nullable: true, checkFalsy: true })
-  .trim()
-  .isLength({ max: 500 })
-  .withMessage('Logo invalido'),
+  body('anticipacion_reserva_min')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 0, max: 10080 })
+    .withMessage('La anticipacion para reservar debe estar entre 0 y 10080 minutos')
+    .toInt(),
+
+  body('anticipacion_cancelacion_min')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 0, max: 10080 })
+    .withMessage('La anticipacion para cancelar debe estar entre 0 y 10080 minutos')
+    .toInt(),
+
+  body('logo_url')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Logo invalido'),
 
   body('nombre')
     .optional({ checkFalsy: true })
@@ -314,7 +326,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
 router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
     const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
-      'direccion','instagram_url','color_acento','color_fondo','moneda','logo_url','imagen_fondo_url'];
+      'direccion','anticipacion_reserva_min','anticipacion_cancelacion_min','instagram_url','color_acento','color_fondo','moneda','logo_url','imagen_fondo_url'];
     const sets = []; const vals = [];
     campos.forEach(c => {
       if (req.body[c] !== undefined) { sets.push(`${c}=$${sets.length+1}`); vals.push(req.body[c]); }
