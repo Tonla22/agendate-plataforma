@@ -187,6 +187,11 @@ const validarServicioComercio = [
     .withMessage('La duraciÃ³n debe estar entre 5 y 720 minutos')
     .toInt(),
 
+  body('trabajador_id')
+    .isInt({ min: 1 })
+    .withMessage('ElegÃ­ un profesional para este servicio')
+    .toInt(),
+
   body('descripcion')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
@@ -582,7 +587,14 @@ router.get('/:slug/servicios', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
-    const r = await pool.query('SELECT * FROM servicios WHERE comercio_id=$1 AND activo=true', [c.rows[0].id]);
+    const r = await pool.query(
+      `SELECT s.*, t.nombre AS trabajador_nombre
+       FROM servicios s
+       LEFT JOIN trabajadores t ON t.id=s.trabajador_id
+       WHERE s.comercio_id=$1 AND s.activo=true
+       ORDER BY s.orden,s.id`,
+      [c.rows[0].id]
+    );
     res.json(r.rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -591,10 +603,18 @@ router.post('/:slug/servicios', authAdminOrComercio, validarServicioComercio, re
   try {
     const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
-    const { nombre, descripcion, precio, duracion_min, orden, imagen_url } = req.body;
+    const { nombre, descripcion, precio, duracion_min, trabajador_id, orden, imagen_url } = req.body;
+    const trabajador = await pool.query(
+      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+      [trabajador_id, c.rows[0].id]
+    );
+    if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+
     const r = await pool.query(
-      'INSERT INTO servicios (comercio_id,nombre,descripcion,precio,duracion_min,orden,imagen_url) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
-      [c.rows[0].id, nombre, descripcion, precio, duracion_min, orden||0, imagen_url||null]
+      `INSERT INTO servicios (comercio_id,trabajador_id,nombre,descripcion,precio,duracion_min,orden,imagen_url)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       RETURNING *`,
+      [c.rows[0].id, trabajador_id, nombre, descripcion, precio, duracion_min, orden||0, imagen_url||null]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -602,11 +622,24 @@ router.post('/:slug/servicios', authAdminOrComercio, validarServicioComercio, re
 
 router.put('/:slug/servicios/:id', authAdminOrComercio, validarServicioComercio, revisarValidacion, async (req, res) => {
   try {
-    const { nombre, descripcion, precio, duracion_min, orden, activo, imagen_url } = req.body;
-    const r = await pool.query(
-      'UPDATE servicios SET nombre=$1,descripcion=$2,precio=$3,duracion_min=$4,orden=$5,activo=$6,imagen_url=$7 WHERE id=$8 RETURNING *',
-      [nombre, descripcion, precio, duracion_min, orden||0, activo!==false, imagen_url||null, req.params.id]
+    const comercio = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!comercio.rows[0]) return res.status(404).json({ error: 'No encontrado' });
+
+    const { nombre, descripcion, precio, duracion_min, trabajador_id, orden, activo, imagen_url } = req.body;
+    const trabajador = await pool.query(
+      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+      [trabajador_id, comercio.rows[0].id]
     );
+    if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+
+    const r = await pool.query(
+      `UPDATE servicios
+       SET trabajador_id=$1,nombre=$2,descripcion=$3,precio=$4,duracion_min=$5,orden=$6,activo=$7,imagen_url=$8
+       WHERE id=$9 AND comercio_id=$10
+       RETURNING *`,
+      [trabajador_id, nombre, descripcion, precio, duracion_min, orden||0, activo!==false, imagen_url||null, req.params.id, comercio.rows[0].id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Servicio no encontrado' });
     res.json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

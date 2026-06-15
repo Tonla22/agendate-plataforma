@@ -1842,13 +1842,28 @@ async function cargarComServicios() {
     <div class="com-header"><h1>Servicios</h1><button class="btn btn-oro btn-sm" onclick="abrirModalServicio()">+ Agregar</button></div>
     <div id="servicios-lista"><span class="loader-inline claro"></span></div>`;
   try {
-    const data = await api('GET', `/comercio/${S.slug}/servicios`);
+    const [data, trabajadores] = await Promise.all([
+      api('GET', `/comercio/${S.slug}/servicios`),
+      api('GET', `/comercio/${S.slug}/trabajadores`)
+    ]);
+    window._serviciosTrabajadores = trabajadores || [];
     const lista = document.getElementById('servicios-lista');
+    if (!window._serviciosTrabajadores.length) {
+      lista.innerHTML = `
+        <div class="card">
+          <p style="color:var(--texto2);margin-bottom:1rem">
+            Primero carga al menos un profesional para poder crear servicios.
+          </p>
+          <button class="btn btn-oro btn-sm" onclick="comSec('trabajadores')">Ir a Profesionales</button>
+        </div>`;
+      return;
+    }
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
-      <thead><tr><th>Imagen</th><th>Servicio</th><th>Precio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(s => `<tr>
         <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">—</span>'}</td>
         <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'...':''}</small>` : ''}</td>
+        <td>${s.trabajador_nombre || 'Sin profesional'}</td>
         <td>${s.precio}</td>
         <td>${s.duracion_min} min</td>
         <td><span class="badge ${s.activo ? 'badge-verde' : 'badge-gris'}">${s.activo ? 'Activo' : 'Oculto'}</span></td>
@@ -1866,6 +1881,10 @@ function abrirModalServicio(s = null) {
   const imagenActualHTML = s?.imagen_url
     ? `<img class="img-preview visible" id="sv-img-preview" src="${s.imagen_url}" alt="preview">`
     : `<img class="img-preview" id="sv-img-preview" alt="preview">`;
+  const trabajadores = window._serviciosTrabajadores || [];
+  const trabajadoresHTML = trabajadores.map(t => `
+    <option value="${t.id}" ${Number(s?.trabajador_id) === Number(t.id) ? 'selected' : ''}>${t.nombre}</option>
+  `).join('');
 
   mostrarModal(s ? 'Editar servicio' : 'Nuevo servicio', `
     <div class="form-group">
@@ -1873,6 +1892,13 @@ function abrirModalServicio(s = null) {
       <input class="input" id="sv-nom" value="${s?.nombre||''}" placeholder="Corte clásico">
     </div>
 
+    <div class="form-group">
+      <label class="label">Profesional *</label>
+      <select class="input" id="sv-trabajador">
+        <option value="">Elegir profesional</option>
+        ${trabajadoresHTML}
+      </select>
+    </div>
     <div class="input-grid-2">
       <div class="form-group">
         <label class="label">Precio *</label>
@@ -1915,8 +1941,9 @@ function abrirModalServicio(s = null) {
     const nombre = document.getElementById('sv-nom').value.trim();
     const precio = document.getElementById('sv-precio').value;
     const duracion_min = document.getElementById('sv-dur').value;
+    const trabajador_id = document.getElementById('sv-trabajador').value;
 
-    if (!nombre || !precio || !duracion_min) {
+    if (!nombre || !precio || !duracion_min || !trabajador_id) {
       toast('Completá todos los campos obligatorios', 'error');
       return false;
     }
@@ -1934,6 +1961,7 @@ function abrirModalServicio(s = null) {
       nombre,
       precio: parseFloat(precio),
       duracion_min: parseInt(duracion_min),
+      trabajador_id: parseInt(trabajador_id),
       descripcion: document.getElementById('sv-desc').value,
       activo: true,
       imagen_url
@@ -2436,6 +2464,8 @@ function renderComercioPublico(d) {
     if (!diasBloques[b.dia_semana]) diasBloques[b.dia_semana] = [];
     diasBloques[b.dia_semana].push(b);
   });
+  const trabajadores = d.trabajadores || [];
+  const trabajadorNombre = id => trabajadores.find(t => Number(t.id) === Number(id))?.nombre || '';
 
   const serviciosHTML = (d.servicios||[]).map(s => `
     <div class="pc-serv-card">
@@ -2444,6 +2474,7 @@ function renderComercioPublico(d) {
         <div class="pc-serv-nombre">${s.nombre}</div>
         <div class="pc-serv-precio">${d.moneda} ${parseFloat(s.precio).toLocaleString()}</div>
         <div class="pc-serv-dur">⏱ ${s.duracion_min} min</div>
+        ${s.trabajador_id ? `<div class="pc-serv-dur">Con ${trabajadorNombre(s.trabajador_id)}</div>` : ''}
         ${s.descripcion ? `<div style="font-size:0.8rem;color:var(--texto2);margin-top:0.4rem">${s.descripcion}</div>` : ''}
         <button class="pc-serv-btn" onclick="elegirServicioDesdeCard(${s.id})">Reservar →</button>
       </div>
@@ -2475,8 +2506,8 @@ function renderComercioPublico(d) {
       <div class="nom">${s.nombre}</div>
       <div class="pre">${d.moneda} ${parseFloat(s.precio).toLocaleString()}</div>
       <div class="dur">⏱ ${s.duracion_min} min</div>
+      ${s.trabajador_id ? `<div class="dur">Con ${trabajadorNombre(s.trabajador_id)}</div>` : ''}
     </div>`).join('');
-  const trabajadores = d.trabajadores || [];
   const requiereTrabajador = trabajadores.length > 0;
   const waNumero = String(d.whatsapp || '').replace(/\D/g, '');
 const waUrl = waNumero ? `https://wa.me/${waNumero}` : '#';
@@ -2774,11 +2805,24 @@ function elegirServicioReserva(id) {
   const s = S.comercio.servicios.find(x => Number(x.id) === Number(id));
   if (!s) return;
   S.reserva.servicio = s;
+  S.reserva.trabajador = null;
   S.reserva.fecha = null;
   S.reserva.hora = null;
   document.querySelectorAll('.opc-serv').forEach(el => el.classList.remove('sel'));
   document.querySelector(`.opc-serv[data-id="${id}"]`)?.classList.add('sel');
   document.getElementById('pc-btn12').disabled = false;
+
+  document.querySelectorAll('[data-trabajador-id]').forEach(el => el.classList.remove('sel'));
+
+  if (s.trabajador_id) {
+    const t = (S.comercio.trabajadores || []).find(x => Number(x.id) === Number(s.trabajador_id));
+    if (t) {
+      S.reserva.trabajador = t;
+      document.querySelector(`[data-trabajador-id="${t.id}"]`)?.classList.add('sel');
+      const btnTrab = document.getElementById('pc-btn23');
+      if (btnTrab) btnTrab.disabled = false;
+    }
+  }
 
   if (!(S.comercio.trabajadores || []).length) {
     const btnTrab = document.getElementById('pc-btn23');
@@ -2786,6 +2830,11 @@ function elegirServicioReserva(id) {
   }
 }
 function elegirTrabajadorReserva(id) {
+  if (S.reserva.servicio?.trabajador_id && Number(id) !== Number(S.reserva.servicio.trabajador_id)) {
+    toast('Ese servicio pertenece a otro profesional', 'error');
+    return;
+  }
+
   const t = (S.comercio.trabajadores || []).find(x => Number(x.id) === Number(id));
   if (!t) return;
 
@@ -3100,3 +3149,6 @@ route();
 </script>
 </body>
 </html>
+
+
+

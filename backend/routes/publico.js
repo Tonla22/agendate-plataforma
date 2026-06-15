@@ -16,7 +16,7 @@ router.get('/:slug', async (req, res) => {
 
     const cid = c.rows[0].id;
     const [servicios, horarios, bloques, trabajadores] = await Promise.all([
-      pool.query('SELECT id,nombre,descripcion,precio,duracion_min,imagen_url FROM servicios WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid]),
+      pool.query('SELECT id,nombre,descripcion,precio,duracion_min,imagen_url,trabajador_id FROM servicios WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid]),
       pool.query('SELECT dia_semana,abre,cierra FROM horarios WHERE comercio_id=$1 AND activo=true ORDER BY dia_semana', [cid]),
       pool.query('SELECT dia_semana,abre,cierra,orden FROM horario_bloques WHERE comercio_id=$1 ORDER BY dia_semana,orden', [cid]),
       pool.query('SELECT id,nombre,descripcion,foto_url FROM trabajadores WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid])
@@ -73,13 +73,17 @@ router.get('/:slug/disponibilidad', async (req, res) => {
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
     const cid = c.rows[0].id;
 
-    const servicio = await pool.query('SELECT duracion_min FROM servicios WHERE id=$1 AND comercio_id=$2', [servicio_id, cid]);
+    const servicio = await pool.query('SELECT duracion_min,trabajador_id FROM servicios WHERE id=$1 AND comercio_id=$2 AND activo=true', [servicio_id, cid]);
     if (!servicio.rows[0]) return res.status(404).json({ error: 'Servicio no encontrado' });
     const duracion = servicio.rows[0].duracion_min;
 
-    let trabajadorId = null;
+    let trabajadorId = servicio.rows[0].trabajador_id || null;
 
     if (trabajador_id) {
+      if (trabajadorId && Number(trabajador_id) !== Number(trabajadorId)) {
+        return res.status(400).json({ error: 'Ese servicio no pertenece al profesional elegido' });
+      }
+
       const trabajador = await pool.query(
         'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
         [trabajador_id, cid]
@@ -271,16 +275,21 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
       });
     }
 
-    const servicio = await client.query('SELECT * FROM servicios WHERE id=$1 AND comercio_id=$2', [servicio_id, comercio.id]);
+    const servicio = await client.query('SELECT * FROM servicios WHERE id=$1 AND comercio_id=$2 AND activo=true', [servicio_id, comercio.id]);
     if (!servicio.rows[0]) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Servicio no encontrado' });
     }
 
-    let trabajadorId = null;
+    let trabajadorId = servicio.rows[0].trabajador_id || null;
     let trabajadorNombre = null;
 
     if (trabajador_id) {
+      if (trabajadorId && Number(trabajador_id) !== Number(trabajadorId)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Ese servicio no pertenece al profesional elegido' });
+      }
+
       const trabajador = await client.query(
         'SELECT id,nombre FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
         [trabajador_id, comercio.id]
@@ -293,6 +302,14 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
 
       trabajadorId = trabajador.rows[0].id;
       trabajadorNombre = trabajador.rows[0].nombre;
+    }
+
+    if (trabajadorId && !trabajadorNombre) {
+      const trabajador = await client.query(
+        'SELECT nombre FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [trabajadorId, comercio.id]
+      );
+      trabajadorNombre = trabajador.rows[0]?.nombre || null;
     }
 
     let ocupadaQuery = `
