@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS comercios (
   id SERIAL PRIMARY KEY,
   slug VARCHAR(100) UNIQUE NOT NULL,
   nombre VARCHAR(255) NOT NULL,
-  slogan VARCHAR(255),
+  slogan TEXT,
   descripcion TEXT,
   telefono VARCHAR(50),
   whatsapp VARCHAR(50),
@@ -143,6 +143,7 @@ CREATE INDEX IF NOT EXISTS idx_trabajador_horario_bloques ON trabajador_horario_
 -- Columnas nuevas (para migraciones en BD existente â€” ignorar si ya existen)
 DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS imagen_fondo_url VARCHAR(500);
+  ALTER TABLE comercios ALTER COLUMN slogan TYPE TEXT;
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_reserva_min INTEGER DEFAULT 0;

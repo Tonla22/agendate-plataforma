@@ -52,7 +52,16 @@ function urlCloudinaryOptimizada(result, tipo) {
     return cloudinary.url(result.public_id, {
       secure: true,
       transformation: [
-        { width: 1920, height: 1080, crop: 'fill', gravity: 'auto', quality: 'auto', fetch_format: 'auto' }
+        { width: 1920, crop: 'limit', quality: 'auto:best', fetch_format: 'auto' }
+      ]
+    });
+  }
+
+  if (tipo === 'logo') {
+    return cloudinary.url(result.public_id, {
+      secure: true,
+      transformation: [
+        { width: 900, crop: 'limit', quality: 'auto:best', fetch_format: 'png' }
       ]
     });
   }
@@ -111,8 +120,8 @@ const validarPerfilComercio = [
   body('slogan')
     .optional({ checkFalsy: true })
     .trim()
-    .isLength({ max: 180 })
-    .withMessage('El slogan no puede superar 180 caracteres')
+    .isLength({ max: 500 })
+    .withMessage('El slogan no puede superar 500 caracteres')
     .escape(),
 
   body('telefono')
@@ -310,7 +319,8 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
         });
       }
 
-      const tipo = req.body?.tipo === 'fondo' ? 'fondo' : 'general';
+      const tiposValidos = new Set(['fondo', 'logo']);
+      const tipo = tiposValidos.has(req.body?.tipo) ? req.body.tipo : 'general';
       const resultado = await subirBufferACloudinary(req.file.buffer, req.params.slug);
 
       res.status(201).json({

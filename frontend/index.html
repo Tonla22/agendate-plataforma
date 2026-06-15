@@ -138,15 +138,16 @@ input,select,textarea { font-family: inherit; }
   min-height:100vh; display:flex; align-items:center; justify-content:center;
   text-align:center; padding:80px 2rem 4rem;
   background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.05) 0%, transparent 55%), #0D0D0D;
+  position:relative; overflow:hidden;
 }
 .pc-ornamento { font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--oro); margin-bottom:1.2rem; }
 .pc-titulo { font-family:Georgia,serif; font-size:clamp(3rem,9vw,6.5rem); line-height:1; margin-bottom:0.8rem; }
-.pc-slogan { color:var(--texto2); font-size:1rem; font-style:italic; font-family:Georgia,serif; margin-bottom:2.5rem; }
+.pc-slogan { color:var(--texto2); font-size:1rem; font-style:italic; font-family:Georgia,serif; margin:0 auto 2.5rem; max-width:760px; line-height:1.7; }
 .pc-cta { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
 .pc-divider { width:1px; height:50px; background:linear-gradient(to bottom,var(--oro),transparent); margin:2rem auto 0; }
 .pc-brand { display:flex; align-items:center; gap:0.65rem; min-width:0; }
-.pc-brand-img { width:34px; height:34px; object-fit:cover; border-radius:50%; border:1px solid var(--borde); background:#111; }
-.pc-hero-logo { width:96px; height:96px; object-fit:cover; border-radius:50%; border:1px solid var(--borde); margin:0 auto 1rem; background:#111; }
+.pc-brand-img { width:42px; height:34px; object-fit:contain; border-radius:0; border:none; background:transparent; }
+.pc-hero-logo { width:min(160px,38vw); height:96px; object-fit:contain; border-radius:0; border:none; margin:0 auto 1rem; background:transparent; }
 .pc-float-wa {
   position: fixed;
   right: 18px;
@@ -246,9 +247,47 @@ input,select,textarea { font-family: inherit; }
 .pc-hor-descanso { font-size:0.72rem; color:var(--texto2); opacity:0.6; display:block; margin:2px 0; }
 
 /* Hero con imagen de fondo */
-#pc-hero.con-imagen { background-size:cover; background-position:center top; background-repeat:no-repeat; position:relative; }
-#pc-hero.con-imagen::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.6); }
-#pc-hero.con-imagen > div { position:relative; z-index:1; }
+#pc-hero.con-imagen { background:#0D0D0D; }
+.pc-hero-bg {
+  position:absolute; inset:-28px; background-size:cover; background-position:center top;
+  filter:blur(22px); transform:scale(1.08); opacity:0.45;
+}
+.pc-hero-img {
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center top;
+  opacity:0.82;
+}
+#pc-hero.con-imagen::before {
+  content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.45),rgba(0,0,0,0.68)), rgba(0,0,0,0.18);
+}
+.pc-hero-content { position:relative; z-index:2; max-width:980px; margin:0 auto; }
+
+@media (max-width: 640px) {
+  #pc-hero.con-imagen {
+    min-height:100svh;
+    align-items:flex-end;
+    padding:62vh 1rem 2.5rem;
+  }
+  #pc-hero.con-imagen .pc-hero-img {
+    inset:0 0 auto 0;
+    height:64vh;
+    object-fit:contain;
+    object-position:center top;
+    opacity:0.95;
+  }
+  #pc-hero.con-imagen .pc-hero-bg {
+    opacity:0.55;
+    background-position:center top;
+  }
+  #pc-hero.con-imagen::before {
+    background:linear-gradient(to bottom,rgba(0,0,0,0.12) 0%,rgba(0,0,0,0.18) 46%,#0D0D0D 76%,#0D0D0D 100%);
+  }
+  .pc-slogan {
+    font-size:0.95rem;
+    line-height:1.55;
+    margin-bottom:1.6rem;
+  }
+}
 
 /* Upload de imagen en panel */
 .img-upload-area { border:2px dashed var(--borde2); border-radius:4px; padding:1.2rem; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:0.5rem; }
@@ -935,7 +974,7 @@ function abrirModalNuevoComercio() {
       <div class="form-group"><label class="label">Nombre del comercio *</label><input class="input" id="nc-nombre" placeholder="El Navajón"></div>
       <div class="form-group"><label class="label">Slug (URL) *</label><input class="input" id="nc-slug" placeholder="el-najajon" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"></div>
     </div>
-    <div class="form-group"><label class="label">Slogan</label><input class="input" id="nc-slogan" placeholder="Cortes con carácter"></div>
+    <div class="form-group"><label class="label">Slogan</label><textarea class="input" id="nc-slogan" rows="3" maxlength="500" placeholder="Cortes con carácter"></textarea></div>
     <div class="input-grid-2">
       <div class="form-group"><label class="label">Teléfono</label><input class="input" id="nc-tel" placeholder="+598 91 000 000"></div>
       <div class="form-group"><label class="label">WhatsApp (solo números)</label><input class="input" id="nc-wa" placeholder="59891000000"></div>
@@ -2280,7 +2319,7 @@ async function cargarComPerfil() {
 </div>
     <div style="max-width:520px">
         <div class="form-group"><label class="label">Nombre del comercio</label><input class="input" id="pf-nom" value="${data.nombre||''}"></div>
-        <div class="form-group"><label class="label">Slogan</label><input class="input" id="pf-slo" value="${data.slogan||''}"></div>
+        <div class="form-group"><label class="label">Slogan</label><textarea class="input" id="pf-slo" rows="3" maxlength="500">${data.slogan||''}</textarea></div>
         <div class="input-grid-2">
           <div class="form-group"><label class="label">Teléfono</label><input class="input" id="pf-tel" value="${data.telefono||''}"></div>
           <div class="form-group"><label class="label">WhatsApp</label><input class="input" id="pf-wa" value="${data.whatsapp||''}"></div>
@@ -2331,7 +2370,7 @@ let logo_url = document.getElementById('pf-logo')?.value || null;
 const archivoLogo = document.getElementById('pf-logo-file')?.files?.[0];
 
 if (archivoLogo) {
-  const subidaLogo = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoLogo);
+  const subidaLogo = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoLogo, { tipo: 'logo' });
   logo_url = subidaLogo.url;
 }
 
@@ -2472,8 +2511,12 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
 </div>
       <button class="btn btn-oro btn-sm" onclick="abrirReservaPublica()">Reservar turno</button>
     </nav>
-    <section id="pc-hero" ${d.imagen_fondo_url ? `class="con-imagen" style="background-image:url('${d.imagen_fondo_url}')"` : ''}>
-      <div>
+    <section id="pc-hero" ${d.imagen_fondo_url ? `class="con-imagen"` : ''}>
+      ${d.imagen_fondo_url ? `
+        <div class="pc-hero-bg" style="background-image:url('${d.imagen_fondo_url}')"></div>
+        <img class="pc-hero-img" src="${d.imagen_fondo_url}" alt="" aria-hidden="true">
+      ` : ''}
+      <div class="pc-hero-content">
         ${d.logo_url ? `<img class="pc-hero-logo" src="${d.logo_url}" alt="${d.nombre}">` : ''}
         <div class="pc-ornamento">✦ Reservas online ✦</div>
         <h1 class="pc-titulo" style="font-family:Georgia,serif">${d.nombre}</h1>
