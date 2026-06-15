@@ -47,6 +47,19 @@ function subirBufferACloudinary(buffer, slug) {
   });
 }
 
+function urlCloudinaryOptimizada(result, tipo) {
+  if (tipo === 'fondo') {
+    return cloudinary.url(result.public_id, {
+      secure: true,
+      transformation: [
+        { width: 1920, height: 1080, crop: 'fill', gravity: 'auto', quality: 'auto', fetch_format: 'auto' }
+      ]
+    });
+  }
+
+  return result.secure_url;
+}
+
 function revisarValidacion(req, res, next) {
   const errores = validationResult(req);
 
@@ -297,10 +310,11 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
         });
       }
 
+      const tipo = req.body?.tipo === 'fondo' ? 'fondo' : 'general';
       const resultado = await subirBufferACloudinary(req.file.buffer, req.params.slug);
 
       res.status(201).json({
-        url: resultado.secure_url
+        url: urlCloudinaryOptimizada(resultado, tipo)
       });
     } catch (e) {
       res.status(500).json({

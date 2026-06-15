@@ -246,7 +246,7 @@ input,select,textarea { font-family: inherit; }
 .pc-hor-descanso { font-size:0.72rem; color:var(--texto2); opacity:0.6; display:block; margin:2px 0; }
 
 /* Hero con imagen de fondo */
-#pc-hero.con-imagen { background-size:cover; background-position:center; background-repeat:no-repeat; position:relative; }
+#pc-hero.con-imagen { background-size:cover; background-position:center top; background-repeat:no-repeat; position:relative; }
 #pc-hero.con-imagen::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.6); }
 #pc-hero.con-imagen > div { position:relative; z-index:1; }
 
@@ -256,6 +256,7 @@ input,select,textarea { font-family: inherit; }
 .img-upload-area input[type=file] { display:none; }
 .img-preview { width:100%; max-height:160px; object-fit:cover; border-radius:3px; margin-top:0.5rem; display:none; }
 .img-preview.visible { display:block; }
+.img-preview-fondo { height:220px; max-height:none; object-fit:cover; object-position:center top; }
 .img-url-actual { font-size:0.72rem; color:var(--texto2); margin-top:0.3rem; word-break:break-all; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
 /* Horarios con bloques */
@@ -507,12 +508,18 @@ async function api(method, endpoint, body) {
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(API + endpoint, opts);
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || 'Error del servidor');
+  if (!r.ok) {
+    const detalles = Array.isArray(data.detalles) && data.detalles.length
+      ? ': ' + data.detalles.join(', ')
+      : '';
+    throw new Error((data.error || 'Error del servidor') + detalles);
+  }
   return data;
 }
-async function apiUpload(endpoint, file) {
+async function apiUpload(endpoint, file, extra = {}) {
   const form = new FormData();
   form.append('imagen', file);
+  Object.entries(extra).forEach(([key, value]) => form.append(key, value));
 
   const r = await fetch(API + endpoint, {
     method: 'POST',
@@ -525,7 +532,10 @@ async function apiUpload(endpoint, file) {
   const data = await r.json().catch(() => ({}));
 
   if (!r.ok) {
-    throw new Error(data.error || 'No se pudo subir la imagen');
+    const detalles = Array.isArray(data.detalles) && data.detalles.length
+      ? ': ' + data.detalles.join(', ')
+      : '';
+    throw new Error((data.error || 'No se pudo subir la imagen') + detalles);
   }
 
   return data;
@@ -553,9 +563,10 @@ function previewArchivoImagen(input, previewId) {
   img.src = URL.createObjectURL(file);
   img.classList.add('visible');
 }
-async function apiUpload(endpoint, file) {
+async function apiUpload(endpoint, file, extra = {}) {
   const form = new FormData();
   form.append('imagen', file);
+  Object.entries(extra).forEach(([key, value]) => form.append(key, value));
 
   const r = await fetch(API + endpoint, {
     method: 'POST',
@@ -568,7 +579,10 @@ async function apiUpload(endpoint, file) {
   const data = await r.json().catch(() => ({}));
 
   if (!r.ok) {
-    throw new Error(data.error || 'No se pudo subir la imagen');
+    const detalles = Array.isArray(data.detalles) && data.detalles.length
+      ? ': ' + data.detalles.join(', ')
+      : '';
+    throw new Error((data.error || 'No se pudo subir la imagen') + detalles);
   }
 
   return data;
@@ -2295,8 +2309,8 @@ async function cargarComPerfil() {
   </small>
 
   ${data.imagen_fondo_url 
-    ? `<img id="pf-fondo-preview" class="img-preview visible" src="${data.imagen_fondo_url}" alt="preview fondo">` 
-    : `<img id="pf-fondo-preview" class="img-preview" alt="preview fondo">`
+    ? `<img id="pf-fondo-preview" class="img-preview img-preview-fondo visible" src="${data.imagen_fondo_url}" alt="preview fondo">` 
+    : `<img id="pf-fondo-preview" class="img-preview img-preview-fondo" alt="preview fondo">`
   }
 
   ${data.imagen_fondo_url 
@@ -2324,7 +2338,7 @@ if (archivoLogo) {
     const archivoFondo = document.getElementById('pf-fondo-file')?.files?.[0];
 
     if (archivoFondo) {
-      const subida = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoFondo);
+      const subida = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoFondo, { tipo: 'fondo' });
       imagen_fondo_url = subida.url;
     }
 
