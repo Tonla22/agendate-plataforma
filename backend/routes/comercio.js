@@ -26,17 +26,26 @@ const uploadImagen = multer({
   }
 });
 
-function subirBufferACloudinary(buffer, slug) {
+function subirBufferACloudinary(buffer, slug, tipo = 'general') {
   return new Promise((resolve, reject) => {
     const safeSlug = String(slug || 'comercio')
       .replace(/[^a-z0-9_-]/gi, '')
       .toLowerCase();
 
+    const opciones = {
+      folder: `agendate/${safeSlug}`,
+      resource_type: 'image'
+    };
+
+    if (tipo === 'logo') {
+      opciones.format = 'png';
+      opciones.transformation = [
+        { width: 900, crop: 'limit', quality: 'auto:best' }
+      ];
+    }
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: `agendate/${safeSlug}`,
-        resource_type: 'image'
-      },
+      opciones,
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
@@ -61,7 +70,7 @@ function urlCloudinaryOptimizada(result, tipo) {
     return cloudinary.url(result.public_id, {
       secure: true,
       transformation: [
-        { width: 900, crop: 'limit', quality: 'auto:best', fetch_format: 'png' }
+        { width: 900, crop: 'limit', quality: 'auto:best', fetch_format: 'png', background: 'transparent' }
       ]
     });
   }
@@ -326,7 +335,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
 
       const tiposValidos = new Set(['fondo', 'logo']);
       const tipo = tiposValidos.has(req.body?.tipo) ? req.body.tipo : 'general';
-      const resultado = await subirBufferACloudinary(req.file.buffer, req.params.slug);
+      const resultado = await subirBufferACloudinary(req.file.buffer, req.params.slug, tipo);
 
       res.status(201).json({
         url: urlCloudinaryOptimizada(resultado, tipo)

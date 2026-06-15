@@ -331,6 +331,7 @@ input,select,textarea { font-family: inherit; }
 .img-upload-area input[type=file] { display:none; }
 .img-preview { width:100%; max-height:160px; object-fit:cover; border-radius:3px; margin-top:0.5rem; display:none; }
 .img-preview.visible { display:block; }
+.img-preview-logo { width:140px; height:140px; max-height:none; object-fit:contain; padding:0.6rem; background:#111; border:1px solid var(--borde2); }
 .img-preview-fondo { height:220px; max-height:none; object-fit:cover; object-position:center top; }
 .img-url-actual { font-size:0.72rem; color:var(--texto2); margin-top:0.3rem; word-break:break-all; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
@@ -446,6 +447,8 @@ input,select,textarea { font-family: inherit; }
    PANEL COMERCIO (dueño)
    ================================================================== */
 #panel-comercio { min-height:100vh; display:grid; grid-template-columns:200px 1fr; }
+.com-mobile-bar { display:none; }
+.com-menu-backdrop { display:none; }
 .com-sidebar { background:var(--bg2); border-right:1px solid var(--borde2); padding:0; display:flex; flex-direction:column; }
 .com-sidebar-logo { padding:1.2rem 1rem; border-bottom:1px solid var(--borde2); }
 .com-sidebar-logo .nombre { font-size:0.95rem; font-weight:700; color:var(--oro); }
@@ -481,10 +484,74 @@ input,select,textarea { font-family: inherit; }
 /* Responsive */
 @media (max-width:768px) {
   #panel-admin { grid-template-columns:1fr; }
-  #panel-comercio { grid-template-columns:1fr; }
-  .admin-sidebar,.com-sidebar { display:none; }
+  #panel-comercio { grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+  .admin-sidebar { display:none; }
+  .com-mobile-bar {
+    position:sticky;
+    top:0;
+    z-index:120;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:0.8rem;
+    padding:0.75rem 1rem;
+    background:rgba(13,13,13,0.96);
+    border-bottom:1px solid var(--borde2);
+    backdrop-filter:blur(10px);
+  }
+  .com-menu-btn {
+    width:40px;
+    height:36px;
+    border:1px solid var(--borde2);
+    border-radius:4px;
+    background:var(--bg2);
+    color:var(--texto);
+    font-size:1.35rem;
+    line-height:1;
+  }
+  .com-mobile-title {
+    min-width:0;
+    flex:1;
+    color:var(--oro);
+    font-weight:700;
+    font-size:0.95rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .com-sidebar {
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    z-index:140;
+    width:min(82vw,280px);
+    display:flex;
+    transform:translateX(-104%);
+    transition:transform 0.22s ease;
+    box-shadow:20px 0 50px rgba(0,0,0,0.45);
+  }
+  .com-sidebar.abierto { transform:translateX(0); }
+  .com-menu-backdrop {
+    position:fixed;
+    inset:0;
+    z-index:130;
+    background:rgba(0,0,0,0.58);
+  }
+  .com-menu-backdrop.abierto { display:block; }
+  .com-main { padding:1rem; overflow-x:hidden; }
+  .com-header { align-items:flex-start; gap:0.8rem; flex-direction:column; }
+  .com-header h1 { font-size:1.08rem; }
+  .stats-grid { grid-template-columns:1fr; gap:0.75rem; }
+  .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .tabla { min-width:720px; }
+  .modal-overlay { align-items:flex-end; padding:0; }
+  .modal { max-width:none; max-height:92vh; border-radius:10px 10px 0 0; padding:1.2rem; }
+  .toast { left:1rem; right:1rem; bottom:1rem; max-width:none; }
   .pc-nav-links { display:none; }
   .input-grid-2 { grid-template-columns:1fr; }
+  .hor-dia-row { grid-template-columns:1fr; gap:0.55rem; }
+  .hor-bloque-row { align-items:flex-start; flex-wrap:wrap; }
 }
 </style>
 </head>
@@ -1081,6 +1148,12 @@ async function mostrarPanelComercio() {
   const el = document.getElementById('panel-comercio');
   el.classList.add('activa');
   el.innerHTML = `
+    <div class="com-mobile-bar">
+      <button class="com-menu-btn" onclick="toggleMenuComercio()" aria-label="Abrir menu">☰</button>
+      <div class="com-mobile-title" id="cs-mobile-nombre">Panel del comercio</div>
+      <button class="btn btn-ghost btn-sm" onclick="window.open('/${S.slug}','_blank')">Ver</button>
+    </div>
+    <div class="com-menu-backdrop" id="com-menu-backdrop" onclick="cerrarMenuComercio()"></div>
     <aside class="com-sidebar">
       <div class="com-sidebar-logo">
         <div class="nombre" id="cs-nombre">Cargando...</div>
@@ -1115,9 +1188,23 @@ async function mostrarPanelComercio() {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
     S.comercio = data;
     document.getElementById('cs-nombre').textContent = data.nombre;
+    document.getElementById('cs-mobile-nombre').textContent = data.nombre;
     document.getElementById('cs-slug').textContent = '/' + data.slug;
   } catch(e) {}
   cargarComReservas();
+}
+
+function toggleMenuComercio() {
+  const sidebar = document.querySelector('#panel-comercio .com-sidebar');
+  const backdrop = document.getElementById('com-menu-backdrop');
+  const abrir = !sidebar?.classList.contains('abierto');
+  sidebar?.classList.toggle('abierto', abrir);
+  backdrop?.classList.toggle('abierto', abrir);
+}
+
+function cerrarMenuComercio() {
+  document.querySelector('#panel-comercio .com-sidebar')?.classList.remove('abierto');
+  document.getElementById('com-menu-backdrop')?.classList.remove('abierto');
 }
 
 function comSec(sec) {
@@ -1125,6 +1212,7 @@ function comSec(sec) {
   document.querySelectorAll('.com-nav a').forEach(a => a.classList.remove('act'));
   document.getElementById('com-' + sec).classList.add('act');
   document.getElementById('cn-' + sec).classList.add('act');
+  cerrarMenuComercio();
   if (sec === 'reservas') cargarComReservas();
   if (sec === 'metricas') cargarComMetricas();
   if (sec === 'clientes') cargarComClientes();
@@ -2374,12 +2462,12 @@ async function cargarComPerfil() {
     document.getElementById('perfil-form').innerHTML = `
       <div class="form-group" style="margin-top:0.5rem">
   <label class="label">Logo del comercio</label>
-  <input class="input" type="file" id="pf-logo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-logo-preview')">
+  <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview')">
   <input type="hidden" id="pf-logo" value="${data.logo_url||''}">
-  <small style="color:var(--texto2);font-size:0.72rem">Subi el logo desde tu computadora. Recomendado: cuadrado.</small>
+  <small style="color:var(--texto2);font-size:0.72rem">Subi el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
   ${data.logo_url 
-    ? `<img id="pf-logo-preview" class="img-preview visible" src="${data.logo_url}" alt="preview logo">` 
-    : `<img id="pf-logo-preview" class="img-preview" alt="preview logo">`
+    ? `<img id="pf-logo-preview" class="img-preview img-preview-logo visible" src="${data.logo_url}" alt="preview logo">` 
+    : `<img id="pf-logo-preview" class="img-preview img-preview-logo" alt="preview logo">`
   }
 </div>
     <div style="max-width:520px">
@@ -2575,7 +2663,6 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
       <div class="pc-nav-links">
   <a href="#" onclick="event.preventDefault();document.getElementById('pc-servicios')?.scrollIntoView({behavior:'smooth'});">Servicios</a>
   <a href="#" onclick="event.preventDefault();document.getElementById('pc-horarios')?.scrollIntoView({behavior:'smooth'});">Horarios</a>
-  <a href="#" onclick="event.preventDefault();document.getElementById('pc-reservas')?.scrollIntoView({behavior:'smooth'});">Reservar</a>
 </div>
       <button class="btn btn-oro btn-sm" onclick="abrirReservaPublica()">Reservar turno</button>
     </nav>
