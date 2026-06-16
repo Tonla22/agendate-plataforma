@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS comercios (
   duracion_turno_min INTEGER DEFAULT 30,
   anticipacion_reserva_min INTEGER DEFAULT 0,
   anticipacion_cancelacion_min INTEGER DEFAULT 0,
+    auto_confirmacion_activa BOOLEAN DEFAULT true,
+  auto_recordatorio_activo BOOLEAN DEFAULT true,
+  auto_recordatorio_horas_antes INTEGER DEFAULT 24,
+  auto_cancelacion_activa BOOLEAN DEFAULT true,
+  auto_agradecimiento_activo BOOLEAN DEFAULT false,
+  auto_agradecimiento_horas_despues INTEGER DEFAULT 2,
   activo BOOLEAN DEFAULT true,
   plan VARCHAR(50) DEFAULT 'activo',
   fecha_pago_hasta DATE,
@@ -146,6 +152,12 @@ DO $$ BEGIN
   ALTER TABLE comercios ALTER COLUMN slogan TYPE TEXT;
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
+    ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_confirmacion_activa BOOLEAN DEFAULT true;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_activo BOOLEAN DEFAULT true;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_horas_antes INTEGER DEFAULT 24;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_cancelacion_activa BOOLEAN DEFAULT true;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_agradecimiento_activo BOOLEAN DEFAULT false;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_agradecimiento_horas_despues INTEGER DEFAULT 2;
   CREATE INDEX IF NOT EXISTS idx_servicios_trabajador ON servicios(trabajador_id);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_reserva_min INTEGER DEFAULT 0;

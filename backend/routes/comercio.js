@@ -113,6 +113,42 @@ const validarPerfilComercio = [
     .withMessage('La anticipacion para cancelar debe estar entre 0 y 10080 minutos')
     .toInt(),
 
+      body('auto_confirmacion_activa')
+    .optional()
+    .isBoolean()
+    .withMessage('Configuracion de confirmacion invalida')
+    .toBoolean(),
+
+  body('auto_recordatorio_activo')
+    .optional()
+    .isBoolean()
+    .withMessage('Configuracion de recordatorio invalida')
+    .toBoolean(),
+
+  body('auto_recordatorio_horas_antes')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1, max: 168 })
+    .withMessage('El recordatorio debe estar entre 1 y 168 horas antes')
+    .toInt(),
+
+  body('auto_cancelacion_activa')
+    .optional()
+    .isBoolean()
+    .withMessage('Configuracion de cancelacion invalida')
+    .toBoolean(),
+
+  body('auto_agradecimiento_activo')
+    .optional()
+    .isBoolean()
+    .withMessage('Configuracion de agradecimiento invalida')
+    .toBoolean(),
+
+  body('auto_agradecimiento_horas_despues')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1, max: 168 })
+    .withMessage('El agradecimiento debe estar entre 1 y 168 horas despues')
+    .toInt(),
+
   body('logo_url')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
@@ -363,8 +399,11 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
 // PUT /api/comercio/:slug/perfil â€” el dueÃ±o edita su perfil
 router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
-    const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
-      'direccion','anticipacion_reserva_min','anticipacion_cancelacion_min','instagram_url','color_acento','color_fondo','moneda','logo_url','imagen_fondo_url'];
+   const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
+      'direccion','anticipacion_reserva_min','anticipacion_cancelacion_min',
+      'auto_confirmacion_activa','auto_recordatorio_activo','auto_recordatorio_horas_antes',
+      'auto_cancelacion_activa','auto_agradecimiento_activo','auto_agradecimiento_horas_despues',
+      'instagram_url','color_acento','color_fondo','moneda','logo_url','imagen_fondo_url'];
     const sets = []; const vals = [];
     campos.forEach(c => {
       if (req.body[c] !== undefined) { sets.push(`${c}=$${sets.length+1}`); vals.push(req.body[c]); }

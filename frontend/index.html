@@ -1166,6 +1166,7 @@ async function mostrarPanelComercio() {
         <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
         <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">Servicios</a>
         <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">Horarios</a>
+        <a href="#" onclick="comSec('automatizaciones');return false" id="cn-automatizaciones">Automatizaciones</a>
         <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">Perfil</a>
       </nav>
       <div style="padding:1rem;border-top:1px solid var(--borde2)">
@@ -1181,6 +1182,7 @@ async function mostrarPanelComercio() {
         <div id="com-trabajadores" class="com-sec"></div>
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
+        <div id="com-automatizaciones" class="com-sec"></div>
         <div id="com-perfil" class="com-sec"></div>
       </div>
     </main>`;
@@ -1219,6 +1221,7 @@ function comSec(sec) {
   if (sec === 'trabajadores') cargarComTrabajadores();
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
+  if (sec === 'automatizaciones') cargarComAutomatizaciones();
   if (sec === 'perfil') cargarComPerfil();
 }
 
@@ -2449,6 +2452,117 @@ async function guardarHorarios() {
     await api('PUT', `/comercio/${S.slug}/horarios`, { horarios });
     toast('Horarios guardados correctamente');
     cargarComHorarios();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function cargarComAutomatizaciones() {
+  const el = document.getElementById('com-automatizaciones');
+
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Automatizaciones</h1>
+    </div>
+
+    <div class="card" style="max-width:760px">
+      <p style="color:var(--texto2);font-size:0.88rem;margin-bottom:1.4rem">
+        Configura los mensajes automaticos que recibiran tus clientes por WhatsApp.
+      </p>
+
+      <div id="auto-form">
+        <span class="loader-inline claro"></span> Cargando configuracion...
+      </div>
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/perfil`);
+
+    document.getElementById('auto-form').innerHTML = `
+      <div class="form-group">
+        <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="auto-confirmacion" ${data.auto_confirmacion_activa !== false ? 'checked' : ''}>
+          <span>
+            <strong>Confirmacion de reserva</strong><br>
+            <small style="color:var(--texto2)">Enviar un WhatsApp cuando el cliente crea una reserva.</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="auto-recordatorio" ${data.auto_recordatorio_activo !== false ? 'checked' : ''}>
+          <span>
+            <strong>Recordatorio antes del turno</strong><br>
+            <small style="color:var(--texto2)">Enviar un WhatsApp antes de la hora reservada.</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group" style="max-width:260px">
+        <label class="label">Horas antes del turno</label>
+        <input class="input" id="auto-recordatorio-horas" type="number" min="1" max="168" value="${data.auto_recordatorio_horas_antes || 24}">
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="auto-cancelacion" ${data.auto_cancelacion_activa !== false ? 'checked' : ''}>
+          <span>
+            <strong>Aviso de cancelacion</strong><br>
+            <small style="color:var(--texto2)">Enviar un WhatsApp si una reserva se cancela.</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="auto-agradecimiento" ${data.auto_agradecimiento_activo === true ? 'checked' : ''}>
+          <span>
+            <strong>Agradecimiento despues del turno</strong><br>
+            <small style="color:var(--texto2)">Enviar un WhatsApp despues de la atencion.</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group" style="max-width:260px">
+        <label class="label">Horas despues del turno</label>
+        <input class="input" id="auto-agradecimiento-horas" type="number" min="1" max="168" value="${data.auto_agradecimiento_horas_despues || 2}">
+      </div>
+
+      <button class="btn btn-oro" onclick="guardarAutomatizaciones()">Guardar automatizaciones</button>
+    `;
+  } catch (e) {
+    document.getElementById('auto-form').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+async function guardarAutomatizaciones() {
+  try {
+    const recordatorioHoras = Number(document.getElementById('auto-recordatorio-horas')?.value || 24);
+    const agradecimientoHoras = Number(document.getElementById('auto-agradecimiento-horas')?.value || 2);
+
+    if (recordatorioHoras < 1 || recordatorioHoras > 168) {
+      toast('El recordatorio debe estar entre 1 y 168 horas antes', 'error');
+      return;
+    }
+
+    if (agradecimientoHoras < 1 || agradecimientoHoras > 168) {
+      toast('El agradecimiento debe estar entre 1 y 168 horas despues', 'error');
+      return;
+    }
+
+    await api('PUT', `/comercio/${S.slug}/perfil`, {
+      auto_confirmacion_activa: document.getElementById('auto-confirmacion')?.checked || false,
+      auto_recordatorio_activo: document.getElementById('auto-recordatorio')?.checked || false,
+      auto_recordatorio_horas_antes: recordatorioHoras,
+      auto_cancelacion_activa: document.getElementById('auto-cancelacion')?.checked || false,
+      auto_agradecimiento_activo: document.getElementById('auto-agradecimiento')?.checked || false,
+      auto_agradecimiento_horas_despues: agradecimientoHoras
+    });
+
+    toast('Automatizaciones guardadas');
+    cargarComAutomatizaciones();
   } catch (e) {
     toast(e.message, 'error');
   }
