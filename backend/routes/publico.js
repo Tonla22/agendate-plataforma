@@ -412,4 +412,97 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
   }
 });
 
+// GET /api/p/reservas/:uuid - ver reserva publica para cancelar
+router.get('/reservas/:uuid', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT
+        r.uuid,
+        r.fecha,
+        r.hora::text AS hora,
+        r.estado,
+        r.cliente_nombre,
+        r.cliente_apellido,
+        c.nombre AS comercio_nombre,
+        c.slug AS comercio_slug,
+        c.whatsapp AS comercio_whatsapp,
+        c.anticipacion_cancelacion_min,
+        s.nombre AS servicio_nombre,
+        s.precio,
+        s.duracion_min,
+        t.nombre AS profesional_nombre
+       FROM reservas r
+       JOIN comercios c ON c.id = r.comercio_id
+       JOIN servicios s ON s.id = r.servicio_id
+       LEFT JOIN trabajadores t ON t.id = r.trabajador_id
+       WHERE r.uuid=$1
+       LIMIT 1`,
+      [req.params.uuid]
+    );
+
+    if (!r.rows[0]) {
+      return res.status(404).json({ error: 'Reserva no encontrada' });
+    }
+
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/p/reservas/:uuid/cancelar - cancelar reserva publica
+router.post('/reservas/:uuid/cancelar', async (req, res) => {
+  try {
+    const actual = await pool.query(
+      `SELECT
+        r.id,
+        r.estado,
+        r.fecha,
+        r.hora::text AS hora,
+        c.anticipacion_cancelacion_min
+       FROM reservas r
+       JOIN comercios c ON c.id = r.comercio_id
+       WHERE r.uuid=$1
+       LIMIT 1`,
+      [req.params.uuid]
+    );
+
+    if (!actual.rows[0]) {
+      return res.status(404).json({ error: 'Reserva no encontrada' });
+    }
+
+    if (actual.rows[0].estado === 'cancelada') {
+      return res.json({ ok: true, mensaje: 'La reserva ya estaba cancelada' });
+    }
+
+    if (actual.rows[0].estado === 'completada') {
+      return res.status(400).json({ error: 'No se puede cancelar una reserva completada' });
+    }
+
+    const anticipacionMin = Number(actual.rows[0].anticipacion_cancelacion_min || 0);
+    const limiteMs = ahoraMsUY() + anticipacionMin * 60000;
+
+    if (fechaHoraMsUY(actual.rows[0].fecha, actual.rows[0].hora) < limiteMs) {
+      return res.status(400).json({
+        error: anticipacionMin > 0
+          ? `Las cancelaciones deben hacerse con al menos ${anticipacionMin} minutos de anticipacion.`
+          : 'No se puede cancelar una reserva pasada.'
+      });
+    }
+
+    const r = await pool.query(
+      `UPDATE reservas
+       SET estado='cancelada',
+           cancelada_por_cliente_en=NOW()
+       WHERE id=$1
+       RETURNING uuid, estado`,
+      [actual.rows[0].id]
+    );
+
+    res.json({ ok: true, reserva: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

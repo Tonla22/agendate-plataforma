@@ -55,6 +55,7 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth',    require('./routes/auth'));
 app.use('/api/admin',   require('./routes/admin'));
 app.use('/api/comercio',require('./routes/comercio'));
+app.use('/api/automatizaciones', require('./routes/automatizaciones'));
 app.use('/api/p',       require('./routes/publico'));
 
 // Salud del servidor

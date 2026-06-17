@@ -597,6 +597,11 @@ function route() {
   const path = location.pathname.replace(/\/$/, '');
   const parts = path.split('/').filter(Boolean);
 
+if (parts[0] === 'cancelar' && parts[1]) {
+  cargarCancelacionPublica(parts[1]);
+  return;
+}
+
   const tokenGuardado = localStorage.getItem('token');
 const tipoGuardado = localStorage.getItem('tipo');
 
@@ -2671,6 +2676,121 @@ if (archivoLogo) {
 // ============================================================
 // PÁGINA PÚBLICA DE CADA COMERCIO
 // ============================================================
+function formatearFechaPublica(fecha) {
+  if (!fecha) return '';
+  const d = new Date(fecha + 'T12:00:00');
+  return d.toLocaleDateString('es-UY', {
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
+async function cargarCancelacionPublica(uuid) {
+  const el = document.getElementById('pagina-comercio');
+  el.classList.add('activa');
+
+  el.innerHTML = `
+    <section style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg)">
+      <div class="card" style="width:100%;max-width:520px">
+        <div style="color:var(--oro);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.8rem">
+          Cancelacion de reserva
+        </div>
+        <h1 style="font-size:1.6rem;margin-bottom:0.8rem">Buscando tu reserva...</h1>
+        <p style="color:var(--texto2)">Un momento, estamos cargando los datos.</p>
+      </div>
+    </section>
+  `;
+
+  try {
+    const reserva = await api('GET', `/p/reservas/${uuid}`);
+
+    const yaCancelada = reserva.estado === 'cancelada';
+    const completada = reserva.estado === 'completada';
+
+    el.innerHTML = `
+      <section style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg)">
+        <div class="card" style="width:100%;max-width:560px">
+          <div style="color:var(--oro);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.8rem">
+            Cancelacion de reserva
+          </div>
+
+          <h1 style="font-size:1.7rem;margin-bottom:0.4rem">${reserva.comercio_nombre}</h1>
+          <p style="color:var(--texto2);margin-bottom:1.4rem">
+            Revisá los datos antes de cancelar tu turno.
+          </p>
+
+          <div class="resumen-card">
+            <div class="res-fila"><span class="res-k">Cliente</span><span class="res-v">${reserva.cliente_nombre} ${reserva.cliente_apellido || ''}</span></div>
+            <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${reserva.servicio_nombre}</span></div>
+            ${reserva.profesional_nombre ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${reserva.profesional_nombre}</span></div>` : ''}
+            <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${formatearFechaPublica(reserva.fecha)}</span></div>
+            <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${String(reserva.hora).slice(0,5)}</span></div>
+            <div class="res-fila"><span class="res-k">Estado</span><span class="res-v">${reserva.estado}</span></div>
+          </div>
+
+          <div id="cancelar-msg"></div>
+
+          ${
+            yaCancelada
+              ? `<p style="color:var(--texto2);margin-bottom:1rem">Esta reserva ya fue cancelada.</p>`
+              : completada
+                ? `<p style="color:var(--texto2);margin-bottom:1rem">Esta reserva ya fue completada y no puede cancelarse.</p>`
+                : `<button class="btn btn-peligro btn-full" onclick="confirmarCancelacionPublica('${uuid}')">Cancelar reserva</button>`
+          }
+
+          <button class="btn btn-ghost btn-full" style="margin-top:0.75rem" onclick="navegar('/${reserva.comercio_slug}')">
+            Volver a la pagina del comercio
+          </button>
+        </div>
+      </section>
+    `;
+  } catch (e) {
+    el.innerHTML = `
+      <section style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg)">
+        <div class="card" style="width:100%;max-width:520px">
+          <div style="color:var(--rojo);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.8rem">
+            No pudimos cargar la reserva
+          </div>
+          <h1 style="font-size:1.5rem;margin-bottom:0.8rem">Reserva no encontrada</h1>
+          <p style="color:var(--texto2)">${e.message}</p>
+        </div>
+      </section>
+    `;
+  }
+}
+
+async function confirmarCancelacionPublica(uuid) {
+  const ok = confirm('¿Seguro que querés cancelar esta reserva?');
+
+  if (!ok) return;
+
+  const msg = document.getElementById('cancelar-msg');
+  if (msg) {
+    msg.innerHTML = `<p style="color:var(--texto2);margin-bottom:1rem">Cancelando reserva...</p>`;
+  }
+
+  try {
+    await api('POST', `/p/reservas/${uuid}/cancelar`);
+
+    if (msg) {
+      msg.innerHTML = `
+        <div class="badge badge-rojo" style="margin-bottom:1rem">
+          Reserva cancelada correctamente
+        </div>
+      `;
+    }
+
+    const btn = document.querySelector('button.btn-peligro');
+    if (btn) btn.remove();
+  } catch (e) {
+    if (msg) {
+      msg.innerHTML = `<p style="color:var(--rojo);margin-bottom:1rem">${e.message}</p>`;
+    }
+  }
+}
+
 async function cargarComercioPublico(slug) {
   const el = document.getElementById('pagina-comercio');
   el.classList.add('activa');

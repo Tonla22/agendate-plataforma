@@ -133,9 +133,15 @@ CREATE TABLE IF NOT EXISTS reservas (
   cliente_whatsapp VARCHAR(50) NOT NULL,
   cliente_email VARCHAR(255),
   comentarios TEXT,
-  estado VARCHAR(50) DEFAULT 'confirmada', -- confirmada, cancelada, completada
+    estado VARCHAR(50) DEFAULT 'confirmada', -- confirmada, cancelada, completada
+  confirmacion_enviada BOOLEAN DEFAULT false,
+  confirmacion_enviada_en TIMESTAMP,
+  recordatorio_enviado BOOLEAN DEFAULT false,
+  recordatorio_enviado_en TIMESTAMP,
+  cancelacion_enviada BOOLEAN DEFAULT false,
+  cancelacion_enviada_en TIMESTAMP,
+  cancelada_por_cliente_en TIMESTAMP,
   creado_en TIMESTAMP DEFAULT NOW()
-);
 
 -- Ãndices para performance
 CREATE INDEX IF NOT EXISTS idx_reservas_comercio_fecha ON reservas(comercio_id, fecha);
@@ -160,6 +166,13 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_agradecimiento_horas_despues INTEGER DEFAULT 2;
   CREATE INDEX IF NOT EXISTS idx_servicios_trabajador ON servicios(trabajador_id);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
+   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada BOOLEAN DEFAULT false;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado BOOLEAN DEFAULT false;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada BOOLEAN DEFAULT false;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelada_por_cliente_en TIMESTAMP;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_reserva_min INTEGER DEFAULT 0;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_cancelacion_min INTEGER DEFAULT 0;
 EXCEPTION WHEN others THEN NULL;
