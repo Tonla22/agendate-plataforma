@@ -585,6 +585,69 @@ input,select,textarea { font-family: inherit; }
 .pc-conf-detalle { background:var(--bg3); border:1px solid var(--borde); border-radius:3px; padding:1.2rem; margin:1.5rem auto; max-width:380px; text-align:left; }
 
 /* ===== PC FOOTER ===== */
+.pc-tema-claro {
+  --bg: #F7F4EE;
+  --bg2: #EFEAE2;
+  --bg3: #FFFFFF;
+  --texto: #171717;
+  --texto2: #6D6257;
+  --borde2: rgba(0,0,0,0.10);
+  background: var(--bg);
+  color: var(--texto);
+}
+
+.pc-tema-claro #pc-nav {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.10);
+}
+
+.pc-tema-claro #pc-hero:not(.con-imagen) {
+  background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.12) 0%, transparent 55%), var(--bg);
+}
+
+.pc-tema-claro #pc-hero:not(.con-imagen) .pc-titulo,
+.pc-tema-claro #pc-hero:not(.con-imagen) .pc-slogan {
+  color: var(--texto);
+  text-shadow: none;
+}
+
+.pc-tema-claro #pc-hero.con-imagen .pc-titulo,
+.pc-tema-claro #pc-hero.con-imagen .pc-slogan {
+  color: #fff;
+}
+
+.pc-tema-claro .pc-serv-card,
+.pc-tema-claro .pc-hor-item,
+.pc-tema-claro .opc-s,
+.pc-tema-claro .resumen-card,
+.pc-tema-claro .pc-conf-detalle {
+  background: #fff;
+  border-color: rgba(0,0,0,0.10);
+}
+
+.pc-tema-claro .input {
+  background: #fff;
+  color: #171717;
+  border-color: rgba(0,0,0,0.16);
+}
+
+.pc-tema-claro .btn-ghost {
+  color: #4A4038;
+  border-color: rgba(0,0,0,0.18);
+}
+
+.pc-tema-claro .pc-float-wa {
+  background: #3f3f3f;
+}
+
+.pc-tema-claro #pc-ubicacion {
+  background: #EFEAE2 !important;
+}
+
+.pc-tema-claro #pc-footer {
+  background: #171717 !important;
+  color: #f5f5f5;
+}
 #pc-footer { background:#080808; border-top:1px solid var(--borde); padding:2.5rem 2rem; text-align:center; }
 .pc-footer-logo { font-size:1.3rem; font-weight:700; margin-bottom:0.8rem; }
 .pc-footer-links { display:flex; gap:1.5rem; justify-content:center; font-size:0.78rem; margin-bottom:1rem; flex-wrap:wrap; }
@@ -2819,6 +2882,15 @@ async function cargarComPerfil() {
             </div>
           </div>
 
+                    <div class="form-group">
+            <label class="label">Tema de la pagina publica</label>
+            <select class="input" id="pf-tema" onchange="actualizarPreviewPerfil()">
+              <option value="#0D0D0D" ${String(data.color_fondo || '#0D0D0D').toLowerCase() !== '#ffffff' ? 'selected' : ''}>Oscuro</option>
+              <option value="#FFFFFF" ${String(data.color_fondo || '').toLowerCase() === '#ffffff' ? 'selected' : ''}>Claro</option>
+            </select>
+            <small class="perfil-ayuda">Esto cambia el fondo general de la pagina que ven tus clientes.</small>
+          </div>
+
           <div class="form-group">
             <label class="label">Imagen principal de la pagina</label>
             <input class="input" type="file" id="pf-fondo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-fondo-preview');actualizarPreviewPerfil()">
@@ -2916,7 +2988,8 @@ if (archivoLogo) {
       whatsapp: document.getElementById('pf-wa').value,
       direccion: document.getElementById('pf-dir').value,
       instagram_url: document.getElementById('pf-ig').value,
-      color_acento: document.getElementById('pf-col').value,
+            color_acento: document.getElementById('pf-col').value,
+      color_fondo: document.getElementById('pf-tema').value,
       moneda: document.getElementById('pf-mon').value,
       imagen_fondo_url,
       logo_url,
@@ -3071,6 +3144,9 @@ function formatTime(t) { return t ? t.slice(0,5) : ''; }
 
 function renderComercioPublico(d) {
   const acento = d.color_acento || '#C9A84C';
+    const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
+  const pagina = document.getElementById('pagina-comercio');
+  pagina.classList.toggle('pc-tema-claro', temaClaro);
   const diasHorario = {};
   (d.horarios||[]).forEach(h => diasHorario[h.dia_semana] = h);
   // Agrupar bloques por día
@@ -3143,7 +3219,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
       </div>
     `;
 
-  document.getElementById('pagina-comercio').innerHTML = `
+    pagina.innerHTML = `
     <style>:root{--oro:${acento}}</style>
     <nav id="pc-nav">
       <div class="pc-brand">
