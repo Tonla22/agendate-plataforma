@@ -660,6 +660,29 @@ input,select,textarea { font-family: inherit; }
 .pc-footer-links a:hover { color:var(--oro); }
 .pc-footer-copy { color:var(--texto2); font-size:0.72rem; }
 
+.pc-acento-oscuro #pc-hero.con-imagen .btn-oro {
+  background: rgba(255,255,255,0.92);
+  color: #111;
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+}
+
+.pc-acento-oscuro #pc-hero.con-imagen .btn-oro:hover {
+  background: #fff;
+  opacity: 1;
+}
+
+.pc-acento-oscuro #pc-hero.con-imagen .btn-ghost {
+  color: #fff;
+  border-color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.08);
+}
+
+.pc-acento-oscuro #pc-hero.con-imagen .btn-ghost:hover {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+}
+
 /* ==================================================================
    PANEL ADMIN (super-admin)
    ================================================================== */
@@ -3165,12 +3188,29 @@ function colorTextoSobre(hex) {
   return brillo < 140 ? '#FFFFFF' : '#0D0D0D';
 }
 
+function colorEsOscuro(hex) {
+  const color = String(hex || '#C9A84C').replace('#', '');
+
+  if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
+    return false;
+  }
+
+  const r = parseInt(color.slice(0, 2), 16);
+  const g = parseInt(color.slice(2, 4), 16);
+  const b = parseInt(color.slice(4, 6), 16);
+
+  const brillo = (r * 299 + g * 587 + b * 114) / 1000;
+
+  return brillo < 70;
+}
+
 function renderComercioPublico(d) {
   const acento = d.color_acento || '#C9A84C';
     const textoSobreAcento = colorTextoSobre(acento);
     const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
   const pagina = document.getElementById('pagina-comercio');
   pagina.classList.toggle('pc-tema-claro', temaClaro);
+  pagina.classList.toggle('pc-acento-oscuro', colorEsOscuro(acento));
   const diasHorario = {};
   (d.horarios||[]).forEach(h => diasHorario[h.dia_semana] = h);
   // Agrupar bloques por día
