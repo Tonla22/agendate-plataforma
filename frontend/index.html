@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agendaté</title>
+<title>Agendate</title>
 <style>
 :root {
   --bg: #0D0D0D; --bg2: #1A1A1A; --bg3: #222;
@@ -1065,13 +1065,13 @@ function mostrarLogin(tipo = 'comercio') {
   document.getElementById('pagina-login').classList.add('activa');
   document.getElementById('pagina-login').innerHTML = `
           <div class="login-box">
-        <div class="login-logo">Agendaté</div>
+        <div class="login-logo">Agendate</div>
         <p class="login-sub">${esAdmin ? 'Acceso interno' : 'Acceso para comercios'}</p>
         <div class="card">
           <div style="margin-bottom:1.5rem;text-align:center">
             <strong style="color:var(--oro);font-size:1rem">${esAdmin ? 'Panel administrador' : 'Panel del comercio'}</strong>
             <p style="color:var(--texto2);font-size:0.8rem;margin-top:0.35rem">
-              ${esAdmin ? 'Ingreso reservado para la administracion de Agendate.' : 'Ingresa con los datos de tu comercio.'}
+              ${esAdmin ? 'Ingreso reservado para la administración de Agendate.' : 'Ingresá con los datos de tu comercio.'}
             </p>
           </div>
         <div id="login-form-area">
@@ -1136,7 +1136,7 @@ async function mostrarAdmin() {
   el.classList.add('activa');
   el.innerHTML = `
     <aside class="admin-sidebar">
-      <div class="admin-sidebar-logo">Agendaté <span>Panel de Control</span></div>
+      <div class="admin-sidebar-logo">Agendate <span>Panel de Control</span></div>
       <nav class="admin-nav">
         <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">Dashboard</a>
         <a href="#" onclick="adminSec('comercios');return false" id="an-comercios">Comercios</a>
@@ -1144,7 +1144,7 @@ async function mostrarAdmin() {
       </nav>
       <div class="admin-sidebar-bot">
         <div style="font-size:0.78rem;color:var(--texto2);margin-bottom:0.5rem">${S.nombre}</div>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesion</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
       </div>
     </aside>
     <main class="admin-main">
@@ -1220,7 +1220,7 @@ async function toggleComercio(id, activo) {
 }
 
 async function eliminarComercio(id, nombre) {
-  if (!confirm(`Eliminar "${nombre}"? Esta accion no se puede deshacer y borrara todas sus reservas.`)) return;
+  if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer y borrará todas sus reservas.`)) return;
   try {
     await api('DELETE', `/admin/comercios/${id}`);
     toast('Comercio eliminado');
@@ -1463,7 +1463,7 @@ async function mostrarPanelComercio() {
       </nav>
       <div style="padding:1rem;border-top:1px solid var(--borde2)">
         <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="window.open('/${S.slug}','_blank')">Ver mi pagina</button>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesion</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
       </div>
     </aside>
     <main class="com-main">
@@ -2035,7 +2035,7 @@ async function cargarComTrabajadores() {
     }
 
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
-      <thead><tr><th>Profesional</th><th>Descripcion</th><th>Orden</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Profesional</th><th>Descripción</th><th>Orden</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(t => `<tr>
         <td>
           <div style="display:flex;align-items:center;gap:0.75rem">
@@ -2043,7 +2043,7 @@ async function cargarComTrabajadores() {
             <strong>${t.nombre}</strong>
           </div>
         </td>
-        <td style="color:var(--texto2)">${t.descripcion || 'Sin descripcion'}</td>
+        <td style="color:var(--texto2)">${t.descripcion || 'Sin descripción'}</td>
         <td>${t.orden || 0}</td>
         <td>
           <div style="display:flex;gap:0.4rem;align-items:center;white-space:nowrap">
@@ -2070,7 +2070,7 @@ function abrirModalTrabajador(t = null) {
     </div>
 
     <div class="form-group">
-      <label class="label">Descripcion</label>
+      <label class="label">Descripción</label>
       <textarea class="input" id="tr-desc" rows="2" placeholder="Barbero, colorista, manicura...">${t?.descripcion || ''}</textarea>
     </div>
 
@@ -2088,7 +2088,7 @@ function abrirModalTrabajador(t = null) {
       <input type="hidden" id="tr-foto-url" value="${t?.foto_url || ''}">
 
       <small style="color:var(--texto2);font-size:0.72rem">
-        Subi una imagen desde tu computadora. Maximo 5 MB.
+        Subí una imagen desde tu computadora. Máximo 5 MB.
       </small>
 
       ${fotoActualHTML}
@@ -2505,7 +2505,7 @@ function renderHorariosForm() {
   el.innerHTML = `
     <div style="max-width:850px">
       <div class="card" style="margin-bottom:1rem">
-        <h3 style="margin-bottom:0.8rem;color:var(--oro)">Politicas de reserva</h3>
+        <h3 style="margin-bottom:0.8rem;color:var(--oro)">Políticas de reserva</h3>
 
         <div class="input-grid-2">
           <div class="form-group">
@@ -2517,7 +2517,7 @@ function renderHorariosForm() {
           <div class="form-group">
             <label class="label">Minutos antes para cancelar</label>
             <input class="input" id="hor-ant-can" type="number" min="0" value="${window._politicasHorario?.anticipacion_cancelacion_min || 0}">
-            <small style="color:var(--texto2)">Se usara cuando activemos cancelacion online.</small>
+            <small style="color:var(--texto2)">Se usará cuando activemos cancelación online.</small>
           </div>
         </div>
       </div>
@@ -2759,7 +2759,7 @@ async function cargarComAutomatizaciones() {
 
     <div class="card" style="max-width:760px">
       <p style="color:var(--texto2);font-size:0.88rem;margin-bottom:1.4rem">
-        Configura los mensajes automaticos que recibiran tus clientes por WhatsApp.
+        Configurá los mensajes automáticos que recibirán tus clientes por WhatsApp.
       </p>
 
       <div id="auto-form">
@@ -2801,7 +2801,7 @@ async function cargarComAutomatizaciones() {
         <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
           <input type="checkbox" id="auto-cancelacion" ${data.auto_cancelacion_activa !== false ? 'checked' : ''}>
           <span>
-            <strong>Aviso de cancelacion</strong><br>
+            <strong>Aviso de cancelación</strong><br>
             <small style="color:var(--texto2)">Enviar un WhatsApp si una reserva se cancela.</small>
           </span>
         </label>
@@ -2811,14 +2811,14 @@ async function cargarComAutomatizaciones() {
         <label style="display:flex;gap:0.7rem;align-items:flex-start;cursor:pointer">
           <input type="checkbox" id="auto-agradecimiento" ${data.auto_agradecimiento_activo === true ? 'checked' : ''}>
           <span>
-            <strong>Agradecimiento despues del turno</strong><br>
-            <small style="color:var(--texto2)">Enviar un WhatsApp despues de la atencion.</small>
+            <strong>Agradecimiento después del turno</strong><br>
+            <small style="color:var(--texto2)">Enviar un WhatsApp después de la atención.</small>
           </span>
         </label>
       </div>
 
       <div class="form-group" style="max-width:260px">
-        <label class="label">Horas despues del turno</label>
+        <label class="label">Horas después del turno</label>
         <input class="input" id="auto-agradecimiento-horas" type="number" min="1" max="168" value="${data.auto_agradecimiento_horas_despues || 2}">
       </div>
 
@@ -2840,7 +2840,7 @@ async function guardarAutomatizaciones() {
     }
 
     if (agradecimientoHoras < 1 || agradecimientoHoras > 168) {
-      toast('El agradecimiento debe estar entre 1 y 168 horas despues', 'error');
+      toast('El agradecimiento debe estar entre 1 y 168 horas después', 'error');
       return;
     }
 
@@ -2872,7 +2872,7 @@ async function cargarComPerfil() {
             <label class="label">Logo del comercio</label>
             <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview');actualizarPreviewPerfil()">
             <input type="hidden" id="pf-logo" value="${data.logo_url||''}">
-            <small class="perfil-ayuda">Subi el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
+            <small class="perfil-ayuda">Subí el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
             ${data.logo_url 
               ? `<img id="pf-logo-preview" class="img-preview img-preview-logo visible" src="${data.logo_url}" alt="preview logo">` 
               : `<img id="pf-logo-preview" class="img-preview img-preview-logo" alt="preview logo">`
@@ -2882,7 +2882,7 @@ async function cargarComPerfil() {
           <div class="form-group">
             <label class="label">Nombre visible del comercio</label>
             <input class="input" id="pf-nom" value="${data.nombre||''}" placeholder="Ej: Mc Barber Studio">
-            <small class="perfil-ayuda">Este nombre aparece en la pagina publica y en las reservas.</small>
+            <small class="perfil-ayuda">Este nombre aparece en la página pública y en las reservas.</small>
           </div>
 
           <div class="form-group">
@@ -2893,19 +2893,19 @@ async function cargarComPerfil() {
 
           <div class="input-grid-2">
             <div class="form-group">
-              <label class="label">Telefono del local</label>
+              <label class="label">Teléfono del local</label>
               <input class="input" id="pf-tel" value="${data.telefono||''}" placeholder="092 000 000">
             </div>
             <div class="form-group">
               <label class="label">WhatsApp de contacto</label>
               <input class="input" id="pf-wa" value="${data.whatsapp||''}" placeholder="092 000 000">
-              <small class="perfil-ayuda">Este numero se usa para el boton de WhatsApp de la pagina.</small>
+              <small class="perfil-ayuda">Este número se usa para el botón de WhatsApp de la página.</small>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="label">Direccion del local</label>
-            <input class="input" id="pf-dir" value="${data.direccion||''}" placeholder="Calle, numero, ciudad">
+            <label class="label">Dirección del local</label>
+            <input class="input" id="pf-dir" value="${data.direccion||''}" placeholder="Calle, número, ciudad">
             <small class="perfil-ayuda">Se usa para mostrar la ubicacion y abrir el mapa.</small>
           </div>
 
@@ -2920,16 +2920,16 @@ async function cargarComPerfil() {
 </div>
 
                     <div class="form-group">
-            <label class="label">Tema de la pagina publica</label>
+            <label class="label">Tema de la página pública</label>
             <select class="input" id="pf-tema" onchange="actualizarPreviewPerfil()">
               <option value="#0D0D0D" ${String(data.color_fondo || '#0D0D0D').toLowerCase() !== '#ffffff' ? 'selected' : ''}>Oscuro</option>
               <option value="#FFFFFF" ${String(data.color_fondo || '').toLowerCase() === '#ffffff' ? 'selected' : ''}>Claro</option>
             </select>
-            <small class="perfil-ayuda">Esto cambia el fondo general de la pagina que ven tus clientes.</small>
+            <small class="perfil-ayuda">Esto cambia el fondo general de la página que ven tus clientes.</small>
           </div>
 
           <div class="form-group">
-            <label class="label">Imagen principal de la pagina</label>
+            <label class="label">Imagen principal de la página</label>
             <input class="input" type="file" id="pf-fondo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-fondo-preview');actualizarPreviewPerfil()">
             <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url||''}">
             <small class="perfil-ayuda">Es la imagen grande de portada. En celular conviene que el centro de la foto sea lo mas importante.</small>
@@ -2951,13 +2951,13 @@ async function cargarComPerfil() {
         <div class="perfil-preview">
           <div class="perfil-preview-head">
             <strong>Vista previa</strong>
-            <span style="color:var(--texto2);font-size:0.78rem">Asi podria verse la portada para tus clientes.</span>
+            <span style="color:var(--texto2);font-size:0.78rem">Así podría verse la portada para tus clientes.</span>
           </div>
           <div class="perfil-preview-hero" id="perfil-preview-hero" style="${data.imagen_fondo_url ? `background-image:url('${data.imagen_fondo_url}')` : ''}">
             <div class="perfil-preview-content">
               <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url||''}" alt="">
               <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre||'Nombre del comercio'}</div>
-              <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer aca.'}</div>
+              <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer acá.'}</div>
 <span class="perfil-preview-btn" id="perfil-preview-btn" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.55)">Reservar turno</span>          </div>
         </div>
       </div>`;
@@ -2971,7 +2971,7 @@ async function cargarComPerfil() {
 
 function actualizarPreviewPerfil() {
   const nombre = document.getElementById('pf-nom')?.value || 'Nombre del comercio';
-  const slogan = document.getElementById('pf-slo')?.value || 'Tu frase principal va a aparecer aca.';
+  const slogan = document.getElementById('pf-slo')?.value || 'Tu frase principal va a aparecer acá.';
 
   const logoPreview = document.getElementById('pf-logo-preview');
   const fondoPreview = document.getElementById('pf-fondo-preview');
@@ -3108,7 +3108,7 @@ async function cargarCancelacionPublica(uuid) {
           }
 
           <button class="btn btn-ghost btn-full" style="margin-top:0.75rem" onclick="navegar('/${reserva.comercio_slug}')">
-            Volver a la pagina del comercio
+            Volver a la página del comercio
           </button>
         </div>
       </section>
@@ -3339,7 +3339,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
     </section>
     <section id="pc-reservas" class="pc-reserva-apartado" style="padding:5rem 2rem;background:var(--bg2)">
       <div style="max-width:1100px;margin:0 auto">
-        <button class="btn btn-ghost btn-sm pc-back-info" onclick="volverAInfoPublica()">&larr; Volver a la informacion</button>
+        <button class="btn btn-ghost btn-sm pc-back-info" onclick="volverAInfoPublica()">&larr; Volver a la información</button>
         <div class="pc-sec-label">Agenda tu turno</div>
         <div class="pc-sec-titulo" style="font-family:Georgia,serif">Reservar online</div>
         <div class="pc-linea"></div>
@@ -3375,8 +3375,8 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
           </div>
 
           <div id="pc-paso3" class="paso">
-            <div class="paso-tit">Que dia venis?</div>
-            <div class="paso-sub">Los dias tachados no tenemos atencion</div>
+            <div class="paso-tit">¿Qué día venís?</div>
+            <div class="paso-sub">Los días tachados no tienen atención</div>
             <div class="cal-hdr">
               <button class="cal-btn" onclick="pcCambiarMes(-1)">&#8249;</button>
               <span class="cal-mes-txt" id="pc-cal-tit"></span>
@@ -3407,7 +3407,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
               <div class="form-group"><label class="label">Nombre *</label><input class="input" id="pc-nom" placeholder="Tu nombre"></div>
               <div class="form-group"><label class="label">Apellido *</label><input class="input" id="pc-ape" placeholder="Tu apellido"></div>
             </div>
-            <div class="form-group"><label class="label">WhatsApp * <small style="color:var(--texto2);text-transform:none">(para confirmacion)</small></label><input class="input" id="pc-wa" type="tel" placeholder="+598 91 000 000"></div>
+            <div class="form-group"><label class="label">WhatsApp * <small style="color:var(--texto2);text-transform:none">(para confirmación)</small></label><input class="input" id="pc-wa" type="tel" placeholder="+598 91 000 000"></div>
             <div class="form-group"><label class="label">Email <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><input class="input" id="pc-email" type="email"></div>
             <div class="form-group"><label class="label">Comentarios <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><textarea class="input" id="pc-coment" rows="2" placeholder="Referencia de corte, aclaracion..."></textarea></div>
             <div id="pc-datos-err" class="form-error"></div>
@@ -3421,7 +3421,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
             <div class="paso-tit">Revisa tu reserva</div>
             <div class="paso-sub">Confirma antes de agendar</div>
             <div class="resumen-card" id="pc-resumen"></div>
-            <div style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">El pago se realiza en el local el dia del turno.</div>
+            <div style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">El pago se realiza en el local el día del turno.</div>
             <div class="pasos-nav">
               <button class="btn-atras" onclick="pcIrPaso(5)">&larr; Modificar</button>
               <button class="btn-sig" id="pc-btn-conf" onclick="pcConfirmar()">Confirmar turno</button>
@@ -3445,7 +3445,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
         <div>
           <div class="pc-sec-label">Ubicacion</div>
           <div class="pc-sec-titulo" style="font-family:Georgia,serif;font-size:clamp(1.7rem,3vw,2.4rem);margin-bottom:0.35rem">
-            Donde encontrarnos
+            Dónde encontrarnos
           </div>
           <p style="color:var(--texto2);font-size:0.95rem;margin:0;line-height:1.6">
             ${d.direccion}

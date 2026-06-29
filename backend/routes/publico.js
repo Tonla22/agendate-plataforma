@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
 const { body, param, validationResult } = require('express-validator');
+const { enviarConfirmacionReserva } = require('../services/whatsapp');
 
 // GET /api/p/:slug - datos publicos del comercio
 router.get('/:slug', async (req, res) => {
@@ -342,61 +343,32 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
 
     await client.query('COMMIT');
 
-        const webhookReservaCreada = process.env.N8N_RESERVA_CREADA_WEBHOOK_URL || comercio.webhook_url;
-
-    if (webhookReservaCreada && comercio.auto_confirmacion_activa !== false) {
-      const payload = {
-        evento: 'reserva_creada',
-        reserva_id: r.rows[0].id,
-        uuid,
-        comercio: {
-          id: comercio.id,
-          nombre: comercio.nombre,
-          slug: comercio.slug,
-          whatsapp: comercio.whatsapp || null
-        },
-        cliente: {
-          nombre,
-          apellido: apellido || '',
-          whatsapp,
-          email: email || null
-        },
-        servicio: {
-          id: servicio.rows[0].id,
-          nombre: servicio.rows[0].nombre,
-          precio: servicio.rows[0].precio,
-          duracion_min: servicio.rows[0].duracion_min
-        },
-        profesional: trabajadorNombre ? {
-          id: trabajadorId,
-          nombre: trabajadorNombre
-        } : null,
-        turno: {
-          fecha,
-          hora
-        },
-        automatizaciones: {
-          confirmacion_activa: comercio.auto_confirmacion_activa !== false,
-          recordatorio_activo: comercio.auto_recordatorio_activo !== false,
-          recordatorio_horas_antes: comercio.auto_recordatorio_horas_antes || 24,
-          cancelacion_activa: comercio.auto_cancelacion_activa !== false,
-          agradecimiento_activo: comercio.auto_agradecimiento_activo === true,
-          agradecimiento_horas_despues: comercio.auto_agradecimiento_horas_despues || 2
-        },
-        comentarios: comentarios || null
-      };
-
-      fetch(webhookReservaCreada, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
+           if (comercio.auto_confirmacion_activa !== false) {
+      enviarConfirmacionReserva({
+        reserva: r.rows[0],
+        comercio,
+        servicio: servicio.rows[0],
+        profesional: trabajadorNombre ? { id: trabajadorId, nombre: trabajadorNombre } : null
+      })
+        .then(() => {
+          return pool.query(
+            `UPDATE reservas
+             SET confirmacion_enviada=true,
+                 confirmacion_enviada_en=NOW()
+             WHERE id=$1`,
+            [r.rows[0].id]
+          );
+        })
+              .catch(err => {
+          console.error('No se pudo enviar confirmación WhatsApp:', err.message);
+        });
     }
 
     res.status(201).json({
       ok: true,
       uuid,
       reserva: {
+
         fecha,
         hora,
         trabajador: trabajadorNombre,

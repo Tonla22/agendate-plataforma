@@ -22,7 +22,7 @@ const uploadImagen = multer({
       return cb(null, true);
     }
 
-    cb(new Error('Solo se permiten imÃ¡genes JPG, PNG, WEBP o GIF'));
+    cb(new Error('Solo se permiten imágenes JPG, PNG, WEBP o GIF'));
   }
 });
 
@@ -83,7 +83,7 @@ function revisarValidacion(req, res, next) {
 
   if (!errores.isEmpty()) {
     return res.status(400).json({
-      error: 'RevisÃ¡ los datos enviados',
+      error: 'Revisá los datos enviados',
       detalles: errores.array().map(e => e.msg)
     });
   }
@@ -95,7 +95,7 @@ const validarSlug = [
   param('slug')
     .trim()
     .matches(/^[a-z0-9-]+$/i)
-    .withMessage('Slug invÃ¡lido')
+    .withMessage('Slug inválido')
 ];
 
 const validarPerfilComercio = [
@@ -104,25 +104,25 @@ const validarPerfilComercio = [
   body('anticipacion_reserva_min')
     .optional({ checkFalsy: true })
     .isInt({ min: 0, max: 10080 })
-    .withMessage('La anticipacion para reservar debe estar entre 0 y 10080 minutos')
+    .withMessage('La anticipación para reservar debe estar entre 0 y 10080 minutos')
     .toInt(),
 
   body('anticipacion_cancelacion_min')
     .optional({ checkFalsy: true })
     .isInt({ min: 0, max: 10080 })
-    .withMessage('La anticipacion para cancelar debe estar entre 0 y 10080 minutos')
+    .withMessage('La anticipación para cancelar debe estar entre 0 y 10080 minutos')
     .toInt(),
 
       body('auto_confirmacion_activa')
     .optional()
     .isBoolean()
-    .withMessage('Configuracion de confirmacion invalida')
+    .withMessage('Configuración de confirmación inválida')
     .toBoolean(),
 
   body('auto_recordatorio_activo')
     .optional()
     .isBoolean()
-    .withMessage('Configuracion de recordatorio invalida')
+    .withMessage('Configuración de recordatorio inválida')
     .toBoolean(),
 
   body('auto_recordatorio_horas_antes')
@@ -134,26 +134,26 @@ const validarPerfilComercio = [
   body('auto_cancelacion_activa')
     .optional()
     .isBoolean()
-    .withMessage('Configuracion de cancelacion invalida')
+    .withMessage('Configuración de cancelación inválida')
     .toBoolean(),
 
   body('auto_agradecimiento_activo')
     .optional()
     .isBoolean()
-    .withMessage('Configuracion de agradecimiento invalida')
+    .withMessage('Configuración de agradecimiento inválida')
     .toBoolean(),
 
   body('auto_agradecimiento_horas_despues')
     .optional({ checkFalsy: true })
     .isInt({ min: 1, max: 168 })
-    .withMessage('El agradecimiento debe estar entre 1 y 168 horas despues')
+    .withMessage('El agradecimiento debe estar entre 1 y 168 horas después')
     .toInt(),
 
   body('logo_url')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Logo invalido'),
+    .withMessage('Logo inválido'),
 
   body('nombre')
     .optional({ checkFalsy: true })
@@ -173,19 +173,19 @@ const validarPerfilComercio = [
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\s()-]{6,30}$/)
-    .withMessage('TelÃ©fono invÃ¡lido'),
+    .withMessage('Teléfono inválido'),
 
   body('whatsapp')
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\s()-]{6,30}$/)
-    .withMessage('WhatsApp invÃ¡lido'),
+    .withMessage('WhatsApp inválido'),
 
   body('direccion')
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 200 })
-    .withMessage('La direcciÃ³n no puede superar 200 caracteres')
+    .withMessage('La dirección no puede superar 200 caracteres')
     .escape(),
 
   body('instagram_url')
@@ -198,20 +198,20 @@ const validarPerfilComercio = [
     .optional({ checkFalsy: true })
     .trim()
     .matches(/^#[0-9A-Fa-f]{6}$/)
-    .withMessage('Color invÃ¡lido'),
+    .withMessage('Color inválido'),
 
   body('moneda')
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 1, max: 6 })
-    .withMessage('Moneda invÃ¡lida')
+    .withMessage('Moneda inválida')
     .escape(),
 
   body('imagen_fondo_url')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Imagen de fondo invÃ¡lida')
+    .withMessage('Imagen de fondo inválida')
 ];
 const validarServicioComercio = [
   ...validarSlug,
@@ -224,24 +224,24 @@ const validarServicioComercio = [
 
   body('precio')
     .isFloat({ min: 0 })
-    .withMessage('El precio debe ser un nÃºmero vÃ¡lido mayor o igual a 0')
+    .withMessage('El precio debe ser un número válido mayor o igual a 0')
     .toFloat(),
 
   body('duracion_min')
     .isInt({ min: 5, max: 720 })
-    .withMessage('La duraciÃ³n debe estar entre 5 y 720 minutos')
+    .withMessage('La duración debe estar entre 5 y 720 minutos')
     .toInt(),
 
   body('trabajador_id')
     .isInt({ min: 1 })
-    .withMessage('ElegÃ­ un profesional para este servicio')
+    .withMessage('Elegí un profesional para este servicio')
     .toInt(),
 
   body('descripcion')
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('La descripciÃ³n no puede superar 500 caracteres')
+    .withMessage('La descripción no puede superar 500 caracteres')
     .escape(),
 
   body('activo')
@@ -254,7 +254,7 @@ const validarServicioComercio = [
     .optional({ nullable: true, checkFalsy: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('La imagen del servicio es invÃ¡lida')
+    .withMessage('La imagen del servicio es inválida')
 ];
 function horaAMinBackend(hora) {
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ''))) {
@@ -273,7 +273,7 @@ function validarLogicaHorarios(req, res, next) {
 
     if (!Array.isArray(h.bloques) || h.bloques.length === 0) {
       return res.status(400).json({
-        error: 'Cada dÃ­a activo debe tener al menos un bloque horario'
+        error: 'Cada día activo debe tener al menos un bloque horario'
       });
     }
 
@@ -291,7 +291,7 @@ function validarLogicaHorarios(req, res, next) {
 
       if (b.abreMin === null || b.cierraMin === null) {
         return res.status(400).json({
-          error: 'Formato de horario invÃ¡lido. UsÃ¡ HH:MM'
+          error: 'Formato de horario inválido. Usá HH:MM'
         });
       }
 
@@ -317,32 +317,32 @@ const validarHorariosComercio = [
 
   body('horarios')
     .isArray({ min: 0, max: 7 })
-    .withMessage('Horarios invÃ¡lidos'),
+    .withMessage('Horarios inválidos'),
 
   body('horarios.*.dia_semana')
     .isInt({ min: 0, max: 6 })
-    .withMessage('DÃ­a invÃ¡lido')
+    .withMessage('Día inválido')
     .toInt(),
 
   body('horarios.*.activo')
     .isBoolean()
-    .withMessage('El estado del dÃ­a debe ser verdadero o falso')
+    .withMessage('El estado del día debe ser verdadero o falso')
     .toBoolean(),
 
   body('horarios.*.bloques')
     .optional()
     .isArray({ max: 8 })
-    .withMessage('Demasiados bloques para un dÃ­a'),
+    .withMessage('Demasiados bloques para un día'),
 
   body('horarios.*.bloques.*.abre')
     .optional()
     .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
-    .withMessage('Hora de apertura invÃ¡lida'),
+    .withMessage('Hora de apertura inválida'),
 
   body('horarios.*.bloques.*.cierra')
     .optional()
     .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
-    .withMessage('Hora de cierre invÃ¡lida')
+    .withMessage('Hora de cierre inválida')
 ];
 router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   uploadImagen.single('imagen')(req, res, async (err) => {
@@ -355,7 +355,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
 
       if (!req.file) {
         return res.status(400).json({
-          error: 'No se recibiÃ³ ninguna imagen'
+          error: 'No se recibió ninguna imagen'
         });
       }
 
@@ -365,7 +365,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
         !process.env.CLOUDINARY_API_SECRET
       ) {
         return res.status(500).json({
-          error: 'Cloudinary no estÃ¡ configurado en el servidor'
+          error: 'Cloudinary no está configurado en el servidor'
         });
       }
 
@@ -384,7 +384,7 @@ router.post('/:slug/upload-imagen', authAdminOrComercio, (req, res) => {
   });
 });
 
-// GET /api/comercio/:slug/perfil â€” datos del comercio (auth requerida)
+// GET /api/comercio/:slug/perfil - datos del comercio (auth requerida)
 router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
   try {
     const c = await pool.query('SELECT * FROM comercios WHERE slug=$1', [req.params.slug]);
@@ -396,7 +396,7 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// PUT /api/comercio/:slug/perfil â€” el dueÃ±o edita su perfil
+// PUT /api/comercio/:slug/perfil - el dueño edita su perfil
 router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarValidacion, async (req, res) => {
   try {
    const campos = ['nombre','slogan','telefono','whatsapp','email_contacto',
@@ -416,7 +416,7 @@ router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarV
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// PUT /api/comercio/:slug/horarios â€” guardar horarios con soporte de bloques
+// PUT /api/comercio/:slug/horarios - guardar horarios con soporte de bloques
 router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revisarValidacion, validarLogicaHorarios, async (req, res) => {
   const client = await pool.connect();
   try {
@@ -439,7 +439,7 @@ router.put('/:slug/horarios', authAdminOrComercio, validarHorariosComercio, revi
               );
             }
           }
-          // Guardar tambiÃ©n en horarios el primer bloque (compatibilidad)
+          // Guardar también en horarios el primer bloque (compatibilidad)
           const primerBloque = h.bloques.find(b => b.abre && b.cierra);
           if (primerBloque) {
             await client.query(
@@ -908,7 +908,7 @@ router.put('/:slug/reservas/:id/estado', authAdminOrComercio, async (req, res) =
     const estado = req.body.estado;
 
     if (!estadosPermitidos.has(estado)) {
-      return res.status(400).json({ error: 'Estado de reserva invalido' });
+      return res.status(400).json({ error: 'Estado de reserva inválido' });
     }
 
     const comercio = await pool.query(
