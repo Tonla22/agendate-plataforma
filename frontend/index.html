@@ -788,7 +788,7 @@ if (path === '/panel') {
 
 if (path === '/admin') {
   if (!tokenGuardado || tipoGuardado !== 'admin') {
-    navegar('/login');
+    navegar('/admin-acceso');
     return;
   }
 }
@@ -803,8 +803,10 @@ if (path === '/admin') {
     mostrarAdmin();
   } else if (parts[0] === 'panel') {
     mostrarPanelComercio();
-  } else if (parts[0] === 'login') {
-    mostrarLogin();
+    } else if (parts[0] === 'login') {
+    mostrarLogin('comercio');
+  } else if (parts[0] === 'admin-acceso') {
+    mostrarLogin('admin');
   } else {
     // Es un slug de comercio
     cargarComercioPublico(parts[0]);
@@ -950,17 +952,21 @@ function irPanel() {
 // ============================================================
 // LOGIN
 // ============================================================
-function mostrarLogin() {
+function mostrarLogin(tipo = 'comercio') {
+  loginTipo = tipo;
+  const esAdmin = tipo === 'admin';
   document.getElementById('pagina-login').classList.add('activa');
   document.getElementById('pagina-login').innerHTML = `
-    <div class="login-box">
-      <div class="login-logo">Agendaté</div>
-      <p class="login-sub">Panel de gestión</p>
-      <div class="card">
-        <div class="login-tabs">
-          <button class="login-tab act" onclick="loginTab('admin', this)">Super Admin</button>
-          <button class="login-tab" onclick="loginTab('comercio', this)">Mi Comercio</button>
-        </div>
+          <div class="login-box">
+        <div class="login-logo">Agendaté</div>
+        <p class="login-sub">${esAdmin ? 'Acceso interno' : 'Acceso para comercios'}</p>
+        <div class="card">
+          <div style="margin-bottom:1.5rem;text-align:center">
+            <strong style="color:var(--oro);font-size:1rem">${esAdmin ? 'Panel administrador' : 'Panel del comercio'}</strong>
+            <p style="color:var(--texto2);font-size:0.8rem;margin-top:0.35rem">
+              ${esAdmin ? 'Ingreso reservado para la administracion de Agendate.' : 'Ingresa con los datos de tu comercio.'}
+            </p>
+          </div>
         <div id="login-form-area">
           <div class="form-group">
             <label class="label">Email</label>
@@ -977,7 +983,7 @@ function mostrarLogin() {
     </div>`;
 }
 
-let loginTipo = 'admin';
+let loginTipo = 'comercio';
 function loginTab(tipo, el) {
   loginTipo = tipo;
   document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('act'));
@@ -1018,7 +1024,7 @@ function logout() {
 // PANEL SUPER-ADMIN
 // ============================================================
 async function mostrarAdmin() {
-  if (!S.token || S.tipo !== 'admin') { navegar('/login'); return; }
+  if (!S.token || S.tipo !== 'admin') { navegar('/admin-acceso'); return; }
   const el = document.getElementById('panel-admin');
   el.classList.add('activa');
   el.innerHTML = `
