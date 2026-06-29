@@ -44,7 +44,7 @@ input,select,textarea { font-family: inherit; }
 .btn { padding: 0.6rem 1.2rem; border-radius: 3px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; border: none; transition: opacity 0.2s,transform 0.1s; }
 .btn:hover { opacity: 0.88; }
 .btn:active { transform: scale(0.98); }
-.btn-oro { background: var(--oro); color: #0D0D0D; }
+.btn-oro { background: var(--oro); color: var(--texto-acento, #0D0D0D); }
 .btn-ghost { background: transparent; border: 1px solid var(--borde2); color: var(--texto2); }
 .btn-ghost:hover { border-color: var(--oro); color: var(--oro); opacity: 1; }
 .btn-peligro { background: var(--rojo); color: #fff; }
@@ -641,13 +641,18 @@ input,select,textarea { font-family: inherit; }
 }
 
 .pc-tema-claro #pc-ubicacion {
-  background: #EFEAE2 !important;
+  background: #FFFFFF !important;
+  border-top: 1px solid rgba(0,0,0,0.10);
 }
-
 .pc-tema-claro #pc-footer {
   background: #171717 !important;
   color: #f5f5f5;
 }
+
+#pc-ubicacion {
+  border-top: 1px solid var(--borde2);
+}
+
 #pc-footer { background:#080808; border-top:1px solid var(--borde); padding:2.5rem 2rem; text-align:center; }
 .pc-footer-logo { font-size:1.3rem; font-weight:700; margin-bottom:0.8rem; }
 .pc-footer-links { display:flex; gap:1.5rem; justify-content:center; font-size:0.78rem; margin-bottom:1rem; flex-wrap:wrap; }
@@ -2921,8 +2926,7 @@ async function cargarComPerfil() {
               <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url||''}" alt="">
               <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre||'Nombre del comercio'}</div>
               <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer aca.'}</div>
-              <span class="perfil-preview-btn" id="perfil-preview-btn" style="background:${data.color_acento||'#C9A84C'}">Reservar turno</span>
-            </div>
+<span class="perfil-preview-btn" id="perfil-preview-btn" style="background:${data.color_acento||'#C9A84C'};color:${colorTextoSobre(data.color_acento||'#C9A84C')}">Reservar turno</span>            </div>
           </div>
         </div>
       </div>`;
@@ -2950,7 +2954,10 @@ function actualizarPreviewPerfil() {
 
   if (previewNombre) previewNombre.textContent = nombre;
   if (previewSlogan) previewSlogan.textContent = slogan;
-  if (previewBtn) previewBtn.style.background = color;
+   if (previewBtn) {
+    previewBtn.style.background = color;
+    previewBtn.style.color = colorTextoSobre(color);
+  }
 
   if (previewLogo && logoPreview?.src) {
     previewLogo.src = logoPreview.src;
@@ -3142,8 +3149,25 @@ async function cargarComercioPublico(slug) {
 
 function formatTime(t) { return t ? t.slice(0,5) : ''; }
 
+function colorTextoSobre(hex) {
+  const color = String(hex || '#C9A84C').replace('#', '');
+
+  if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
+    return '#0D0D0D';
+  }
+
+  const r = parseInt(color.slice(0, 2), 16);
+  const g = parseInt(color.slice(2, 4), 16);
+  const b = parseInt(color.slice(4, 6), 16);
+
+  const brillo = (r * 299 + g * 587 + b * 114) / 1000;
+
+  return brillo < 140 ? '#FFFFFF' : '#0D0D0D';
+}
+
 function renderComercioPublico(d) {
   const acento = d.color_acento || '#C9A84C';
+    const textoSobreAcento = colorTextoSobre(acento);
     const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
   const pagina = document.getElementById('pagina-comercio');
   pagina.classList.toggle('pc-tema-claro', temaClaro);
@@ -3220,7 +3244,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
     `;
 
     pagina.innerHTML = `
-    <style>:root{--oro:${acento}}</style>
+        <style>:root{--oro:${acento};--texto-acento:${textoSobreAcento}}</style>
     <nav id="pc-nav">
       <div class="pc-brand">
   ${d.logo_url ? `<img class="pc-brand-img" src="${d.logo_url}" alt="${d.nombre}">` : ''}
@@ -3374,7 +3398,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
         <div>
           <div class="pc-sec-label">Ubicacion</div>
           <div class="pc-sec-titulo" style="font-family:Georgia,serif;font-size:clamp(1.7rem,3vw,2.4rem);margin-bottom:0.35rem">
-            Donde atenderte
+            Donde encontrarnos
           </div>
           <p style="color:var(--texto2);font-size:0.95rem;margin:0;line-height:1.6">
             ${d.direccion}
