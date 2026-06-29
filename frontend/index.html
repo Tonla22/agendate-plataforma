@@ -2774,13 +2774,13 @@ async function cargarComPerfil() {
           </div>
         </div>
       </div>`;
-  } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
-}
 
     ['pf-nom','pf-slo','pf-col'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', actualizarPreviewPerfil);
     });
     actualizarPreviewPerfil();
+     } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
+}
 
 function actualizarPreviewPerfil() {
   const nombre = document.getElementById('pf-nom')?.value || 'Nombre del comercio';
