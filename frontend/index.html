@@ -2958,8 +2958,7 @@ async function cargarComPerfil() {
               <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url||''}" alt="">
               <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre||'Nombre del comercio'}</div>
               <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer aca.'}</div>
-<span class="perfil-preview-btn" id="perfil-preview-btn" style="background:${data.color_acento||'#C9A84C'};color:${colorTextoSobre(data.color_acento||'#C9A84C')}">Reservar turno</span>            </div>
-          </div>
+<span class="perfil-preview-btn" id="perfil-preview-btn" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.55)">Reservar turno</span>          </div>
         </div>
       </div>`;
 
@@ -2985,11 +2984,11 @@ function actualizarPreviewPerfil() {
 
   if (previewNombre) previewNombre.textContent = nombre;
   if (previewSlogan) previewSlogan.textContent = slogan;
-   if (previewBtn) {
-  previewBtn.style.background = 'rgba(255,255,255,0.08)';
-  previewBtn.style.color = '#fff';
-  previewBtn.style.border = '1px solid rgba(255,255,255,0.55)';
-}
+
+  if (previewBtn) {
+    previewBtn.style.background = 'rgba(255,255,255,0.08)';
+    previewBtn.style.color = '#fff';
+    previewBtn.style.border = '1px solid rgba(255,255,255,0.55)';
   }
 
   if (previewLogo && logoPreview?.src) {
@@ -3000,7 +2999,7 @@ function actualizarPreviewPerfil() {
   if (previewHero && fondoPreview?.src) {
     previewHero.style.backgroundImage = `url('${fondoPreview.src}')`;
   }
-
+}
 
 async function guardarPerfil() {
   try {
