@@ -591,10 +591,18 @@ input,select,textarea { font-family: inherit; }
   --bg3: #FFFFFF;
   --texto: #171717;
   --texto2: #6D6257;
+    --oro: #111111;
+  --texto-acento: #FFFFFF;
   --borde2: rgba(0,0,0,0.10);
   background: var(--bg);
   color: var(--texto);
 }
+
+#pagina-comercio {
+  --oro: #FFFFFF;
+  --texto-acento: #111111;
+}
+
 
 .pc-tema-claro #pc-nav {
   background: rgba(255,255,255,0.92);
@@ -660,12 +668,18 @@ input,select,textarea { font-family: inherit; }
 .pc-footer-links a:hover { color:var(--oro); }
 .pc-footer-copy { color:var(--texto2); font-size:0.72rem; }
 
-.pc-acento-oscuro #pc-hero.con-imagen .btn-oro {
+#pc-hero.con-imagen .btn-oro {
   background: rgba(255,255,255,0.08);
   color: #fff;
   border: 1px solid rgba(255,255,255,0.55);
   box-shadow: none;
   backdrop-filter: blur(4px);
+}
+
+#pc-hero.con-imagen .btn-oro:hover {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+  opacity: 1;
 }
 
 .pc-acento-oscuro #pc-hero.con-imagen .btn-oro:hover {
@@ -2900,17 +2914,10 @@ async function cargarComPerfil() {
             <input class="input" id="pf-ig" value="${data.instagram_url||''}" placeholder="@usuario o link de Instagram">
           </div>
 
-          <div class="input-grid-2">
-            <div class="form-group">
-              <label class="label">Color principal</label>
-              <input class="input" id="pf-col" type="color" value="${data.color_acento||'#C9A84C'}" style="height:40px;padding:0.2rem">
-              <small class="perfil-ayuda">Se aplica a botones y detalles importantes.</small>
-            </div>
-            <div class="form-group">
-              <label class="label">Moneda de precios</label>
-              <input class="input" id="pf-mon" value="${data.moneda||'$'}" style="max-width:80px" placeholder="$">
-            </div>
-          </div>
+          <div class="form-group">
+  <label class="label">Moneda de precios</label>
+  <input class="input" id="pf-mon" value="${data.moneda||'$'}" style="max-width:80px" placeholder="$">
+</div>
 
                     <div class="form-group">
             <label class="label">Tema de la pagina publica</label>
@@ -2956,7 +2963,7 @@ async function cargarComPerfil() {
         </div>
       </div>`;
 
-    ['pf-nom','pf-slo','pf-col'].forEach(id => {
+    ['pf-nom','pf-slo'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', actualizarPreviewPerfil);
     });
     actualizarPreviewPerfil();
@@ -2966,7 +2973,6 @@ async function cargarComPerfil() {
 function actualizarPreviewPerfil() {
   const nombre = document.getElementById('pf-nom')?.value || 'Nombre del comercio';
   const slogan = document.getElementById('pf-slo')?.value || 'Tu frase principal va a aparecer aca.';
-  const color = document.getElementById('pf-col')?.value || '#C9A84C';
 
   const logoPreview = document.getElementById('pf-logo-preview');
   const fondoPreview = document.getElementById('pf-fondo-preview');
@@ -2980,8 +2986,10 @@ function actualizarPreviewPerfil() {
   if (previewNombre) previewNombre.textContent = nombre;
   if (previewSlogan) previewSlogan.textContent = slogan;
    if (previewBtn) {
-    previewBtn.style.background = color;
-    previewBtn.style.color = colorTextoSobre(color);
+  previewBtn.style.background = 'rgba(255,255,255,0.08)';
+  previewBtn.style.color = '#fff';
+  previewBtn.style.border = '1px solid rgba(255,255,255,0.55)';
+}
   }
 
   if (previewLogo && logoPreview?.src) {
@@ -2992,7 +3000,7 @@ function actualizarPreviewPerfil() {
   if (previewHero && fondoPreview?.src) {
     previewHero.style.backgroundImage = `url('${fondoPreview.src}')`;
   }
-}
+
 
 async function guardarPerfil() {
   try {
@@ -3020,7 +3028,6 @@ if (archivoLogo) {
       whatsapp: document.getElementById('pf-wa').value,
       direccion: document.getElementById('pf-dir').value,
       instagram_url: document.getElementById('pf-ig').value,
-            color_acento: document.getElementById('pf-col').value,
       color_fondo: document.getElementById('pf-tema').value,
       moneda: document.getElementById('pf-mon').value,
       imagen_fondo_url,
@@ -3207,12 +3214,11 @@ function colorEsOscuro(hex) {
 }
 
 function renderComercioPublico(d) {
-  const acento = d.color_acento || '#C9A84C';
-    const textoSobreAcento = colorTextoSobre(acento);
-    const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
+  const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
+const acento = temaClaro ? '#111111' : '#FFFFFF';
+const textoSobreAcento = temaClaro ? '#FFFFFF' : '#111111';
   const pagina = document.getElementById('pagina-comercio');
   pagina.classList.toggle('pc-tema-claro', temaClaro);
-  pagina.classList.toggle('pc-acento-oscuro', colorEsOscuro(acento));
   const diasHorario = {};
   (d.horarios||[]).forEach(h => diasHorario[h.dia_semana] = h);
   // Agrupar bloques por día
@@ -3318,7 +3324,7 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
     <section id="pc-servicios" style="padding:5rem 2rem">
       <div style="max-width:1100px;margin:0 auto">
         <div class="pc-sec-label">Servicios</div>
-        <div class="pc-sec-titulo" style="font-family:Georgia,serif">Lo que hacemos</div>
+        <div class="pc-sec-titulo" style="font-family:Georgia,serif">Servicios</div>
         <div class="pc-linea"></div>
         <div class="pc-servicios-grid">${serviciosHTML}</div>
       </div>
