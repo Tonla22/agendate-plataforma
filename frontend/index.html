@@ -435,6 +435,80 @@ input,select,textarea { font-family: inherit; }
   }
 }
 
+.perfil-preview {
+  max-width: 420px;
+  background: #111;
+  border: 1px solid var(--borde2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.perfil-preview-head {
+  padding: 0.85rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--borde2);
+}
+
+.perfil-preview-hero {
+  min-height: 430px;
+  background-color: #111;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.4rem;
+  text-align: center;
+}
+
+.perfil-preview-hero::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.25),
+    rgba(0,0,0,0.62),
+    rgba(0,0,0,0.82)
+  );
+}
+
+.perfil-preview-content {
+  max-width: 330px;
+}
+
+.perfil-preview-logo {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 1rem;
+  object-fit: contain;
+  background: rgba(255,255,255,0.92);
+  border-radius: 6px;
+  padding: 0.35rem;
+}
+
+.perfil-preview-title {
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 0.65rem;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+}
+
+.perfil-preview-slogan {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+}
+
+.perfil-preview-btn {
+  display: inline-block;
+  padding: 0.7rem 1.3rem;
+  border-radius: 4px;
+  color: #0D0D0D;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
 /* Horarios con bloques */
 .hor-dia-row { display:flex; align-items:flex-start; gap:0.75rem; padding:0.8rem 0; border-bottom:1px solid var(--borde2); flex-wrap:wrap; }
 .hor-dia-row:last-child { border-bottom:none; }
@@ -2764,12 +2838,12 @@ async function cargarComPerfil() {
             <strong>Vista previa</strong>
             <span style="color:var(--texto2);font-size:0.78rem">Asi podria verse la portada para tus clientes.</span>
           </div>
-          <div class="perfil-preview-hero" id="perfil-preview-hero">
+          <div class="perfil-preview-hero" id="perfil-preview-hero" style="${data.imagen_fondo_url ? `background-image:url('${data.imagen_fondo_url}')` : ''}">
             <div class="perfil-preview-content">
               <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url||''}" alt="">
               <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre||'Nombre del comercio'}</div>
               <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer aca.'}</div>
-              <span class="perfil-preview-btn" id="perfil-preview-btn">Reservar turno</span>
+              <span class="perfil-preview-btn" id="perfil-preview-btn" style="background:${data.color_acento||'#C9A84C'}">Reservar turno</span>
             </div>
           </div>
         </div>

@@ -904,12 +904,37 @@ router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
 // PUT /api/comercio/:slug/reservas/:id/estado
 router.put('/:slug/reservas/:id/estado', authAdminOrComercio, async (req, res) => {
   try {
-    const r = await pool.query(
-      'UPDATE reservas SET estado=$1 WHERE id=$2 RETURNING *',
-      [req.body.estado, req.params.id]
-    );
-    res.json(r.rows[0]);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+    const estadosPermitidos = new Set(['confirmada', 'cancelada', 'completada']);
+    const estado = req.body.estado;
 
+    if (!estadosPermitidos.has(estado)) {
+      return res.status(400).json({ error: 'Estado de reserva invalido' });
+    }
+
+    const comercio = await pool.query(
+      'SELECT id FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercio.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const r = await pool.query(
+      `UPDATE reservas
+       SET estado=$1
+       WHERE id=$2 AND comercio_id=$3
+       RETURNING *`,
+      [estado, req.params.id, comercio.rows[0].id]
+    );
+
+    if (!r.rows[0]) {
+      return res.status(404).json({ error: 'Reserva no encontrada para este comercio' });
+    }
+
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 module.exports = router;
