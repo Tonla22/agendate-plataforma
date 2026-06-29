@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS reservas (
   cancelacion_enviada_en TIMESTAMP,
   cancelada_por_cliente_en TIMESTAMP,
   creado_en TIMESTAMP DEFAULT NOW()
+);
 
 -- Ãndices para performance
 CREATE INDEX IF NOT EXISTS idx_reservas_comercio_fecha ON reservas(comercio_id, fecha);

@@ -335,6 +335,106 @@ input,select,textarea { font-family: inherit; }
 .img-preview-fondo { height:220px; max-height:none; object-fit:cover; object-position:center top; }
 .img-url-actual { font-size:0.72rem; color:var(--texto2); margin-top:0.3rem; word-break:break-all; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
+.perfil-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(280px, 420px);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.perfil-ayuda {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  margin-top: 0.35rem;
+}
+
+.perfil-preview {
+  background: var(--bg2);
+  border: 1px solid var(--borde2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: sticky;
+  top: 1rem;
+}
+
+.perfil-preview-head {
+  padding: 1rem;
+  border-bottom: 1px solid var(--borde2);
+}
+
+.perfil-preview-head strong {
+  display: block;
+  color: var(--oro);
+  margin-bottom: 0.25rem;
+}
+
+.perfil-preview-hero {
+  min-height: 220px;
+  background: linear-gradient(135deg, #111, #252525);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: end;
+  padding: 1rem;
+  position: relative;
+}
+
+.perfil-preview-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.18));
+}
+
+.perfil-preview-content {
+  position: relative;
+  z-index: 1;
+}
+
+.perfil-preview-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  background: rgba(0,0,0,0.25);
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.perfil-preview-title {
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+  line-height: 1.05;
+  margin-bottom: 0.45rem;
+}
+
+.perfil-preview-slogan {
+  color: rgba(255,255,255,0.82);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin-bottom: 0.9rem;
+}
+
+.perfil-preview-btn {
+  display: inline-block;
+  padding: 0.55rem 0.9rem;
+  border-radius: 3px;
+  color: #0D0D0D;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .perfil-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-preview {
+    position: static;
+  }
+}
+
 /* Horarios con bloques */
 .hor-dia-row { display:flex; align-items:flex-start; gap:0.75rem; padding:0.8rem 0; border-bottom:1px solid var(--borde2); flex-wrap:wrap; }
 .hor-dia-row:last-child { border-bottom:none; }
@@ -2578,60 +2678,136 @@ async function cargarComPerfil() {
   el.innerHTML = `<div class="com-header"><h1>Perfil del comercio</h1></div><div id="perfil-form"><span class="loader-inline claro"></span></div>`;
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
-    document.getElementById('perfil-form').innerHTML = `
-      <div class="form-group" style="margin-top:0.5rem">
-  <label class="label">Logo del comercio</label>
-  <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview')">
-  <input type="hidden" id="pf-logo" value="${data.logo_url||''}">
-  <small style="color:var(--texto2);font-size:0.72rem">Subi el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
-  ${data.logo_url 
-    ? `<img id="pf-logo-preview" class="img-preview img-preview-logo visible" src="${data.logo_url}" alt="preview logo">` 
-    : `<img id="pf-logo-preview" class="img-preview img-preview-logo" alt="preview logo">`
-  }
-</div>
-    <div style="max-width:520px">
-        <div class="form-group"><label class="label">Nombre del comercio</label><input class="input" id="pf-nom" value="${data.nombre||''}"></div>
-        <div class="form-group"><label class="label">Slogan</label><textarea class="input" id="pf-slo" rows="3" maxlength="500">${data.slogan||''}</textarea></div>
-        <div class="input-grid-2">
-          <div class="form-group"><label class="label">Teléfono</label><input class="input" id="pf-tel" value="${data.telefono||''}"></div>
-          <div class="form-group"><label class="label">WhatsApp</label><input class="input" id="pf-wa" value="${data.whatsapp||''}"></div>
+        document.getElementById('perfil-form').innerHTML = `
+      <div class="perfil-layout">
+        <div>
+          <div class="form-group">
+            <label class="label">Logo del comercio</label>
+            <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview');actualizarPreviewPerfil()">
+            <input type="hidden" id="pf-logo" value="${data.logo_url||''}">
+            <small class="perfil-ayuda">Subi el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
+            ${data.logo_url 
+              ? `<img id="pf-logo-preview" class="img-preview img-preview-logo visible" src="${data.logo_url}" alt="preview logo">` 
+              : `<img id="pf-logo-preview" class="img-preview img-preview-logo" alt="preview logo">`
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="label">Nombre visible del comercio</label>
+            <input class="input" id="pf-nom" value="${data.nombre||''}" placeholder="Ej: Mc Barber Studio">
+            <small class="perfil-ayuda">Este nombre aparece en la pagina publica y en las reservas.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Frase principal</label>
+            <textarea class="input" id="pf-slo" rows="4" maxlength="800" placeholder="Contale al cliente que hace especial a tu comercio">${data.slogan||''}</textarea>
+            <small class="perfil-ayuda">Se muestra en la portada. Puede ser un texto corto o una descripcion un poco mas completa.</small>
+          </div>
+
+          <div class="input-grid-2">
+            <div class="form-group">
+              <label class="label">Telefono del local</label>
+              <input class="input" id="pf-tel" value="${data.telefono||''}" placeholder="092 000 000">
+            </div>
+            <div class="form-group">
+              <label class="label">WhatsApp de contacto</label>
+              <input class="input" id="pf-wa" value="${data.whatsapp||''}" placeholder="092 000 000">
+              <small class="perfil-ayuda">Este numero se usa para el boton de WhatsApp de la pagina.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Direccion del local</label>
+            <input class="input" id="pf-dir" value="${data.direccion||''}" placeholder="Calle, numero, ciudad">
+            <small class="perfil-ayuda">Se usa para mostrar la ubicacion y abrir el mapa.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Instagram</label>
+            <input class="input" id="pf-ig" value="${data.instagram_url||''}" placeholder="@usuario o link de Instagram">
+          </div>
+
+          <div class="input-grid-2">
+            <div class="form-group">
+              <label class="label">Color principal</label>
+              <input class="input" id="pf-col" type="color" value="${data.color_acento||'#C9A84C'}" style="height:40px;padding:0.2rem">
+              <small class="perfil-ayuda">Se aplica a botones y detalles importantes.</small>
+            </div>
+            <div class="form-group">
+              <label class="label">Moneda de precios</label>
+              <input class="input" id="pf-mon" value="${data.moneda||'$'}" style="max-width:80px" placeholder="$">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Imagen principal de la pagina</label>
+            <input class="input" type="file" id="pf-fondo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-fondo-preview');actualizarPreviewPerfil()">
+            <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url||''}">
+            <small class="perfil-ayuda">Es la imagen grande de portada. En celular conviene que el centro de la foto sea lo mas importante.</small>
+
+            ${data.imagen_fondo_url 
+              ? `<img id="pf-fondo-preview" class="img-preview img-preview-fondo visible" src="${data.imagen_fondo_url}" alt="preview fondo">` 
+              : `<img id="pf-fondo-preview" class="img-preview img-preview-fondo" alt="preview fondo">`
+            }
+
+            ${data.imagen_fondo_url 
+              ? `<button class="btn btn-ghost btn-sm" style="margin-top:0.5rem" onclick="document.getElementById('pf-fondo').value='';document.getElementById('pf-fondo-preview').classList.remove('visible');actualizarPreviewPerfil()">Quitar imagen</button>` 
+              : ''
+            }
+          </div>
+
+          <button class="btn btn-oro" onclick="guardarPerfil()">Guardar cambios</button>
         </div>
-        <div class="form-group"><label class="label">Dirección</label><input class="input" id="pf-dir" value="${data.direccion||''}"></div>
-       <div class="form-group"><label class="label">Instagram del comercio</label><input class="input" id="pf-ig" value="${data.instagram_url||''}" placeholder="@usuario o link de Instagram"></div>
-        <div class="input-grid-2">
-          <div class="form-group"><label class="label">Color acento</label><input class="input" id="pf-col" type="color" value="${data.color_acento||'#C9A84C'}" style="height:40px;padding:0.2rem"></div>
-          <div class="form-group"><label class="label">Moneda</label><input class="input" id="pf-mon" value="${data.moneda||'$'}" style="max-width:80px"></div>
+
+        <div class="perfil-preview">
+          <div class="perfil-preview-head">
+            <strong>Vista previa</strong>
+            <span style="color:var(--texto2);font-size:0.78rem">Asi podria verse la portada para tus clientes.</span>
+          </div>
+          <div class="perfil-preview-hero" id="perfil-preview-hero">
+            <div class="perfil-preview-content">
+              <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url||''}" alt="">
+              <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre||'Nombre del comercio'}</div>
+              <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan||'Tu frase principal va a aparecer aca.'}</div>
+              <span class="perfil-preview-btn" id="perfil-preview-btn">Reservar turno</span>
+            </div>
+          </div>
         </div>
-        <div class="form-group" style="margin-top:0.5rem">
-  <label class="label">Imagen de fondo de la página inicial</label>
-
-  <input 
-    class="input" 
-    type="file" 
-    id="pf-fondo-file" 
-    accept="image/*" 
-    onchange="previewArchivoImagen(this,'pf-fondo-preview')"
-  >
-
-  <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url||''}">
-
-  <small style="color:var(--texto2);font-size:0.72rem">
-    Subí una imagen desde tu computadora. Recomendado: horizontal, 1920x1080. Máximo 5 MB.
-  </small>
-
-  ${data.imagen_fondo_url 
-    ? `<img id="pf-fondo-preview" class="img-preview img-preview-fondo visible" src="${data.imagen_fondo_url}" alt="preview fondo">` 
-    : `<img id="pf-fondo-preview" class="img-preview img-preview-fondo" alt="preview fondo">`
-  }
-
-  ${data.imagen_fondo_url 
-    ? `<button class="btn btn-ghost btn-sm" style="margin-top:0.5rem" onclick="document.getElementById('pf-fondo').value='';document.getElementById('pf-fondo-preview').classList.remove('visible')">Quitar fondo</button>` 
-    : ''
-  }
-</div>
-        <button class="btn btn-oro" onclick="guardarPerfil()">Guardar cambios</button>
       </div>`;
   } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
+}
+
+    ['pf-nom','pf-slo','pf-col'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', actualizarPreviewPerfil);
+    });
+    actualizarPreviewPerfil();
+
+function actualizarPreviewPerfil() {
+  const nombre = document.getElementById('pf-nom')?.value || 'Nombre del comercio';
+  const slogan = document.getElementById('pf-slo')?.value || 'Tu frase principal va a aparecer aca.';
+  const color = document.getElementById('pf-col')?.value || '#C9A84C';
+
+  const logoPreview = document.getElementById('pf-logo-preview');
+  const fondoPreview = document.getElementById('pf-fondo-preview');
+
+  const previewNombre = document.getElementById('perfil-preview-nombre');
+  const previewSlogan = document.getElementById('perfil-preview-slogan');
+  const previewLogo = document.getElementById('perfil-preview-logo');
+  const previewHero = document.getElementById('perfil-preview-hero');
+  const previewBtn = document.getElementById('perfil-preview-btn');
+
+  if (previewNombre) previewNombre.textContent = nombre;
+  if (previewSlogan) previewSlogan.textContent = slogan;
+  if (previewBtn) previewBtn.style.background = color;
+
+  if (previewLogo && logoPreview?.src) {
+    previewLogo.src = logoPreview.src;
+    previewLogo.style.display = 'block';
+  }
+
+  if (previewHero && fondoPreview?.src) {
+    previewHero.style.backgroundImage = `url('${fondoPreview.src}')`;
+  }
 }
 
 async function guardarPerfil() {
