@@ -5,6 +5,8 @@ const { authAdminOrComercio } = require('../middleware/auth');
 const { body, param, validationResult } = require('express-validator');
 const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
+const { v4: uuidv4 } = require('uuid');
+const { enviarConfirmacionReserva } = require('../services/whatsapp');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -899,6 +901,179 @@ router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
     const r = await pool.query(q, params);
     res.json(r.rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/comercio/:slug/reservas/manual - crear reserva desde el panel del comercio
+router.post('/:slug/reservas/manual', authAdminOrComercio, async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const {
+      servicio_id,
+      trabajador_id,
+      fecha,
+      hora,
+      cliente_nombre,
+      cliente_apellido,
+      cliente_whatsapp,
+      cliente_email,
+      comentarios,
+      estado,
+      enviar_confirmacion
+    } = req.body;
+
+    if (!servicio_id || !fecha || !hora || !cliente_nombre || !cliente_whatsapp) {
+      return res.status(400).json({ error: 'Faltan datos obligatorios para crear la reserva' });
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha))) {
+      return res.status(400).json({ error: 'Fecha inválida' });
+    }
+
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora))) {
+      return res.status(400).json({ error: 'Hora inválida' });
+    }
+
+    const estadosPermitidos = new Set(['confirmada', 'cancelada', 'completada']);
+    const estadoFinal = estadosPermitidos.has(estado) ? estado : 'confirmada';
+
+    await client.query('BEGIN');
+
+    const comercioRes = await client.query(
+      'SELECT * FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    const comercio = comercioRes.rows[0];
+
+    if (!comercio) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const servicioRes = await client.query(
+      'SELECT * FROM servicios WHERE id=$1 AND comercio_id=$2 AND activo=true',
+      [servicio_id, comercio.id]
+    );
+
+    const servicio = servicioRes.rows[0];
+
+    if (!servicio) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Servicio no encontrado para este comercio' });
+    }
+
+    let trabajadorId = servicio.trabajador_id || null;
+    let trabajadorNombre = null;
+
+    if (trabajador_id) {
+      if (trabajadorId && Number(trabajador_id) !== Number(trabajadorId)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Ese servicio no pertenece al profesional elegido' });
+      }
+
+      trabajadorId = Number(trabajador_id);
+    }
+
+    if (trabajadorId) {
+      const trabajadorRes = await client.query(
+        'SELECT id,nombre FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [trabajadorId, comercio.id]
+      );
+
+      if (!trabajadorRes.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Profesional no encontrado para este comercio' });
+      }
+
+      trabajadorNombre = trabajadorRes.rows[0].nombre;
+    }
+
+    let ocupadaQuery = `
+      SELECT id
+      FROM reservas
+      WHERE comercio_id=$1
+        AND fecha=$2
+        AND hora=$3
+        AND estado!='cancelada'
+    `;
+
+    const ocupadaParams = [comercio.id, fecha, hora];
+
+    if (trabajadorId) {
+      ocupadaParams.push(trabajadorId);
+      ocupadaQuery += ` AND trabajador_id=$${ocupadaParams.length}`;
+    }
+
+    const ocupada = await client.query(ocupadaQuery, ocupadaParams);
+
+    if (ocupada.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Ese horario ya tiene una reserva cargada' });
+    }
+
+    const uuid = uuidv4();
+
+    const reservaRes = await client.query(
+      `INSERT INTO reservas (
+        uuid, comercio_id, servicio_id, trabajador_id, fecha, hora, duracion_min,
+        cliente_nombre, cliente_apellido, cliente_whatsapp, cliente_email, comentarios, estado
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      RETURNING *`,
+      [
+        uuid,
+        comercio.id,
+        servicio.id,
+        trabajadorId,
+        fecha,
+        hora,
+        servicio.duracion_min,
+        String(cliente_nombre).trim(),
+        cliente_apellido ? String(cliente_apellido).trim() : '',
+        String(cliente_whatsapp).trim(),
+        cliente_email || null,
+        comentarios || null,
+        estadoFinal
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    const reserva = reservaRes.rows[0];
+
+    if (enviar_confirmacion === true && comercio.auto_confirmacion_activa !== false) {
+      enviarConfirmacionReserva({
+        reserva,
+        comercio,
+        servicio,
+        profesional: trabajadorNombre ? { id: trabajadorId, nombre: trabajadorNombre } : null
+      })
+        .then(() => {
+          return pool.query(
+            `UPDATE reservas
+             SET confirmacion_enviada=true,
+                 confirmacion_enviada_en=NOW()
+             WHERE id=$1`,
+            [reserva.id]
+          );
+        })
+        .catch(err => {
+          console.error('No se pudo enviar confirmación WhatsApp manual:', err.message);
+        });
+    }
+
+    res.status(201).json({
+      ok: true,
+      uuid,
+      reserva
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
 });
 
 // PUT /api/comercio/:slug/reservas/:id/estado

@@ -1758,6 +1758,7 @@ async function cargarComMetricas() {
       <h1>Metricas</h1>
 
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
         <input class="input" type="date" id="met-desde" style="max-width:160px" value="${desde}">
         <input class="input" type="date" id="met-hasta" style="max-width:160px" value="${hasta}">
         <button class="btn btn-ghost btn-sm" onclick="aplicarFiltroMetricas()">Filtrar</button>
@@ -2079,6 +2080,156 @@ function limpiarFiltrosReservas() {
   window._comFiltroTrabajador = '';
   window._comFiltroEstado = '';
   cargarComReservas('');
+}
+
+async function abrirModalReservaManual() {
+  try {
+    const [trabajadores, servicios] = await Promise.all([
+      api('GET', `/comercio/${S.slug}/trabajadores`),
+      api('GET', `/comercio/${S.slug}/servicios`)
+    ]);
+
+    if (!servicios.length) {
+      toast('Primero cargá al menos un servicio', 'error');
+      return;
+    }
+
+    const hoy = fechaHoyLocal();
+
+    abrirModal('Nueva reserva', `
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Nombre *</label>
+          <input class="input" id="rm-nombre" placeholder="Nombre del cliente">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Apellido</label>
+          <input class="input" id="rm-apellido" placeholder="Apellido">
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">WhatsApp *</label>
+          <input class="input" id="rm-whatsapp" placeholder="098 000 000">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Email</label>
+          <input class="input" id="rm-email" placeholder="cliente@email.com">
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Profesional</label>
+          <select class="input" id="rm-trabajador" onchange="actualizarServiciosReservaManual()">
+            <option value="">Elegir profesional</option>
+            ${trabajadores.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Servicio *</label>
+          <select class="input" id="rm-servicio">
+            ${servicios.map(s => `
+              <option value="${s.id}" data-trabajador-id="${s.trabajador_id || ''}">
+                ${s.nombre} - ${S.comercio?.moneda || '$'} ${Number(s.precio || 0).toLocaleString()} - ${s.duracion_min} min
+              </option>
+            `).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Fecha *</label>
+          <input class="input" id="rm-fecha" type="date" value="${hoy}">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Hora *</label>
+          <input class="input" id="rm-hora" type="time">
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Estado inicial</label>
+          <select class="input" id="rm-estado">
+            <option value="confirmada">Confirmada</option>
+            <option value="completada">Completada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Confirmación</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;color:var(--texto2);font-size:0.88rem;padding-top:0.65rem">
+            <input type="checkbox" id="rm-enviar-confirmacion">
+            Enviar WhatsApp si está disponible
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Nota interna</label>
+        <textarea class="input" id="rm-comentarios" rows="3" placeholder="Detalle interno para el comercio"></textarea>
+      </div>
+    `, async () => {
+      const payload = {
+        cliente_nombre: document.getElementById('rm-nombre').value.trim(),
+        cliente_apellido: document.getElementById('rm-apellido').value.trim(),
+        cliente_whatsapp: document.getElementById('rm-whatsapp').value.trim(),
+        cliente_email: document.getElementById('rm-email').value.trim(),
+        trabajador_id: document.getElementById('rm-trabajador').value || null,
+        servicio_id: document.getElementById('rm-servicio').value,
+        fecha: document.getElementById('rm-fecha').value,
+        hora: document.getElementById('rm-hora').value,
+        estado: document.getElementById('rm-estado').value,
+        enviar_confirmacion: document.getElementById('rm-enviar-confirmacion').checked,
+        comentarios: document.getElementById('rm-comentarios').value.trim()
+      };
+
+      if (!payload.cliente_nombre || !payload.cliente_whatsapp || !payload.servicio_id || !payload.fecha || !payload.hora) {
+        toast('Completá nombre, WhatsApp, servicio, fecha y hora', 'error');
+        return false;
+      }
+
+      await api('POST', `/comercio/${S.slug}/reservas/manual`, payload);
+
+      toast('Reserva creada');
+      cargarComReservas(window._comFiltroFecha || null);
+    });
+
+    actualizarServiciosReservaManual();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function actualizarServiciosReservaManual() {
+  const trabajadorId = document.getElementById('rm-trabajador')?.value || '';
+  const servicioSelect = document.getElementById('rm-servicio');
+
+  if (!servicioSelect) return;
+
+  let primerVisible = null;
+
+  Array.from(servicioSelect.options).forEach(option => {
+    const servicioTrabajadorId = option.dataset.trabajadorId || '';
+    const visible = !trabajadorId || !servicioTrabajadorId || servicioTrabajadorId === trabajadorId;
+
+    option.hidden = !visible;
+    option.disabled = !visible;
+
+    if (visible && !primerVisible) primerVisible = option;
+  });
+
+  if (servicioSelect.selectedOptions[0]?.disabled && primerVisible) {
+    servicioSelect.value = primerVisible.value;
+  }
 }
 
 async function cambiarEstadoReserva(id, estado) {
