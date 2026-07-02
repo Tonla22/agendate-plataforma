@@ -883,14 +883,14 @@ const tipoGuardado = localStorage.getItem('tipo');
 
 if (path === '/panel') {
   if (!tokenGuardado || tipoGuardado !== 'comercio') {
-    navegar('/login');
+    reemplazarRuta('/login');
     return;
   }
 }
 
 if (path === '/admin') {
   if (!tokenGuardado || tipoGuardado !== 'admin') {
-    navegar('/admin-acceso');
+    reemplazarRuta('/admin-acceso');
     return;
   }
 }
@@ -906,8 +906,16 @@ if (path === '/admin') {
   } else if (parts[0] === 'panel') {
     mostrarPanelComercio();
     } else if (parts[0] === 'login') {
+    if (tokenGuardado && tipoGuardado === 'comercio') {
+      reemplazarRuta('/panel');
+      return;
+    }
     mostrarLogin('comercio');
   } else if (parts[0] === 'admin-acceso') {
+    if (tokenGuardado && tipoGuardado === 'admin') {
+      reemplazarRuta('/admin');
+      return;
+    }
     mostrarLogin('admin');
   } else {
     // Es un slug de comercio
@@ -917,6 +925,12 @@ if (path === '/admin') {
 
 function navegar(path) {
   history.pushState({}, '', path);
+  route();
+  setTimeout(() => window.scrollTo(0, 0), 0);
+}
+
+function reemplazarRuta(path) {
+  history.replaceState({}, '', path);
   route();
   setTimeout(() => window.scrollTo(0, 0), 0);
 }
@@ -1482,7 +1496,13 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-mobile-nombre').textContent = data.nombre;
     document.getElementById('cs-slug').textContent = '/' + data.slug;
   } catch(e) {}
-  cargarComDashboard();
+  const secInicial = (location.hash || '#dashboard').replace('#', '');
+
+  if (secInicial && secInicial !== 'dashboard' && document.getElementById('com-' + secInicial)) {
+    comSec(secInicial, false);
+  } else {
+    cargarComDashboard();
+  }
 }
 
 function getLinkPublicoComercio() {
@@ -1585,7 +1605,11 @@ function cerrarMenuComercio() {
   document.getElementById('com-menu-backdrop')?.classList.remove('abierto');
 }
 
-function comSec(sec) {
+function comSec(sec, guardarHistorial = true) {
+  if (guardarHistorial && location.pathname === '/panel') {
+    history.pushState({}, '', `/panel#${sec}`);
+  }
+
   document.querySelectorAll('.com-sec').forEach(s => s.classList.remove('act'));
   document.querySelectorAll('.com-nav a').forEach(a => a.classList.remove('act'));
   document.getElementById('com-' + sec).classList.add('act');
@@ -4609,6 +4633,10 @@ function mostrarModal(titulo, contenido, onConfirmar) {
     </div>`;
   overlay.classList.add('abierto');
   overlay._onConfirmar = onConfirmar;
+}
+
+function abrirModal(titulo, contenido, onConfirmar) {
+  return mostrarModal(titulo, contenido, onConfirmar);
 }
 
 async function modalConfirmar() {
