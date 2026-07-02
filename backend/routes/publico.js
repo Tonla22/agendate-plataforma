@@ -5,6 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 const { body, param, validationResult } = require('express-validator');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
 
+const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
+
 // GET /api/p/:slug - datos publicos del comercio
 router.get('/:slug', async (req, res) => {
   try {
@@ -16,11 +18,12 @@ router.get('/:slug', async (req, res) => {
     if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
 
     const cid = c.rows[0].id;
-    const [servicios, horarios, bloques, trabajadores] = await Promise.all([
-      pool.query('SELECT id,nombre,descripcion,precio,duracion_min,imagen_url,trabajador_id FROM servicios WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid]),
+    const [servicios, horarios, bloques, trabajadores, ubicaciones] = await Promise.all([
+      pool.query('SELECT id,nombre,descripcion,precio,duracion_min,imagen_url,trabajador_id,requiere_sena,sena_tipo,sena_valor FROM servicios WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid]),
       pool.query('SELECT dia_semana,abre,cierra FROM horarios WHERE comercio_id=$1 AND activo=true ORDER BY dia_semana', [cid]),
       pool.query('SELECT dia_semana,abre,cierra,orden FROM horario_bloques WHERE comercio_id=$1 ORDER BY dia_semana,orden', [cid]),
-      pool.query('SELECT id,nombre,descripcion,foto_url FROM trabajadores WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid])
+      pool.query('SELECT id,nombre,descripcion,foto_url FROM trabajadores WHERE comercio_id=$1 AND activo=true ORDER BY orden,id', [cid]),
+      pool.query('SELECT id,nombre,direccion,telefono,whatsapp,principal FROM ubicaciones WHERE comercio_id=$1 AND activo=true ORDER BY principal DESC, orden, id', [cid])
     ]);
 
     res.json({
@@ -28,7 +31,8 @@ router.get('/:slug', async (req, res) => {
       servicios: servicios.rows,
       horarios: horarios.rows,
       horario_bloques: bloques.rows,
-      trabajadores: trabajadores.rows
+      trabajadores: trabajadores.rows,
+      ubicaciones: ubicaciones.rows
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -63,6 +67,155 @@ function ahoraMsUY() {
     Number(parts.minute)
   );
 }
+
+function normalizarTelefono(valor) {
+  return String(valor || '').replace(/\D/g, '');
+}
+
+function generarCodigoCliente() {
+  return `CL-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+}
+
+async function upsertCliente(client, comercioId, datos) {
+  const whatsapp = normalizarTelefono(datos.whatsapp);
+
+  if (!whatsapp) return null;
+
+  const existente = await client.query(
+    'SELECT id,codigo FROM clientes WHERE comercio_id=$1 AND whatsapp=$2 LIMIT 1',
+    [comercioId, whatsapp]
+  );
+
+  if (existente.rows[0]) {
+    const actualizado = await client.query(
+      `UPDATE clientes
+       SET nombre=$1, apellido=$2, email=$3, actualizado_en=NOW()
+       WHERE id=$4 AND comercio_id=$5
+       RETURNING *`,
+      [datos.nombre, datos.apellido || '', datos.email || null, existente.rows[0].id, comercioId]
+    );
+
+    return actualizado.rows[0];
+  }
+
+  for (let i = 0; i < 5; i++) {
+    try {
+      const creado = await client.query(
+        `INSERT INTO clientes (comercio_id,codigo,nombre,apellido,whatsapp,email)
+         VALUES ($1,$2,$3,$4,$5,$6)
+         RETURNING *`,
+        [comercioId, generarCodigoCliente(), datos.nombre, datos.apellido || '', whatsapp, datos.email || null]
+      );
+
+      return creado.rows[0];
+    } catch (e) {
+      if (e.code !== '23505') throw e;
+    }
+  }
+
+  throw new Error('No se pudo generar un codigo unico para el cliente');
+}
+
+function calcularSena(servicio) {
+  if (servicio.requiere_sena !== true && servicio.requiere_sena !== 'true') return 0;
+
+  const valor = Number(servicio.sena_valor || 0);
+  const precio = Number(servicio.precio || 0);
+
+  if (valor <= 0) return 0;
+
+  if (servicio.sena_tipo === 'porcentaje') {
+    return Math.round((precio * valor / 100) * 100) / 100;
+  }
+
+  return Math.round(valor * 100) / 100;
+}
+
+function escapeICS(valor) {
+  return String(valor || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n');
+}
+
+function fechaHoraICS(fecha, hora) {
+  return `${String(fecha).slice(0, 10).replace(/-/g, '')}T${String(hora || '00:00').slice(0, 5).replace(':', '')}00`;
+}
+
+function sumarMinutosHoraICS(fecha, hora, minutos) {
+  const [y, m, d] = String(fecha).slice(0, 10).split('-').map(Number);
+  const [hh, mm] = String(hora || '00:00').slice(0, 5).split(':').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, hh, mm));
+  dt.setUTCMinutes(dt.getUTCMinutes() + Number(minutos || 30));
+  return dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, '');
+}
+
+router.get('/:slug/calendario.ics', async (req, res) => {
+  try {
+    const comercioRes = await pool.query(
+      'SELECT id,nombre,calendar_token FROM comercios WHERE slug=$1 AND activo=true',
+      [req.params.slug]
+    );
+
+    const comercio = comercioRes.rows[0];
+
+    if (!comercio || !comercio.calendar_token || req.query.token !== comercio.calendar_token) {
+      return res.status(404).send('Calendario no disponible');
+    }
+
+    const reservas = await pool.query(
+      `SELECT r.*, s.nombre AS servicio_nombre, t.nombre AS trabajador_nombre, u.nombre AS ubicacion_nombre, u.direccion AS ubicacion_direccion
+       FROM reservas r
+       JOIN servicios s ON s.id=r.servicio_id
+       LEFT JOIN trabajadores t ON t.id=r.trabajador_id
+       LEFT JOIN ubicaciones u ON u.id=r.ubicacion_id
+       WHERE r.comercio_id=$1
+         AND r.estado IN ('pendiente','confirmada')
+         AND r.fecha >= CURRENT_DATE - INTERVAL '7 days'
+       ORDER BY r.fecha ASC, r.hora ASC`,
+      [comercio.id]
+    );
+
+    const ahora = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    const eventos = reservas.rows.map(r => {
+      const titulo = `${r.servicio_nombre} - ${r.cliente_nombre} ${r.cliente_apellido || ''}`.trim();
+      const descripcion = [
+        `Cliente: ${r.cliente_nombre} ${r.cliente_apellido || ''}`.trim(),
+        `WhatsApp: ${r.cliente_whatsapp || ''}`,
+        r.trabajador_nombre ? `Profesional: ${r.trabajador_nombre}` : '',
+        `Estado: ${r.estado}`
+      ].filter(Boolean).join('\\n');
+
+      return [
+        'BEGIN:VEVENT',
+        `UID:${r.uuid}@agendate`,
+        `DTSTAMP:${ahora}`,
+        `DTSTART:${fechaHoraICS(r.fecha, r.hora)}`,
+        `DTEND:${sumarMinutosHoraICS(r.fecha, r.hora, r.duracion_min)}`,
+        `SUMMARY:${escapeICS(titulo)}`,
+        `DESCRIPTION:${escapeICS(descripcion)}`,
+        r.ubicacion_direccion ? `LOCATION:${escapeICS(r.ubicacion_direccion)}` : '',
+        'END:VEVENT'
+      ].filter(Boolean).join('\r\n');
+    }).join('\r\n');
+
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Agendate//Reservas//ES',
+      `X-WR-CALNAME:${escapeICS(comercio.nombre)} - Reservas`,
+      eventos,
+      'END:VCALENDAR'
+    ].filter(Boolean).join('\r\n');
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `inline; filename="${req.params.slug}-reservas.ics"`);
+    res.send(ics);
+  } catch (e) {
+    res.status(500).send(e.message);
+  }
+});
 
 async function existeBloqueoDisponibilidad(client, comercioId, trabajadorId, fecha, hora) {
   const params = [comercioId, fecha];
@@ -328,7 +481,7 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
     }
     const comercio = c.rows[0];
 
-    const { servicio_id, trabajador_id, fecha, hora, nombre, apellido, whatsapp, email, comentarios } = req.body;
+    const { servicio_id, trabajador_id, ubicacion_id, fecha, hora, nombre, apellido, whatsapp, email, comentarios, forma_pago } = req.body;
 
     const anticipacionMin = Number(comercio.anticipacion_reserva_min || 0);
     const limiteMs = ahoraMsUY() + anticipacionMin * 60000;
@@ -350,6 +503,21 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
 
     let trabajadorId = servicio.rows[0].trabajador_id || null;
     let trabajadorNombre = null;
+    let ubicacionId = null;
+
+    if (ubicacion_id) {
+      const ubicacion = await client.query(
+        'SELECT id FROM ubicaciones WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [ubicacion_id, comercio.id]
+      );
+
+      if (!ubicacion.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Ubicacion no encontrada' });
+      }
+
+      ubicacionId = ubicacion.rows[0].id;
+    }
 
     if (trabajador_id) {
       if (trabajadorId && Number(trabajador_id) !== Number(trabajadorId)) {
@@ -411,11 +579,46 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
     }
 
     const uuid = uuidv4();
+    const cliente = await upsertCliente(client, comercio.id, {
+      nombre,
+      apellido,
+      whatsapp,
+      email
+    });
+
+    const formaPagoFinal = FORMAS_PAGO.has(forma_pago) ? forma_pago : 'local';
+    const senaMonto = calcularSena(servicio.rows[0]);
+    const estadoPagoFinal = formaPagoFinal === 'online'
+      ? 'pagado'
+      : (formaPagoFinal === 'sena' && senaMonto > 0 ? 'parcial' : 'pendiente');
+
     const r = await client.query(
-      `INSERT INTO reservas (uuid,comercio_id,servicio_id,trabajador_id,fecha,hora,duracion_min,cliente_nombre,cliente_apellido,cliente_whatsapp,cliente_email,comentarios)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      `INSERT INTO reservas (
+         uuid,comercio_id,cliente_id,ubicacion_id,servicio_id,trabajador_id,fecha,hora,duracion_min,
+         cliente_nombre,cliente_apellido,cliente_whatsapp,cliente_email,comentarios,
+         forma_pago,estado_pago,sena_monto
+       )
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        RETURNING *`,
-      [uuid, comercio.id, servicio_id, trabajadorId, fecha, hora, servicio.rows[0].duracion_min, nombre, apellido, whatsapp, email || null, comentarios || null]
+      [
+        uuid,
+        comercio.id,
+        cliente?.id || null,
+        ubicacionId,
+        servicio_id,
+        trabajadorId,
+        fecha,
+        hora,
+        servicio.rows[0].duracion_min,
+        nombre,
+        apellido,
+        normalizarTelefono(whatsapp),
+        email || null,
+        comentarios || null,
+        formaPagoFinal,
+        estadoPagoFinal,
+        senaMonto
+      ]
     );
 
     await client.query('COMMIT');
@@ -450,7 +653,10 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
         hora,
         trabajador: trabajadorNombre,
         servicio: servicio.rows[0].nombre,
-        precio: servicio.rows[0].precio
+        precio: servicio.rows[0].precio,
+        forma_pago: formaPagoFinal,
+        estado_pago: estadoPagoFinal,
+        sena_monto: senaMonto
       }
     });
   } catch (e) {

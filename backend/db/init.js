@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS comercios (
   direccion TEXT,
   instagram_url VARCHAR(255),
   logo_url VARCHAR(500),
+  calendar_token VARCHAR(80),
   color_acento VARCHAR(20) DEFAULT '#C9A84C',
   color_fondo VARCHAR(20) DEFAULT '#0D0D0D',
   moneda VARCHAR(10) DEFAULT '$',
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS comercios (
   fecha_pago_hasta DATE,
   webhook_url VARCHAR(500),
   imagen_fondo_url VARCHAR(500),
+  pago_mercadopago_link VARCHAR(500),
   creado_en TIMESTAMP DEFAULT NOW(),
   actualizado_en TIMESTAMP DEFAULT NOW()
 );
@@ -56,6 +58,7 @@ CREATE TABLE IF NOT EXISTS usuarios_comercio (
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   nombre VARCHAR(255) NOT NULL,
+  avatar_url VARCHAR(500),
   rol VARCHAR(50) DEFAULT 'dueno',
   activo BOOLEAN DEFAULT true,
   creado_en TIMESTAMP DEFAULT NOW()
@@ -70,6 +73,9 @@ CREATE TABLE IF NOT EXISTS servicios (
   precio NUMERIC(10,2) NOT NULL,
   duracion_min INTEGER NOT NULL,
   activo BOOLEAN DEFAULT true,
+  requiere_sena BOOLEAN DEFAULT false,
+  sena_tipo VARCHAR(20) DEFAULT 'monto',
+  sena_valor NUMERIC(10,2) DEFAULT 0,
   orden INTEGER DEFAULT 0,
   imagen_url VARCHAR(500),
   creado_en TIMESTAMP DEFAULT NOW()
@@ -118,11 +124,44 @@ CREATE TABLE IF NOT EXISTS trabajador_horario_bloques (
   orden INTEGER DEFAULT 0
 );
 
+-- Ubicaciones / sucursales del comercio
+CREATE TABLE IF NOT EXISTS ubicaciones (
+  id SERIAL PRIMARY KEY,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  nombre VARCHAR(255) NOT NULL,
+  direccion TEXT NOT NULL,
+  telefono VARCHAR(50),
+  whatsapp VARCHAR(50),
+  notas TEXT,
+  activo BOOLEAN DEFAULT true,
+  principal BOOLEAN DEFAULT false,
+  orden INTEGER DEFAULT 0,
+  creado_en TIMESTAMP DEFAULT NOW()
+);
+
+-- Clientes guardados por comercio
+CREATE TABLE IF NOT EXISTS clientes (
+  id SERIAL PRIMARY KEY,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  codigo VARCHAR(20) NOT NULL,
+  nombre VARCHAR(255) NOT NULL,
+  apellido VARCHAR(255),
+  whatsapp VARCHAR(50) NOT NULL,
+  email VARCHAR(255),
+  notas TEXT,
+  creado_en TIMESTAMP DEFAULT NOW(),
+  actualizado_en TIMESTAMP DEFAULT NOW(),
+  UNIQUE(comercio_id, codigo),
+  UNIQUE(comercio_id, whatsapp)
+);
+
 -- Reservas
 CREATE TABLE IF NOT EXISTS reservas (
   id SERIAL PRIMARY KEY,
   uuid VARCHAR(36) UNIQUE NOT NULL,
   comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
+  ubicacion_id INTEGER REFERENCES ubicaciones(id) ON DELETE SET NULL,
   servicio_id INTEGER REFERENCES servicios(id),
   trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL,
   fecha DATE NOT NULL,
@@ -133,6 +172,9 @@ CREATE TABLE IF NOT EXISTS reservas (
   cliente_whatsapp VARCHAR(50) NOT NULL,
   cliente_email VARCHAR(255),
   comentarios TEXT,
+  forma_pago VARCHAR(30) DEFAULT 'local',
+  estado_pago VARCHAR(30) DEFAULT 'pendiente',
+  sena_monto NUMERIC(10,2) DEFAULT 0,
     estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
   confirmacion_enviada BOOLEAN DEFAULT false,
   confirmacion_enviada_en TIMESTAMP,
@@ -164,6 +206,8 @@ CREATE TABLE IF NOT EXISTS disponibilidad_bloqueos (
 
 -- Índices para performance
 CREATE INDEX IF NOT EXISTS idx_reservas_comercio_fecha ON reservas(comercio_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_clientes_comercio_codigo ON clientes(comercio_id, codigo);
+CREATE INDEX IF NOT EXISTS idx_ubicaciones_comercio ON ubicaciones(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_servicios_comercio ON servicios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_trabajadores_comercio ON trabajadores(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
@@ -175,9 +219,21 @@ CREATE INDEX IF NOT EXISTS idx_bloqueos_comercio_fecha ON disponibilidad_bloqueo
 -- Columnas nuevas (para migraciones en BD existente - ignorar si ya existen)
 DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS imagen_fondo_url VARCHAR(500);
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS calendar_token VARCHAR(80);
   ALTER TABLE comercios ALTER COLUMN slogan TYPE TEXT;
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500);
   ALTER TABLE servicios ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
+  ALTER TABLE servicios ADD COLUMN IF NOT EXISTS requiere_sena BOOLEAN DEFAULT false;
+  ALTER TABLE servicios ADD COLUMN IF NOT EXISTS sena_tipo VARCHAR(20) DEFAULT 'monto';
+  ALTER TABLE servicios ADD COLUMN IF NOT EXISTS sena_valor NUMERIC(10,2) DEFAULT 0;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_local_activo BOOLEAN DEFAULT true;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_transferencia_activa BOOLEAN DEFAULT false;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_mercadopago_activo BOOLEAN DEFAULT false;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_alias VARCHAR(120);
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_cuenta VARCHAR(120);
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_instrucciones TEXT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_mercadopago_link VARCHAR(500);
+  ALTER TABLE usuarios_comercio ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
     ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_confirmacion_activa BOOLEAN DEFAULT true;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_activo BOOLEAN DEFAULT true;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_horas_antes INTEGER DEFAULT 24;
@@ -185,7 +241,41 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_agradecimiento_activo BOOLEAN DEFAULT false;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_agradecimiento_horas_despues INTEGER DEFAULT 2;
   CREATE INDEX IF NOT EXISTS idx_servicios_trabajador ON servicios(trabajador_id);
+  CREATE TABLE IF NOT EXISTS clientes (
+    id SERIAL PRIMARY KEY,
+    comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+    codigo VARCHAR(20) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    apellido VARCHAR(255),
+    whatsapp VARCHAR(50) NOT NULL,
+    email VARCHAR(255),
+    notas TEXT,
+    creado_en TIMESTAMP DEFAULT NOW(),
+    actualizado_en TIMESTAMP DEFAULT NOW(),
+    UNIQUE(comercio_id, codigo),
+    UNIQUE(comercio_id, whatsapp)
+  );
+  CREATE INDEX IF NOT EXISTS idx_clientes_comercio_codigo ON clientes(comercio_id, codigo);
+  CREATE TABLE IF NOT EXISTS ubicaciones (
+    id SERIAL PRIMARY KEY,
+    comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+    nombre VARCHAR(255) NOT NULL,
+    direccion TEXT NOT NULL,
+    telefono VARCHAR(50),
+    whatsapp VARCHAR(50),
+    notas TEXT,
+    activo BOOLEAN DEFAULT true,
+    principal BOOLEAN DEFAULT false,
+    orden INTEGER DEFAULT 0,
+    creado_en TIMESTAMP DEFAULT NOW()
+  );
+  CREATE INDEX IF NOT EXISTS idx_ubicaciones_comercio ON ubicaciones(comercio_id);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS ubicacion_id INTEGER REFERENCES ubicaciones(id) ON DELETE SET NULL;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE SET NULL;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS forma_pago VARCHAR(30) DEFAULT 'local';
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) DEFAULT 'pendiente';
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS sena_monto NUMERIC(10,2) DEFAULT 0;
    ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado BOOLEAN DEFAULT false;

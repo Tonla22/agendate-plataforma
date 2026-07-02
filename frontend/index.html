@@ -727,9 +727,21 @@ input,select,textarea { font-family: inherit; }
 .com-sidebar-logo { padding:1.2rem 1rem; border-bottom:1px solid var(--borde2); }
 .com-sidebar-logo .nombre { font-size:0.95rem; font-weight:700; color:var(--oro); }
 .com-sidebar-logo .slug { font-size:0.7rem; color:var(--texto2); }
-.com-nav { flex:1; padding:1rem 0; }
+.com-user-mini { margin:1rem; padding:0.75rem; border:1px solid var(--borde2); border-radius:6px; background:rgba(255,255,255,0.03); display:flex; align-items:center; gap:0.65rem; cursor:pointer; transition:all 0.15s; }
+.com-user-mini:hover { border-color:var(--oro); background:rgba(255,255,255,0.05); }
+.com-user-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--oro); color:#111; font-weight:800; font-size:0.78rem; flex:0 0 auto; }
+.com-user-info { min-width:0; }
+.com-user-info strong { display:block; color:var(--texto); font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.com-user-info span { display:block; color:var(--texto2); font-size:0.68rem; margin-top:0.1rem; }
+.com-nav { flex:1; padding:1rem 0; overflow-y:auto; }
 .com-nav a { display:flex; align-items:center; gap:0.6rem; padding:0.65rem 1rem; color:var(--texto2); font-size:0.83rem; transition:all 0.15s; border-left:3px solid transparent; }
 .com-nav a:hover,.com-nav a.act { color:var(--texto); background:rgba(255,255,255,0.04); border-left-color:var(--oro); }
+.nav-ico { width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; opacity:0.78; }
+.nav-ico svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.panel-soft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+.panel-soft-card { background:var(--bg2); border:1px solid var(--borde2); border-radius:6px; padding:1rem; }
+.panel-soft-card h3 { font-size:0.98rem; margin-bottom:0.45rem; }
+.panel-soft-card p { color:var(--texto2); font-size:0.84rem; line-height:1.5; }
 .com-main { padding:1.5rem; overflow-y:auto; }
 .com-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
 .com-header h1 { font-size:1.3rem; font-weight:600; }
@@ -1440,6 +1452,38 @@ function abrirModalNuevoComercio() {
 // ============================================================
 // PANEL COMERCIO (dueño)
 // ============================================================
+function navIconoComercio(nombre) {
+  const iconos = {
+    dashboard: '<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"></path><path d="M6.5 10.5V20h11v-9.5"></path></svg>',
+    reservas: '<svg viewBox="0 0 24 24"><path d="M7 3v4"></path><path d="M17 3v4"></path><path d="M4 8h16"></path><rect x="4" y="5" width="16" height="16" rx="2"></rect></svg>',
+    compartir: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 10.8 6.8-4.1"></path><path d="m8.6 13.2 6.8 4.1"></path></svg>',
+    metricas: '<svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 16V9"></path><path d="M12 16V6"></path><path d="M16 16v-4"></path></svg>',
+    clientes: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 11a3 3 0 0 0 0-6"></path><path d="M17 20a5.5 5.5 0 0 0-2-4.2"></path></svg>',
+    trabajadores: '<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg>',
+    servicios: '<svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path><path d="M8 7v10"></path></svg>',
+    horarios: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 2"></path></svg>',
+    bloqueos: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"></rect><path d="m8 8 8 8"></path></svg>',
+    calendario: '<svg viewBox="0 0 24 24"><path d="M7 3v4"></path><path d="M17 3v4"></path><rect x="4" y="5" width="16" height="16" rx="2"></rect><path d="M8 12h3"></path><path d="M13 12h3"></path><path d="M8 16h3"></path></svg>',
+    pagos: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h3"></path></svg>',
+    ubicaciones: '<svg viewBox="0 0 24 24"><path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg>',
+    automatizaciones: '<svg viewBox="0 0 24 24"><path d="M6 8a4 4 0 0 1 7-2.6"></path><path d="M18 16a4 4 0 0 1-7 2.6"></path><path d="M14 5h4V1"></path><path d="M10 19H6v4"></path></svg>',
+    perfil: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg>',
+    negocio: '<svg viewBox="0 0 24 24"><path d="M4 10h16"></path><path d="M5 10l1-5h12l1 5"></path><path d="M6 10v10h12V10"></path><path d="M10 20v-5h4v5"></path></svg>'
+  };
+
+  return `<span class="nav-ico" aria-hidden="true">${iconos[nombre] || iconos.dashboard}</span>`;
+}
+
+function inicialesPanel(nombre) {
+  return String(nombre || 'Usuario')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(p => p[0] || '')
+    .join('')
+    .toUpperCase() || 'U';
+}
+
 async function mostrarPanelComercio() {
   if (!S.token || S.tipo !== 'comercio') { navegar('/login'); return; }
   const el = document.getElementById('panel-comercio');
@@ -1456,18 +1500,29 @@ async function mostrarPanelComercio() {
         <div class="nombre" id="cs-nombre">Cargando...</div>
         <div class="slug" id="cs-slug"></div>
       </div>
+      <div class="com-user-mini" onclick="comSec('cuenta')" title="Abrir perfil">
+        <div class="com-user-avatar" id="cs-avatar">U</div>
+        <div class="com-user-info">
+          <strong id="cs-user-name">${S.nombre || 'Usuario'}</strong>
+          <span>Perfil y preferencias</span>
+        </div>
+      </div>
       <nav class="com-nav">
-        <a href="#" onclick="comSec('dashboard');return false" class="act" id="cn-dashboard">Inicio</a>
-        <a href="#" onclick="comSec('reservas');return false" id="cn-reservas">Reservas</a>
-        <a href="#" onclick="comSec('compartir');return false" id="cn-compartir">Compartir</a>
-        <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">Metricas</a>
-        <a href="#" onclick="comSec('clientes');return false" id="cn-clientes">Clientes</a>
-        <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
-        <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">Servicios</a>
-        <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">Horarios</a>
-        <a href="#" onclick="comSec('bloqueos');return false" id="cn-bloqueos">Bloqueos</a>
-        <a href="#" onclick="comSec('automatizaciones');return false" id="cn-automatizaciones">Automatizaciones</a>
-        <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">Perfil</a>
+        <a href="#" onclick="comSec('dashboard');return false" class="act" id="cn-dashboard">${navIconoComercio('dashboard')}Inicio</a>
+        <a href="#" onclick="comSec('reservas');return false" id="cn-reservas">${navIconoComercio('reservas')}Reservas</a>
+        <a href="#" onclick="comSec('calendario');return false" id="cn-calendario">${navIconoComercio('calendario')}Calendario</a>
+        <a href="#" onclick="comSec('compartir');return false" id="cn-compartir">${navIconoComercio('compartir')}Compartir</a>
+        <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">${navIconoComercio('metricas')}Métricas</a>
+        <a href="#" onclick="comSec('clientes');return false" id="cn-clientes">${navIconoComercio('clientes')}Clientes</a>
+        <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">${navIconoComercio('trabajadores')}Profesionales</a>
+        <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">${navIconoComercio('servicios')}Servicios</a>
+        <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">${navIconoComercio('horarios')}Horarios</a>
+        <a href="#" onclick="comSec('bloqueos');return false" id="cn-bloqueos">${navIconoComercio('bloqueos')}Bloqueos</a>
+        <a href="#" onclick="comSec('pagos');return false" id="cn-pagos">${navIconoComercio('pagos')}Pagos</a>
+        <a href="#" onclick="comSec('ubicaciones');return false" id="cn-ubicaciones">${navIconoComercio('ubicaciones')}Ubicaciones</a>
+        <a href="#" onclick="comSec('automatizaciones');return false" id="cn-automatizaciones">${navIconoComercio('automatizaciones')}Automatizaciones</a>
+        <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">${navIconoComercio('negocio')}Mi negocio</a>
+        <a href="#" onclick="comSec('cuenta');return false" id="cn-cuenta">${navIconoComercio('perfil')}Perfil</a>
       </nav>
       <div style="padding:1rem;border-top:1px solid var(--borde2)">
         <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="window.open('/${S.slug}','_blank')">Ver mi pagina</button>
@@ -1478,6 +1533,7 @@ async function mostrarPanelComercio() {
       <div class="com-secciones">
         <div id="com-dashboard" class="com-sec act"></div>
         <div id="com-reservas" class="com-sec"></div>
+        <div id="com-calendario" class="com-sec"></div>
         <div id="com-compartir" class="com-sec"></div>
         <div id="com-metricas" class="com-sec"></div>
         <div id="com-clientes" class="com-sec"></div>
@@ -1485,8 +1541,11 @@ async function mostrarPanelComercio() {
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
         <div id="com-bloqueos" class="com-sec"></div>
+        <div id="com-pagos" class="com-sec"></div>
+        <div id="com-ubicaciones" class="com-sec"></div>
         <div id="com-automatizaciones" class="com-sec"></div>
         <div id="com-perfil" class="com-sec"></div>
+        <div id="com-cuenta" class="com-sec"></div>
       </div>
     </main>`;
   try {
@@ -1495,6 +1554,8 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-nombre').textContent = data.nombre;
     document.getElementById('cs-mobile-nombre').textContent = data.nombre;
     document.getElementById('cs-slug').textContent = '/' + data.slug;
+    document.getElementById('cs-avatar').textContent = inicialesPanel(S.nombre || data.nombre);
+    document.getElementById('cs-user-name').textContent = S.nombre || data.nombre;
   } catch(e) {}
   const secInicial = (location.hash || '#dashboard').replace('#', '');
 
@@ -1516,6 +1577,15 @@ async function copiarLinkPublico() {
     toast('Link copiado');
   } catch (e) {
     toast('No se pudo copiar el link', 'error');
+  }
+}
+
+async function copiarTexto(texto, mensaje = 'Copiado') {
+  try {
+    await navigator.clipboard.writeText(texto);
+    toast(mensaje);
+  } catch (e) {
+    toast('No se pudo copiar', 'error');
   }
 }
 
@@ -1592,6 +1662,438 @@ function cargarComCompartir() {
   `;
 }
 
+async function cargarComCalendario() {
+  const el = document.getElementById('com-calendario');
+  const base = window._calendarioPanelFecha || fechaHoyLocal();
+  const fechaBase = new Date(base + 'T12:00:00');
+  const desde = `${fechaBase.getFullYear()}-${String(fechaBase.getMonth() + 1).padStart(2, '0')}-01`;
+  const hastaDate = new Date(fechaBase.getFullYear(), fechaBase.getMonth() + 1, 0);
+  const hasta = `${hastaDate.getFullYear()}-${String(hastaDate.getMonth() + 1).padStart(2, '0')}-${String(hastaDate.getDate()).padStart(2, '0')}`;
+
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Calendario</h1>
+        <small style="color:var(--texto2)">Vista mensual rápida de las reservas del comercio.</small>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="moverCalendarioPanel(-1)">Anterior</button>
+        <button class="btn btn-ghost btn-sm" onclick="moverCalendarioPanel(1)">Siguiente</button>
+      </div>
+    </div>
+    <div id="calendario-panel-lista"><span class="loader-inline claro"></span> Cargando calendario...</div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/reservas?desde=${desde}&hasta=${hasta}`);
+    const estadoFiltro = window._calFiltroEstado || '';
+    const trabajadorFiltro = window._calFiltroTrabajador || '';
+    const trabajadoresMes = [...new Map(data.filter(r => r.trabajador_id).map(r => [String(r.trabajador_id), r.trabajador_nombre || 'Profesional'])).entries()];
+    const filtrosHTML = `
+      <div class="card" style="margin-bottom:1rem">
+        <div class="input-grid-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="label">Estado</label>
+            <select class="input" onchange="window._calFiltroEstado=this.value;cargarComCalendario()">
+              <option value="" ${!estadoFiltro ? 'selected' : ''}>Todos</option>
+              <option value="pendiente" ${estadoFiltro === 'pendiente' ? 'selected' : ''}>Pendientes</option>
+              <option value="confirmada" ${estadoFiltro === 'confirmada' ? 'selected' : ''}>Confirmadas</option>
+              <option value="completada" ${estadoFiltro === 'completada' ? 'selected' : ''}>Completadas</option>
+              <option value="cancelada" ${estadoFiltro === 'cancelada' ? 'selected' : ''}>Canceladas</option>
+              <option value="no_asistio" ${estadoFiltro === 'no_asistio' ? 'selected' : ''}>No asistió</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="label">Profesional</label>
+            <select class="input" onchange="window._calFiltroTrabajador=this.value;cargarComCalendario()">
+              <option value="" ${!trabajadorFiltro ? 'selected' : ''}>Todos</option>
+              ${trabajadoresMes.map(([id, nombre]) => `<option value="${id}" ${trabajadorFiltro === id ? 'selected' : ''}>${nombre}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+    const reservasFiltradas = data.filter(r => {
+      if (estadoFiltro && r.estado !== estadoFiltro) return false;
+      if (trabajadorFiltro && String(r.trabajador_id || '') !== trabajadorFiltro) return false;
+      return true;
+    });
+    const porFecha = reservasFiltradas.reduce((acc, r) => {
+      const clave = String(r.fecha).slice(0, 10);
+      if (!acc[clave]) acc[clave] = [];
+      acc[clave].push(r);
+      return acc;
+    }, {});
+
+    const fechas = Object.keys(porFecha).sort();
+    const lista = document.getElementById('calendario-panel-lista');
+
+    if (!fechas.length) {
+      lista.innerHTML = `${filtrosHTML}<div class="card" style="color:var(--texto2)">No hay reservas para esos filtros en este mes.</div>`;
+      return;
+    }
+
+    lista.innerHTML = `
+      ${filtrosHTML}
+      <div class="panel-soft-grid">
+        ${fechas.map(fecha => `
+          <div class="panel-soft-card">
+            <h3>${formatearFechaReserva(fecha)}</h3>
+            <div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.8rem">
+              ${porFecha[fecha].map(r => `
+                <button class="btn btn-ghost btn-sm" style="text-align:left;justify-content:flex-start;border-left:4px solid ${colorEstadoCalendario(r.estado)}" onclick="abrirDetalleReserva(${r.id})">
+                  ${horaCorta(r.hora)} - ${r.cliente_nombre} ${r.cliente_apellido || ''} <span class="badge ${badgeEstado(r.estado)}">${estadoReservaLabel(r.estado)}</span><br>
+                  <small style="color:var(--texto2)">${r.servicio_nombre}${r.trabajador_nombre ? ` / ${r.trabajador_nombre}` : ''}</small>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('calendario-panel-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function colorEstadoCalendario(estado) {
+  return {
+    pendiente: '#c9a84c',
+    confirmada: '#23c56b',
+    completada: '#62a8ff',
+    cancelada: '#e64b3c',
+    no_asistio: '#9b9b9b'
+  }[estado] || '#c9a84c';
+}
+
+function moverCalendarioPanel(meses) {
+  const base = new Date((window._calendarioPanelFecha || fechaHoyLocal()) + 'T12:00:00');
+  base.setMonth(base.getMonth() + meses);
+  window._calendarioPanelFecha = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-01`;
+  cargarComCalendario();
+}
+
+async function cargarComPagos() {
+  const el = document.getElementById('com-pagos');
+  let data = S.comercio;
+
+  if (!data) {
+    data = await api('GET', `/comercio/${S.slug}/perfil`);
+    S.comercio = data;
+  }
+
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Pagos</h1>
+        <small style="color:var(--texto2)">Configura cómo puede pagar el cliente al reservar o al asistir.</small>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:760px">
+      <label style="display:flex;align-items:center;gap:0.55rem;margin-bottom:1rem">
+        <input type="checkbox" id="pg-local" ${data.pago_local_activo !== false ? 'checked' : ''}>
+        Aceptar pago en el local
+      </label>
+
+      <label style="display:flex;align-items:center;gap:0.55rem;margin-bottom:1rem">
+        <input type="checkbox" id="pg-transferencia" ${data.pago_transferencia_activa ? 'checked' : ''}>
+        Aceptar transferencia
+      </label>
+
+      <label style="display:flex;align-items:center;gap:0.55rem;margin-bottom:1rem">
+        <input type="checkbox" id="pg-mp" ${data.pago_mercadopago_activo ? 'checked' : ''}>
+        Aceptar Mercado Pago
+      </label>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Alias / CVU visible</label>
+          <input class="input" id="pg-alias" value="${data.pago_alias || ''}" placeholder="mi.alias.mp">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Cuenta / CBU / CVU</label>
+          <input class="input" id="pg-cuenta" value="${data.pago_cuenta || ''}" placeholder="00000031000...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Link de pago online</label>
+        <input class="input" id="pg-mp-link" value="${data.pago_mercadopago_link || ''}" placeholder="https://mpago.la/...">
+        <small style="color:var(--texto2)">Opcional. Si cargás un link, lo mostramos cuando una reserva requiere seña o pago online.</small>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Instrucciones de pago</label>
+        <textarea class="input" id="pg-instrucciones" rows="4" placeholder="Ej: Enviar comprobante por WhatsApp">${data.pago_instrucciones || ''}</textarea>
+      </div>
+
+      <button class="btn btn-oro" onclick="guardarComPagos()">Guardar pagos</button>
+    </div>
+  `;
+}
+
+async function guardarComPagos() {
+  try {
+    const actualizado = await api('PUT', `/comercio/${S.slug}/perfil`, {
+      pago_local_activo: document.getElementById('pg-local').checked,
+      pago_transferencia_activa: document.getElementById('pg-transferencia').checked,
+      pago_mercadopago_activo: document.getElementById('pg-mp').checked,
+      pago_alias: document.getElementById('pg-alias').value.trim(),
+      pago_cuenta: document.getElementById('pg-cuenta').value.trim(),
+      pago_mercadopago_link: document.getElementById('pg-mp-link').value.trim(),
+      pago_instrucciones: document.getElementById('pg-instrucciones').value.trim()
+    });
+
+    S.comercio = actualizado;
+    toast('Pagos actualizados');
+    cargarComPagos();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function cargarComUbicaciones() {
+  const el = document.getElementById('com-ubicaciones');
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Ubicaciones</h1>
+        <small style="color:var(--texto2)">Administra locales, sucursales o puntos de atención.</small>
+      </div>
+      <button class="btn btn-oro btn-sm" onclick="abrirModalUbicacion()">+ Agregar</button>
+    </div>
+    <div id="ubicaciones-lista"><span class="loader-inline claro"></span> Cargando ubicaciones...</div>
+  `;
+
+  try {
+    const ubicaciones = await api('GET', `/comercio/${S.slug}/ubicaciones`);
+    const lista = document.getElementById('ubicaciones-lista');
+
+    if (!ubicaciones.length) {
+      lista.innerHTML = `
+        <div class="card" style="color:var(--texto2)">
+          Todavía no hay ubicaciones cargadas. Podés agregar la dirección principal o una sucursal.
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = `
+      <div class="panel-soft-grid">
+        ${ubicaciones.map(u => {
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u.direccion)}`;
+          return `
+            <div class="panel-soft-card">
+              <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
+                <div>
+                  <h3>${u.nombre}</h3>
+                  ${u.principal ? '<span class="badge badge-oro">Principal</span>' : ''}
+                </div>
+                <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm" onclick='abrirModalUbicacion(${JSON.stringify(u)})'>Editar</button>
+                  <button class="btn btn-peligro btn-sm" onclick="eliminarUbicacion(${u.id})">Ocultar</button>
+                </div>
+              </div>
+              <p style="margin-top:0.8rem">${u.direccion}</p>
+              ${u.telefono ? `<p>Tel: ${u.telefono}</p>` : ''}
+              ${u.whatsapp ? `<p>WhatsApp: ${u.whatsapp}</p>` : ''}
+              ${u.notas ? `<p>${u.notas}</p>` : ''}
+              <button class="btn btn-ghost btn-sm" style="margin-top:0.8rem" onclick="window.open('${mapsUrl}','_blank')">Abrir en Maps</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('ubicaciones-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function abrirModalUbicacion(u = null) {
+  mostrarModal(u ? 'Editar ubicación' : 'Nueva ubicación', `
+    <div class="form-group">
+      <label class="label">Nombre *</label>
+      <input class="input" id="ub-nombre" value="${u?.nombre || ''}" placeholder="Local principal">
+    </div>
+    <div class="form-group">
+      <label class="label">Dirección *</label>
+      <input class="input" id="ub-direccion" value="${u?.direccion || ''}" placeholder="Calle, número, ciudad">
+    </div>
+    <div class="input-grid-2">
+      <div class="form-group">
+        <label class="label">Teléfono</label>
+        <input class="input" id="ub-telefono" value="${u?.telefono || ''}">
+      </div>
+      <div class="form-group">
+        <label class="label">WhatsApp</label>
+        <input class="input" id="ub-whatsapp" value="${u?.whatsapp || ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="label">Notas</label>
+      <textarea class="input" id="ub-notas" rows="3">${u?.notas || ''}</textarea>
+    </div>
+    <div class="input-grid-2">
+      <div class="form-group">
+        <label class="label">Orden</label>
+        <input class="input" id="ub-orden" type="number" value="${u?.orden || 0}">
+      </div>
+      <label style="display:flex;align-items:center;gap:0.55rem;color:var(--texto2);padding-top:1.7rem">
+        <input type="checkbox" id="ub-principal" ${u?.principal ? 'checked' : ''}>
+        Es la ubicación principal
+      </label>
+    </div>
+  `, async () => {
+    const body = {
+      nombre: document.getElementById('ub-nombre').value.trim(),
+      direccion: document.getElementById('ub-direccion').value.trim(),
+      telefono: document.getElementById('ub-telefono').value.trim(),
+      whatsapp: document.getElementById('ub-whatsapp').value.trim(),
+      notas: document.getElementById('ub-notas').value.trim(),
+      principal: document.getElementById('ub-principal').checked,
+      orden: parseInt(document.getElementById('ub-orden').value || 0)
+    };
+
+    if (!body.nombre || !body.direccion) {
+      toast('Completá nombre y dirección', 'error');
+      return false;
+    }
+
+    if (u) {
+      await api('PUT', `/comercio/${S.slug}/ubicaciones/${u.id}`, body);
+    } else {
+      await api('POST', `/comercio/${S.slug}/ubicaciones`, body);
+    }
+
+    toast(u ? 'Ubicación actualizada' : 'Ubicación creada');
+    cargarComUbicaciones();
+  });
+}
+
+async function eliminarUbicacion(id) {
+  if (!confirm('Ocultar esta ubicación? Las reservas anteriores mantienen el historial.')) return;
+
+  try {
+    await api('DELETE', `/comercio/${S.slug}/ubicaciones/${id}`);
+    toast('Ubicación ocultada');
+    cargarComUbicaciones();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function cargarComCuenta() {
+  const el = document.getElementById('com-cuenta');
+  let cuenta = null;
+
+  try {
+    cuenta = await api('GET', `/comercio/${S.slug}/cuenta`);
+  } catch (e) {
+    cuenta = {
+      nombre: S.nombre || 'Usuario',
+      email: '',
+      comercio_nombre: S.comercio?.nombre || S.slug || ''
+    };
+  }
+
+  const nombre = cuenta.nombre || S.nombre || 'Usuario';
+  const comercio = cuenta.comercio_nombre || S.comercio?.nombre || S.slug || '';
+  const avatarHTML = cuenta.avatar_url
+    ? `<img src="${cuenta.avatar_url}" alt="${nombre}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid var(--borde2)">`
+    : `<div class="com-user-avatar" style="width:54px;height:54px;font-size:1rem">${inicialesPanel(nombre)}</div>`;
+
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Perfil</h1>
+        <small style="color:var(--texto2)">Datos de la persona que usa el panel.</small>
+      </div>
+    </div>
+    <div class="panel-soft-grid">
+      <div class="panel-soft-card">
+        <div style="display:flex;align-items:center;gap:0.8rem">
+          ${avatarHTML}
+          <div>
+            <h3 style="margin:0">${nombre}</h3>
+            <p>${cuenta.email || comercio}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-soft-card" style="grid-column:1/-1;max-width:720px">
+        <h3>Datos de acceso</h3>
+        <div class="form-group">
+          <label class="label">Nombre visible</label>
+          <input class="input" id="cu-nombre" value="${nombre}">
+        </div>
+        <div class="form-group">
+          <label class="label">Email</label>
+          <input class="input" value="${cuenta.email || ''}" disabled>
+        </div>
+        <div class="form-group">
+          <label class="label">Foto de perfil</label>
+          <input type="hidden" id="cu-avatar-url" value="${cuenta.avatar_url || ''}">
+          <input class="input" type="file" id="cu-avatar-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'cu-avatar-preview')">
+          ${cuenta.avatar_url
+            ? `<img id="cu-avatar-preview" class="img-preview visible" src="${cuenta.avatar_url}" alt="preview avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%">`
+            : `<img id="cu-avatar-preview" class="img-preview" alt="preview avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%">`
+          }
+          <small style="color:var(--texto2)">Opcional. Sirve para identificar mejor quiÃ©n estÃ¡ usando el panel.</small>
+        </div>
+        <div class="input-grid-2">
+          <div class="form-group">
+            <label class="label">Contraseña actual</label>
+            <input class="input" id="cu-pass-actual" type="password" placeholder="Solo si vas a cambiarla">
+          </div>
+          <div class="form-group">
+            <label class="label">Nueva contraseña</label>
+            <input class="input" id="cu-pass-nueva" type="password" placeholder="Minimo 6 caracteres">
+          </div>
+        </div>
+        <button class="btn btn-oro" onclick="guardarComCuenta()">Guardar perfil</button>
+      </div>
+    </div>
+  `;
+}
+
+async function guardarComCuenta() {
+  try {
+    const avatarFile = document.getElementById('cu-avatar-file')?.files?.[0];
+    let avatarUrl = document.getElementById('cu-avatar-url')?.value || '';
+
+    if (avatarFile) {
+      const subida = await apiUpload(`/comercio/${S.slug}/upload-imagen`, avatarFile, { tipo: 'avatar' });
+      avatarUrl = subida.url;
+    }
+
+    const actualizado = await api('PUT', `/comercio/${S.slug}/cuenta`, {
+      nombre: document.getElementById('cu-nombre').value.trim(),
+      avatar_url: avatarUrl,
+      password_actual: document.getElementById('cu-pass-actual').value,
+      password_nuevo: document.getElementById('cu-pass-nueva').value
+    });
+
+    if (actualizado?.nombre) {
+      S.nombre = actualizado.nombre;
+      localStorage.setItem('nombre', actualizado.nombre);
+    }
+
+    document.getElementById('cs-user-name').textContent = actualizado.nombre || S.nombre;
+    const avatarSidebar = document.getElementById('cs-avatar');
+    if (avatarSidebar && actualizado.avatar_url) {
+      avatarSidebar.innerHTML = `<img src="${actualizado.avatar_url}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    } else if (avatarSidebar) {
+      avatarSidebar.textContent = inicialesPanel(actualizado.nombre || S.nombre);
+    }
+    toast('Perfil actualizado');
+    cargarComCuenta();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
 function toggleMenuComercio() {
   const sidebar = document.querySelector('#panel-comercio .com-sidebar');
   const backdrop = document.getElementById('com-menu-backdrop');
@@ -1617,6 +2119,7 @@ function comSec(sec, guardarHistorial = true) {
   cerrarMenuComercio();
   if (sec === 'dashboard') cargarComDashboard();
   if (sec === 'reservas') cargarComReservas();
+  if (sec === 'calendario') cargarComCalendario();
   if (sec === 'compartir') cargarComCompartir();
   if (sec === 'metricas') cargarComMetricas();
   if (sec === 'clientes') cargarComClientes();
@@ -1624,8 +2127,11 @@ function comSec(sec, guardarHistorial = true) {
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
   if (sec === 'bloqueos') cargarComBloqueos();
+  if (sec === 'pagos') cargarComPagos();
+  if (sec === 'ubicaciones') cargarComUbicaciones();
   if (sec === 'automatizaciones') cargarComAutomatizaciones();
   if (sec === 'perfil') cargarComPerfil();
+  if (sec === 'cuenta') cargarComCuenta();
 }
 
 function fechaHoyLocal() {
@@ -1702,6 +2208,38 @@ function estadoReservaLabel(estado) {
   };
 
   return labels[estado] || estado || 'Sin estado';
+}
+
+function badgeEstado(estado) {
+  const badges = {
+    pendiente: 'badge-oro',
+    confirmada: 'badge-verde',
+    completada: 'badge-verde',
+    cancelada: 'badge-gris',
+    no_asistio: 'badge-gris'
+  };
+
+  return badges[estado] || 'badge-gris';
+}
+
+function labelFormaPago(valor) {
+  const labels = {
+    local: 'Paga al asistir',
+    online: 'Paga al reservar',
+    sena: 'Paga seña'
+  };
+
+  return labels[valor] || 'Sin definir';
+}
+
+function labelEstadoPago(valor) {
+  const labels = {
+    pendiente: 'Pendiente',
+    parcial: 'Parcial',
+    pagado: 'Pagado'
+  };
+
+  return labels[valor] || 'Pendiente';
 }
 
 function horaCorta(hora) {
@@ -1879,10 +2417,16 @@ async function cargarComClientes() {
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:1rem">
+        <label class="label">Buscar cliente</label>
+        <input class="input" id="clientes-panel-buscar" placeholder="ID, nombre o WhatsApp" oninput="filtrarClientesPanel(this.value)">
+      </div>
+
       <div class="table-wrap">
         <table class="tabla">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Cliente</th>
               <th>WhatsApp</th>
               <th>Reservas</th>
@@ -1898,7 +2442,8 @@ async function cargarComClientes() {
               const esFrecuente = Number(c.reservas_completadas || 0) >= 3;
 
               return `
-                <tr>
+                <tr class="cliente-panel-row" data-cliente="${`${c.codigo || ''} ${c.nombre || ''} ${c.apellido || ''} ${c.cliente_whatsapp || ''}`.toLowerCase()}">
+                  <td><span class="badge badge-oro">${c.codigo || 'Nuevo'}</span></td>
                   <td>
                     <strong>${c.nombre || 'Sin nombre'}</strong>
                     ${esFrecuente ? `<br><span class="badge badge-verde">Frecuente</span>` : ''}
@@ -1937,6 +2482,14 @@ async function cargarComClientes() {
     document.getElementById('clientes-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
   }
 }
+
+function filtrarClientesPanel(valor) {
+  const q = String(valor || '').trim().toLowerCase();
+  document.querySelectorAll('.cliente-panel-row').forEach(row => {
+    row.style.display = !q || row.dataset.cliente.includes(q) ? '' : 'none';
+  });
+}
+
 async function cargarComMetricas() {
   const el = document.getElementById('com-metricas');
 
@@ -2048,30 +2601,28 @@ function renderResumenIngresosDia(reservasHoy) {
   const el = document.getElementById('resumen-ingresos-dia');
   if (!el) return;
 
-  const reservasValidas = (reservasHoy || []).filter(r => r.estado === 'completada');
-
-  const total = reservasValidas.reduce((sum, r) => {
-    return sum + Number(r.precio || 0);
-  }, 0);
-
-  const moneda = S.comercio?.moneda || '$';
+  const reservas = reservasHoy || [];
+  const completadas = reservas.filter(r => r.estado === 'completada').length;
+  const pendientes = reservas.filter(r => r.estado === 'pendiente' || r.estado === 'confirmada').length;
 
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem">
       <div style="background:var(--bg2);border:1px solid var(--borde);border-radius:14px;padding:1rem">
-        <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Dinero ganado hoy</div>
-        <div style="font-size:1.6rem;font-weight:700;color:var(--oro)">
-          ${moneda} ${total.toLocaleString()}
-        </div>
-        <small style="color:var(--texto2)">Solo cuenta reservas completadas</small>
+        <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Reservas de hoy</div>
+        <div style="font-size:1.6rem;font-weight:700;color:var(--oro)">${reservas.length}</div>
+        <small style="color:var(--texto2)">Turnos cargados para la fecha</small>
       </div>
 
       <div style="background:var(--bg2);border:1px solid var(--borde);border-radius:14px;padding:1rem">
-        <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Reservas de hoy</div>
-        <div style="font-size:1.6rem;font-weight:700;color:var(--texto)">
-          ${reservasValidas.length}
-        </div>
-        <small style="color:var(--texto2)">Reservas completadas</small>
+        <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Pendientes / confirmadas</div>
+        <div style="font-size:1.6rem;font-weight:700;color:var(--texto)">${pendientes}</div>
+        <small style="color:var(--texto2)">Reservas que todavía necesitan atención</small>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--borde);border-radius:14px;padding:1rem">
+        <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Completadas</div>
+        <div style="font-size:1.6rem;font-weight:700;color:var(--texto)">${completadas}</div>
+        <small style="color:var(--texto2)">Turnos ya atendidos</small>
       </div>
     </div>
   `;
@@ -2162,7 +2713,7 @@ try {
 </div>
 
 <div id="resumen-ingresos-dia" style="margin-bottom:1rem">
-  <span class="loader-inline claro"></span> Calculando ingresos de hoy...
+  <span class="loader-inline claro"></span> Cargando resumen de hoy...
 </div>
 
     <div id="reservas-lista">
@@ -2294,9 +2845,10 @@ function limpiarFiltrosReservas() {
 
 async function abrirModalReservaManual() {
   try {
-    const [trabajadores, servicios] = await Promise.all([
+    const [trabajadores, servicios, ubicaciones] = await Promise.all([
       api('GET', `/comercio/${S.slug}/trabajadores`),
-      api('GET', `/comercio/${S.slug}/servicios`)
+      api('GET', `/comercio/${S.slug}/servicios`),
+      api('GET', `/comercio/${S.slug}/ubicaciones`).catch(() => [])
     ]);
 
     if (!servicios.length) {
@@ -2331,7 +2883,21 @@ async function abrirModalReservaManual() {
         </div>
       </div>
 
+      <div class="form-group">
+        <label class="label">Buscar cliente guardado</label>
+        <input class="input" id="rm-buscar-cliente" placeholder="Nombre, ID o WhatsApp" oninput="buscarClientesReservaManual(this.value)">
+        <div id="rm-clientes-sugeridos" style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.55rem"></div>
+      </div>
+
       <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Ubicación</label>
+          <select class="input" id="rm-ubicacion">
+            <option value="">Sin ubicación específica</option>
+            ${ubicaciones.map(u => `<option value="${u.id}" ${u.principal ? 'selected' : ''}>${u.nombre}</option>`).join('')}
+          </select>
+        </div>
+
         <div class="form-group">
           <label class="label">Profesional</label>
           <select class="input" id="rm-trabajador" onchange="actualizarServiciosReservaManual()">
@@ -2339,12 +2905,14 @@ async function abrirModalReservaManual() {
             ${trabajadores.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')}
           </select>
         </div>
+      </div>
 
+      <div class="input-grid-2">
         <div class="form-group">
           <label class="label">Servicio *</label>
-          <select class="input" id="rm-servicio">
+          <select class="input" id="rm-servicio" onchange="actualizarResumenPagoReservaManual()">
             ${servicios.map(s => `
-              <option value="${s.id}" data-trabajador-id="${s.trabajador_id || ''}">
+              <option value="${s.id}" data-trabajador-id="${s.trabajador_id || ''}" data-requiere-sena="${s.requiere_sena ? '1' : ''}" data-sena-tipo="${s.sena_tipo || 'monto'}" data-sena-valor="${s.sena_valor || 0}" data-precio="${s.precio || 0}">
                 ${s.nombre} - ${S.comercio?.moneda || '$'} ${Number(s.precio || 0).toLocaleString()} - ${s.duracion_min} min
               </option>
             `).join('')}
@@ -2389,17 +2957,44 @@ async function abrirModalReservaManual() {
         <label class="label">Nota interna</label>
         <textarea class="input" id="rm-comentarios" rows="3" placeholder="Detalle interno para el comercio"></textarea>
       </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Forma de pago</label>
+          <select class="input" id="rm-forma-pago" onchange="actualizarResumenPagoReservaManual()">
+            <option value="local">Paga al asistir</option>
+            <option value="sena">Paga seña</option>
+            <option value="online">Paga todo al reservar</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Estado del pago</label>
+          <select class="input" id="rm-estado-pago">
+            <option value="pendiente">Pendiente</option>
+            <option value="parcial">Parcial / seña</option>
+            <option value="pagado">Pagado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" id="rm-resumen-pago" style="padding:0.8rem;color:var(--texto2);font-size:0.86rem;margin-bottom:1rem">
+        Elegí un servicio para ver la configuración de pago.
+      </div>
     `, async () => {
       const payload = {
         cliente_nombre: document.getElementById('rm-nombre').value.trim(),
         cliente_apellido: document.getElementById('rm-apellido').value.trim(),
         cliente_whatsapp: document.getElementById('rm-whatsapp').value.trim(),
         cliente_email: document.getElementById('rm-email').value.trim(),
+        ubicacion_id: document.getElementById('rm-ubicacion').value || null,
         trabajador_id: document.getElementById('rm-trabajador').value || null,
         servicio_id: document.getElementById('rm-servicio').value,
         fecha: document.getElementById('rm-fecha').value,
         hora: document.getElementById('rm-hora').value,
         estado: document.getElementById('rm-estado').value,
+        forma_pago: document.getElementById('rm-forma-pago').value,
+        estado_pago: document.getElementById('rm-estado-pago').value,
         enviar_confirmacion: document.getElementById('rm-enviar-confirmacion').checked,
         comentarios: document.getElementById('rm-comentarios').value.trim()
       };
@@ -2442,6 +3037,82 @@ function actualizarServiciosReservaManual() {
   if (servicioSelect.selectedOptions[0]?.disabled && primerVisible) {
     servicioSelect.value = primerVisible.value;
   }
+
+  actualizarResumenPagoReservaManual();
+}
+
+function calcularSenaFrontend(option) {
+  if (!option || !option.dataset.requiereSena) return 0;
+
+  const precio = Number(option.dataset.precio || 0);
+  const valor = Number(option.dataset.senaValor || 0);
+
+  if (valor <= 0) return 0;
+
+  if (option.dataset.senaTipo === 'porcentaje') {
+    return Math.round((precio * valor / 100) * 100) / 100;
+  }
+
+  return Math.round(valor * 100) / 100;
+}
+
+function actualizarResumenPagoReservaManual() {
+  const servicioSelect = document.getElementById('rm-servicio');
+  const resumen = document.getElementById('rm-resumen-pago');
+  const formaPago = document.getElementById('rm-forma-pago');
+  const estadoPago = document.getElementById('rm-estado-pago');
+
+  if (!servicioSelect || !resumen) return;
+
+  const option = servicioSelect.selectedOptions[0];
+  const sena = calcularSenaFrontend(option);
+  const moneda = S.comercio?.moneda || '$';
+
+  if (sena > 0) {
+    resumen.innerHTML = `Este servicio pide seña de <strong style="color:var(--oro)">${moneda} ${sena.toLocaleString()}</strong>.`;
+    if (formaPago && formaPago.value === 'local') formaPago.value = 'sena';
+    if (estadoPago && estadoPago.value === 'pendiente') estadoPago.value = 'parcial';
+  } else {
+    resumen.innerHTML = 'Este servicio no tiene seña obligatoria. Podés marcar pago en local u online.';
+  }
+}
+
+let timerBuscarClienteReserva = null;
+
+function buscarClientesReservaManual(valor) {
+  clearTimeout(timerBuscarClienteReserva);
+  const cont = document.getElementById('rm-clientes-sugeridos');
+  const q = String(valor || '').trim();
+
+  if (!cont) return;
+  if (q.length < 2) {
+    cont.innerHTML = '';
+    return;
+  }
+
+  timerBuscarClienteReserva = setTimeout(async () => {
+    try {
+      const clientes = await api('GET', `/comercio/${S.slug}/clientes/buscar?q=${encodeURIComponent(q)}`);
+
+      cont.innerHTML = clientes.map(c => `
+        <button class="btn btn-ghost btn-sm" type="button" style="text-align:left" onclick='seleccionarClienteReservaManual(${JSON.stringify(c)})'>
+          <strong>${c.codigo}</strong> - ${c.nombre} ${c.apellido || ''}<br>
+          <small style="color:var(--texto2)">${c.whatsapp || ''}${c.email ? ` / ${c.email}` : ''}</small>
+        </button>
+      `).join('') || `<small style="color:var(--texto2)">Sin resultados</small>`;
+    } catch (e) {
+      cont.innerHTML = `<small style="color:var(--rojo)">${e.message}</small>`;
+    }
+  }, 280);
+}
+
+function seleccionarClienteReservaManual(cliente) {
+  document.getElementById('rm-nombre').value = cliente.nombre || '';
+  document.getElementById('rm-apellido').value = cliente.apellido || '';
+  document.getElementById('rm-whatsapp').value = cliente.whatsapp || '';
+  document.getElementById('rm-email').value = cliente.email || '';
+  document.getElementById('rm-buscar-cliente').value = `${cliente.codigo} - ${cliente.nombre}`;
+  document.getElementById('rm-clientes-sugeridos').innerHTML = '';
 }
 
 async function cambiarEstadoReserva(id, estado) {
@@ -2493,6 +3164,13 @@ async function abrirDetalleReserva(id) {
         </div>
       </div>
 
+      ${r.ubicacion_nombre || r.ubicacion_direccion ? `
+        <div class="form-group">
+          <label class="label">Ubicación</label>
+          <div>${r.ubicacion_nombre || 'Ubicación'}${r.ubicacion_direccion ? ` - ${r.ubicacion_direccion}` : ''}</div>
+        </div>
+      ` : ''}
+
       <div class="input-grid-2">
         <div class="form-group">
           <label class="label">Fecha</label>
@@ -2512,6 +3190,17 @@ async function abrirDetalleReserva(id) {
         <div class="form-group">
           <label class="label">Email</label>
           <div>${r.cliente_email || 'Sin dato'}</div>
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Forma de pago</label>
+          <div>${labelFormaPago(r.forma_pago)}</div>
+        </div>
+        <div class="form-group">
+          <label class="label">Estado de pago</label>
+          <div>${labelEstadoPago(r.estado_pago)}${Number(r.sena_monto || 0) > 0 ? ` - Seña: ${S.comercio?.moneda || '$'} ${Number(r.sena_monto).toLocaleString()}` : ''}</div>
         </div>
       </div>
 
@@ -2854,12 +3543,13 @@ async function cargarComServicios() {
       return;
     }
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
-      <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Seña</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(s => `<tr>
         <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">—</span>'}</td>
         <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'...':''}</small>` : ''}</td>
         <td>${s.trabajador_nombre || 'Sin profesional'}</td>
         <td>${s.precio}</td>
+        <td>${s.requiere_sena ? `<span class="badge badge-oro">${s.sena_tipo === 'porcentaje' ? `${s.sena_valor}%` : `${S.comercio?.moneda || '$'} ${Number(s.sena_valor || 0).toLocaleString()}`}</span>` : '<span class="badge badge-gris">No</span>'}</td>
         <td>${s.duracion_min} min</td>
         <td><span class="badge ${s.activo ? 'badge-verde' : 'badge-gris'}">${s.activo ? 'Activo' : 'Oculto'}</span></td>
         <td>
@@ -2911,6 +3601,28 @@ function abrirModalServicio(s = null) {
       <textarea class="input" id="sv-desc" rows="2">${s?.descripcion||''}</textarea>
     </div>
 
+    <div class="card" style="padding:1rem;margin-bottom:1rem">
+      <label style="display:flex;align-items:center;gap:0.55rem;color:var(--texto);font-size:0.9rem;margin-bottom:0.9rem">
+        <input type="checkbox" id="sv-requiere-sena" ${s?.requiere_sena ? 'checked' : ''} onchange="toggleServicioSena()">
+        Este servicio requiere seña
+      </label>
+
+      <div class="input-grid-2" id="sv-sena-wrap" style="${s?.requiere_sena ? '' : 'display:none'}">
+        <div class="form-group">
+          <label class="label">Tipo de seña</label>
+          <select class="input" id="sv-sena-tipo">
+            <option value="monto" ${s?.sena_tipo !== 'porcentaje' ? 'selected' : ''}>Monto fijo</option>
+            <option value="porcentaje" ${s?.sena_tipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Valor</label>
+          <input class="input" id="sv-sena-valor" type="number" min="0" step="0.01" value="${s?.sena_valor||0}" placeholder="Ej: 200 o 30">
+        </div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label class="label">Imagen del servicio</label>
 
@@ -2958,6 +3670,9 @@ function abrirModalServicio(s = null) {
       duracion_min: parseInt(duracion_min),
       trabajador_id: parseInt(trabajador_id),
       descripcion: document.getElementById('sv-desc').value,
+      requiere_sena: document.getElementById('sv-requiere-sena').checked,
+      sena_tipo: document.getElementById('sv-sena-tipo')?.value || 'monto',
+      sena_valor: parseFloat(document.getElementById('sv-sena-valor')?.value || 0),
       activo: true,
       imagen_url
     };
@@ -2971,6 +3686,12 @@ function abrirModalServicio(s = null) {
     toast(s ? 'Servicio actualizado' : 'Servicio creado');
     cargarComServicios();
   });
+}
+
+function toggleServicioSena() {
+  const activo = document.getElementById('sv-requiere-sena')?.checked;
+  const wrap = document.getElementById('sv-sena-wrap');
+  if (wrap) wrap.style.display = activo ? '' : 'none';
 }
 
 function prevImgUrl(inputId, previewId) {
@@ -3529,6 +4250,9 @@ async function cargarComAutomatizaciones() {
 
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
+    const calendarUrl = data.calendar_token
+      ? `${window.location.origin}${API}/p/${S.slug}/calendario.ics?token=${encodeURIComponent(data.calendar_token)}`
+      : '';
 
     document.getElementById('auto-form').innerHTML = `
       <div class="form-group">
@@ -3579,6 +4303,17 @@ async function cargarComAutomatizaciones() {
       <div class="form-group" style="max-width:260px">
         <label class="label">Horas después del turno</label>
         <input class="input" id="auto-agradecimiento-horas" type="number" min="1" max="168" value="${data.auto_agradecimiento_horas_despues || 2}">
+      </div>
+
+      <div class="card" style="background:var(--bg3);margin:1.2rem 0;padding:1rem">
+        <h3 style="margin-bottom:0.45rem">Calendario externo</h3>
+        <p style="color:var(--texto2);font-size:0.86rem;line-height:1.6;margin-bottom:0.8rem">
+          Copia este link para suscribir las reservas en Google Calendar, Apple Calendar u Outlook.
+        </p>
+        <div style="display:flex;gap:0.55rem;flex-wrap:wrap">
+          <input class="input" value="${calendarUrl}" readonly style="flex:1;min-width:240px">
+          <button class="btn btn-ghost btn-sm" onclick="copiarTexto('${calendarUrl}', 'Link de calendario copiado')">Copiar</button>
+        </div>
       </div>
 
       <button class="btn btn-oro" onclick="guardarAutomatizaciones()">Guardar automatizaciones</button>
@@ -3962,6 +4697,7 @@ function renderComercioPublico(d) {
       <div class="pc-serv-body">
         <div class="pc-serv-nombre">${s.nombre}</div>
         <div class="pc-serv-precio">${d.moneda} ${parseFloat(s.precio).toLocaleString()}</div>
+        ${calcularSenaServicioPublico(s) > 0 ? `<div class="pc-serv-dur">Seña: ${d.moneda} ${calcularSenaServicioPublico(s).toLocaleString()}</div>` : ''}
         <div class="pc-serv-dur">⏱ ${s.duracion_min} min</div>
         ${s.trabajador_id ? `<div class="pc-serv-dur">Con ${trabajadorNombre(s.trabajador_id)}</div>` : ''}
         ${s.descripcion ? `<div style="font-size:0.8rem;color:var(--texto2);margin-top:0.4rem">${s.descripcion}</div>` : ''}
@@ -3998,10 +4734,13 @@ function renderComercioPublico(d) {
       ${s.trabajador_id ? `<div class="dur">Con ${trabajadorNombre(s.trabajador_id)}</div>` : ''}
     </div>`).join('');
   const requiereTrabajador = trabajadores.length > 0;
+  const ubicaciones = d.ubicaciones || [];
+  const ubicacionPrincipal = ubicaciones.find(u => u.principal) || ubicaciones[0] || null;
+  const direccionMapa = ubicacionPrincipal?.direccion || d.direccion || '';
   const waNumero = String(d.whatsapp || '').replace(/\D/g, '');
   const waUrl = waNumero ? `https://wa.me/${waNumero}` : '#';
-  const mapsUrl = d.direccion ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.direccion)}` : '#';
-  const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURIComponent(d.direccion)}&output=embed` : '';
+  const mapsUrl = direccionMapa ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionMapa)}` : '#';
+  const mapsEmbedUrl = direccionMapa ? `https://www.google.com/maps?q=${encodeURIComponent(direccionMapa)}&output=embed` : '';
 
   const opcsTrabHTML = requiereTrabajador
     ? trabajadores.map(t => `
@@ -4135,6 +4874,14 @@ function renderComercioPublico(d) {
               <div class="form-group"><label class="label">Apellido *</label><input class="input" id="pc-ape" placeholder="Tu apellido"></div>
             </div>
             <div class="form-group"><label class="label">WhatsApp * <small style="color:var(--texto2);text-transform:none">(para confirmación)</small></label><input class="input" id="pc-wa" type="tel" placeholder="+598 91 000 000"></div>
+            ${ubicaciones.length ? `
+              <div class="form-group">
+                <label class="label">Ubicación</label>
+                <select class="input" id="pc-ubicacion">
+                  ${ubicaciones.map(u => `<option value="${u.id}" ${ubicacionPrincipal && Number(ubicacionPrincipal.id) === Number(u.id) ? 'selected' : ''}>${u.nombre} - ${u.direccion}</option>`).join('')}
+                </select>
+              </div>
+            ` : ''}
             <div class="form-group"><label class="label">Email <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><input class="input" id="pc-email" type="email"></div>
             <div class="form-group"><label class="label">Comentarios <small style="color:var(--texto2);text-transform:none">(opcional)</small></label><textarea class="input" id="pc-coment" rows="2" placeholder="Referencia de corte, aclaracion..."></textarea></div>
             <div id="pc-datos-err" class="form-error"></div>
@@ -4148,7 +4895,7 @@ function renderComercioPublico(d) {
             <div class="paso-tit">Revisa tu reserva</div>
             <div class="paso-sub">Confirma antes de agendar</div>
             <div class="resumen-card" id="pc-resumen"></div>
-            <div style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">El pago se realiza en el local el día del turno.</div>
+            <div id="pc-pago-info" style="background:rgba(201,168,76,0.07);border:1px solid var(--borde);border-radius:2px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:var(--texto2)">El pago se realiza en el local el día del turno.</div>
             <div class="pasos-nav">
               <button class="btn-atras" onclick="pcIrPaso(5)">&larr; Modificar</button>
               <button class="btn-sig" id="pc-btn-conf" onclick="pcConfirmar()">Confirmar turno</button>
@@ -4165,7 +4912,7 @@ function renderComercioPublico(d) {
         </div>
       </div>
     </section>
-    ${d.direccion ? `
+    ${direccionMapa ? `
   <section id="pc-ubicacion" style="padding:3.5rem 2rem;background:#171717">
     <div style="max-width:920px;margin:0 auto">
       <div style="margin-bottom:1.4rem">
@@ -4175,7 +4922,7 @@ function renderComercioPublico(d) {
             Dónde encontrarnos
           </div>
           <p style="color:var(--texto2);font-size:0.95rem;margin:0;line-height:1.6">
-            ${d.direccion}
+            ${direccionMapa}
           </p>
         </div>
       </div>
@@ -4455,6 +5202,7 @@ function pcValidarDatos() {
   }
   errEl.textContent = '';
   S.reserva.nombre = nom; S.reserva.apellido = ape; S.reserva.wa = wa;
+  S.reserva.ubicacion_id = document.getElementById('pc-ubicacion')?.value || null;
   S.reserva.email = document.getElementById('pc-email').value.trim();
   S.reserva.comentarios = document.getElementById('pc-coment').value.trim();
   pcIrPaso(6);
@@ -4464,15 +5212,41 @@ function pcRenderResumen() {
   const r = S.reserva;
   const fDisplay = r.fecha.toLocaleDateString('es-UY', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const sena = calcularSenaServicioPublico(r.servicio);
+  const ubicacion = (S.comercio.ubicaciones || []).find(u => Number(u.id) === Number(r.ubicacion_id));
+  const linkPago = S.comercio.pago_mercadopago_link || '';
   document.getElementById('pc-resumen').innerHTML = `
     <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${r.servicio.nombre}</span></div>
     ${r.trabajador ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${r.trabajador.nombre}</span></div>` : ''}
+    ${ubicacion ? `<div class="res-fila"><span class="res-k">Ubicación</span><span class="res-v">${ubicacion.nombre}<br><small>${ubicacion.direccion}</small></span></div>` : ''}
     <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${cap(fDisplay)}</span></div>
     <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${r.hora} hs</span></div>
     <div class="res-fila"><span class="res-k">Duración</span><span class="res-v">${r.servicio.duracion_min} min</span></div>
     <div class="res-fila"><span class="res-k">Nombre</span><span class="res-v">${r.nombre} ${r.apellido}</span></div>
     <div class="res-fila"><span class="res-k">WhatsApp</span><span class="res-v">${r.wa}</span></div>
+    ${sena > 0 ? `<div class="res-fila"><span class="res-k">Seña requerida</span><span class="res-v">${S.comercio.moneda} ${sena.toLocaleString()}</span></div>` : ''}
+    ${sena > 0 && linkPago ? `<div class="res-fila"><span class="res-k">Pago online</span><span class="res-v"><a href="${linkPago}" target="_blank" rel="noopener" style="color:var(--oro)">Abrir link de pago</a></span></div>` : ''}
     <div class="res-fila res-total"><span class="res-k">Total a pagar</span><span class="res-v">${S.comercio.moneda} ${parseFloat(r.servicio.precio).toLocaleString()}</span></div>`;
+
+  const pagoInfo = document.getElementById('pc-pago-info');
+  if (pagoInfo) {
+    if (sena > 0 && linkPago) {
+      pagoInfo.innerHTML = 'Este servicio requiere seña. Podés abrir el link de pago desde el resumen y finalizar la reserva.';
+    } else if (sena > 0) {
+      pagoInfo.innerHTML = 'Este servicio requiere seña. El comercio te indicará cómo completar el pago.';
+    } else {
+      pagoInfo.innerHTML = 'El pago se realiza en el local el día del turno.';
+    }
+  }
+}
+
+function calcularSenaServicioPublico(servicio) {
+  if (!servicio?.requiere_sena) return 0;
+  const precio = Number(servicio.precio || 0);
+  const valor = Number(servicio.sena_valor || 0);
+  if (valor <= 0) return 0;
+  if (servicio.sena_tipo === 'porcentaje') return Math.round((precio * valor / 100) * 100) / 100;
+  return Math.round(valor * 100) / 100;
 }
 
 async function pcConfirmar() {
@@ -4484,6 +5258,7 @@ async function pcConfirmar() {
     const data = await api('POST', `/p/${S.comercio.slug}/reservar`, {
       servicio_id:  r.servicio.id,
       trabajador_id: r.trabajador?.id || null,
+      ubicacion_id: r.ubicacion_id || null,
       fecha:        r.fecha.toISOString().split('T')[0],
       hora:         r.hora,
       nombre:       r.nombre,
@@ -4491,6 +5266,7 @@ async function pcConfirmar() {
       whatsapp:     r.wa,
       email:        r.email,
       comentarios:  r.comentarios,
+      forma_pago:   calcularSenaServicioPublico(r.servicio) > 0 ? 'sena' : 'local',
     });
 
     // Mostrar confirmación
@@ -4498,9 +5274,11 @@ async function pcConfirmar() {
     document.getElementById('pc-paso-ok').classList.add('v');
     const fDisplay = r.fecha.toLocaleDateString('es-UY', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const ubicacion = (S.comercio.ubicaciones || []).find(u => Number(u.id) === Number(r.ubicacion_id));
     document.getElementById('pc-conf-det').innerHTML = `
       <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${r.servicio.nombre}</span></div>
       ${r.trabajador ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${r.trabajador.nombre}</span></div>` : ''}
+      ${ubicacion ? `<div class="res-fila"><span class="res-k">Ubicación</span><span class="res-v">${ubicacion.nombre}<br><small>${ubicacion.direccion}</small></span></div>` : ''}
       <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${cap(fDisplay)}</span></div>
       <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${r.hora} hs</span></div>
       <div class="res-fila res-total"><span class="res-k">Total</span><span class="res-v">${S.comercio.moneda} ${parseFloat(r.servicio.precio).toLocaleString()}</span></div>`;
@@ -4524,6 +5302,7 @@ function pcReiniciar() {
     apellido: '',
     wa: '',
     email: '',
+    ubicacion_id: null,
     comentarios: ''
   };
 
