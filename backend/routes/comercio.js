@@ -93,6 +93,66 @@ function revisarValidacion(req, res, next) {
   next();
 }
 
+const ESTADOS_RESERVA = new Set(['pendiente', 'confirmada', 'completada', 'cancelada', 'no_asistio']);
+
+function validarFechaISO(valor) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(valor || ''));
+}
+
+function validarHora(valor) {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(valor || ''));
+}
+
+function fechaHoyUY() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Montevideo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date()).reduce((acc, p) => {
+    acc[p.type] = p.value;
+    return acc;
+  }, {});
+
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+async function existeBloqueoDisponibilidad(client, comercioId, trabajadorId, fecha, hora) {
+  const params = [comercioId, fecha];
+  let query = `
+    SELECT id, motivo
+    FROM disponibilidad_bloqueos
+    WHERE comercio_id=$1
+      AND activo=true
+      AND fecha_desde <= $2
+      AND fecha_hasta >= $2
+  `;
+
+  if (trabajadorId) {
+    params.push(trabajadorId);
+    query += ` AND (trabajador_id IS NULL OR trabajador_id=$${params.length})`;
+  } else {
+    query += ` AND trabajador_id IS NULL`;
+  }
+
+  if (hora) {
+    params.push(hora);
+    query += `
+      AND (
+        tipo IN ('dia','rango')
+        OR hora_desde IS NULL
+        OR hora_hasta IS NULL
+        OR ($${params.length}::time >= hora_desde AND $${params.length}::time < hora_hasta)
+      )
+    `;
+  }
+
+  query += ' LIMIT 1';
+
+  const r = await client.query(query, params);
+  return r.rows[0] || null;
+}
+
 const validarSlug = [
   param('slug')
     .trim()
@@ -416,6 +476,66 @@ router.put('/:slug/perfil', authAdminOrComercio, validarPerfilComercio, revisarV
     const r = await pool.query(`UPDATE comercios SET ${sets.join(',')} WHERE slug=$${vals.length} RETURNING *`, vals);
     res.json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/comercio/:slug/dashboard - resumen inicial del comercio
+router.get('/:slug/dashboard', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id, slug, nombre, moneda FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const comercio = c.rows[0];
+    const hoy = fechaHoyUY();
+
+    const [stats, turnosHoy, proximos, servicios, trabajadores] = await Promise.all([
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE r.fecha=$2) AS turnos_hoy,
+          COUNT(*) FILTER (WHERE r.estado IN ('pendiente','confirmada') AND r.fecha >= $2) AS reservas_pendientes,
+          COUNT(DISTINCT CASE WHEN r.creado_en::date = $2 THEN r.cliente_whatsapp END) AS clientes_nuevos,
+          COALESCE(SUM(CASE WHEN r.fecha=$2 AND r.estado='completada' THEN s.precio ELSE 0 END), 0) AS ingresos_hoy
+        FROM reservas r
+        JOIN servicios s ON s.id = r.servicio_id
+        WHERE r.comercio_id=$1
+      `, [comercio.id, hoy]),
+      pool.query(`
+        SELECT r.*, s.nombre AS servicio_nombre, s.precio, t.nombre AS trabajador_nombre
+        FROM reservas r
+        JOIN servicios s ON s.id = r.servicio_id
+        LEFT JOIN trabajadores t ON t.id = r.trabajador_id
+        WHERE r.comercio_id=$1
+          AND r.fecha=$2
+        ORDER BY r.hora ASC
+        LIMIT 8
+      `, [comercio.id, hoy]),
+      pool.query(`
+        SELECT r.*, s.nombre AS servicio_nombre, s.precio, t.nombre AS trabajador_nombre
+        FROM reservas r
+        JOIN servicios s ON s.id = r.servicio_id
+        LEFT JOIN trabajadores t ON t.id = r.trabajador_id
+        WHERE r.comercio_id=$1
+          AND r.estado IN ('pendiente','confirmada')
+          AND (r.fecha > $2 OR (r.fecha=$2 AND r.hora >= CURRENT_TIME))
+        ORDER BY r.fecha ASC, r.hora ASC
+        LIMIT 8
+      `, [comercio.id, hoy]),
+      pool.query('SELECT COUNT(*)::int AS activos FROM servicios WHERE comercio_id=$1 AND activo=true', [comercio.id]),
+      pool.query('SELECT COUNT(*)::int AS activos FROM trabajadores WHERE comercio_id=$1 AND activo=true', [comercio.id])
+    ]);
+
+    res.json({
+      moneda: comercio.moneda || '$',
+      stats: {
+        ...stats.rows[0],
+        servicios_activos: servicios.rows[0]?.activos || 0,
+        profesionales_activos: trabajadores.rows[0]?.activos || 0
+      },
+      turnos_hoy: turnosHoy.rows,
+      proximos_turnos: proximos.rows
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // PUT /api/comercio/:slug/horarios - guardar horarios con soporte de bloques
@@ -878,6 +998,170 @@ router.get('/:slug/metricas', authAdminOrComercio, async (req, res) => {
   }
 });
 
+// GET /api/comercio/:slug/bloqueos - bloqueos de disponibilidad
+router.get('/:slug/bloqueos', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const r = await pool.query(`
+      SELECT b.*, t.nombre AS trabajador_nombre
+      FROM disponibilidad_bloqueos b
+      LEFT JOIN trabajadores t ON t.id = b.trabajador_id
+      WHERE b.comercio_id=$1
+      ORDER BY b.fecha_desde DESC, b.hora_desde NULLS FIRST, b.id DESC
+    `, [c.rows[0].id]);
+
+    res.json(r.rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/comercio/:slug/bloqueos - crear bloqueo
+router.post('/:slug/bloqueos', authAdminOrComercio, async (req, res) => {
+  try {
+    const { tipo, fecha_desde, fecha_hasta, hora_desde, hora_hasta, trabajador_id, motivo } = req.body;
+    const tipoFinal = ['dia', 'rango', 'horario'].includes(tipo) ? tipo : 'dia';
+
+    if (!validarFechaISO(fecha_desde)) {
+      return res.status(400).json({ error: 'La fecha de inicio es inválida' });
+    }
+
+    const fechaHastaFinal = validarFechaISO(fecha_hasta) ? fecha_hasta : fecha_desde;
+
+    if (fechaHastaFinal < fecha_desde) {
+      return res.status(400).json({ error: 'La fecha final no puede ser anterior a la inicial' });
+    }
+
+    if (tipoFinal === 'horario' && (!validarHora(hora_desde) || !validarHora(hora_hasta) || hora_hasta <= hora_desde)) {
+      return res.status(400).json({ error: 'Para bloquear un horario, indicá una hora desde y hasta válida' });
+    }
+
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const comercioId = c.rows[0].id;
+    let trabajadorId = trabajador_id || null;
+
+    if (trabajadorId) {
+      const t = await pool.query(
+        'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [trabajadorId, comercioId]
+      );
+
+      if (!t.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+      trabajadorId = t.rows[0].id;
+    }
+
+    const r = await pool.query(`
+      INSERT INTO disponibilidad_bloqueos
+        (comercio_id, trabajador_id, tipo, fecha_desde, fecha_hasta, hora_desde, hora_hasta, motivo)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      RETURNING *
+    `, [
+      comercioId,
+      trabajadorId,
+      tipoFinal,
+      fecha_desde,
+      fechaHastaFinal,
+      tipoFinal === 'horario' ? hora_desde : null,
+      tipoFinal === 'horario' ? hora_hasta : null,
+      motivo || null
+    ]);
+
+    res.status(201).json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/comercio/:slug/bloqueos/:id - actualizar bloqueo
+router.put('/:slug/bloqueos/:id', authAdminOrComercio, async (req, res) => {
+  try {
+    const { tipo, fecha_desde, fecha_hasta, hora_desde, hora_hasta, trabajador_id, motivo, activo } = req.body;
+    const tipoFinal = ['dia', 'rango', 'horario'].includes(tipo) ? tipo : 'dia';
+
+    if (!validarFechaISO(fecha_desde)) {
+      return res.status(400).json({ error: 'La fecha de inicio es inválida' });
+    }
+
+    const fechaHastaFinal = validarFechaISO(fecha_hasta) ? fecha_hasta : fecha_desde;
+
+    if (fechaHastaFinal < fecha_desde) {
+      return res.status(400).json({ error: 'La fecha final no puede ser anterior a la inicial' });
+    }
+
+    if (tipoFinal === 'horario' && (!validarHora(hora_desde) || !validarHora(hora_hasta) || hora_hasta <= hora_desde)) {
+      return res.status(400).json({ error: 'Para bloquear un horario, indicá una hora desde y hasta válida' });
+    }
+
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const comercioId = c.rows[0].id;
+    let trabajadorId = trabajador_id || null;
+
+    if (trabajadorId) {
+      const t = await pool.query(
+        'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [trabajadorId, comercioId]
+      );
+
+      if (!t.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+      trabajadorId = t.rows[0].id;
+    }
+
+    const r = await pool.query(`
+      UPDATE disponibilidad_bloqueos
+      SET trabajador_id=$1,
+          tipo=$2,
+          fecha_desde=$3,
+          fecha_hasta=$4,
+          hora_desde=$5,
+          hora_hasta=$6,
+          motivo=$7,
+          activo=$8
+      WHERE id=$9 AND comercio_id=$10
+      RETURNING *
+    `, [
+      trabajadorId,
+      tipoFinal,
+      fecha_desde,
+      fechaHastaFinal,
+      tipoFinal === 'horario' ? hora_desde : null,
+      tipoFinal === 'horario' ? hora_hasta : null,
+      motivo || null,
+      activo !== false,
+      req.params.id,
+      comercioId
+    ]);
+
+    if (!r.rows[0]) return res.status(404).json({ error: 'Bloqueo no encontrado' });
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// DELETE /api/comercio/:slug/bloqueos/:id - desactivar bloqueo
+router.delete('/:slug/bloqueos/:id', authAdminOrComercio, async (req, res) => {
+  try {
+    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
+    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    const r = await pool.query(
+      'UPDATE disponibilidad_bloqueos SET activo=false WHERE id=$1 AND comercio_id=$2 RETURNING id',
+      [req.params.id, c.rows[0].id]
+    );
+
+    if (!r.rows[0]) return res.status(404).json({ error: 'Bloqueo no encontrado' });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/comercio/:slug/reservas
 router.get('/:slug/reservas', authAdminOrComercio, async (req, res) => {
   try {
@@ -934,8 +1218,7 @@ router.post('/:slug/reservas/manual', authAdminOrComercio, async (req, res) => {
       return res.status(400).json({ error: 'Hora inválida' });
     }
 
-    const estadosPermitidos = new Set(['confirmada', 'cancelada', 'completada']);
-    const estadoFinal = estadosPermitidos.has(estado) ? estado : 'confirmada';
+    const estadoFinal = ESTADOS_RESERVA.has(estado) ? estado : 'confirmada';
 
     await client.query('BEGIN');
 
@@ -987,6 +1270,17 @@ router.post('/:slug/reservas/manual', authAdminOrComercio, async (req, res) => {
       }
 
       trabajadorNombre = trabajadorRes.rows[0].nombre;
+    }
+
+    const bloqueo = await existeBloqueoDisponibilidad(client, comercio.id, trabajadorId, fecha, hora);
+
+    if (bloqueo) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: bloqueo.motivo
+          ? `Ese horario está bloqueado: ${bloqueo.motivo}`
+          : 'Ese horario está bloqueado por el comercio'
+      });
     }
 
     let ocupadaQuery = `
@@ -1076,13 +1370,174 @@ router.post('/:slug/reservas/manual', authAdminOrComercio, async (req, res) => {
   }
 });
 
+// GET /api/comercio/:slug/reservas/:id - detalle de reserva
+router.get('/:slug/reservas/:id', authAdminOrComercio, async (req, res) => {
+  try {
+    const comercio = await pool.query(
+      'SELECT id FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercio.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const r = await pool.query(
+      `SELECT r.*, s.nombre AS servicio_nombre, s.precio, s.duracion_min AS servicio_duracion_min,
+              t.nombre AS trabajador_nombre
+       FROM reservas r
+       JOIN servicios s ON s.id=r.servicio_id
+       LEFT JOIN trabajadores t ON t.id=r.trabajador_id
+       WHERE r.id=$1 AND r.comercio_id=$2
+       LIMIT 1`,
+      [req.params.id, comercio.rows[0].id]
+    );
+
+    if (!r.rows[0]) {
+      return res.status(404).json({ error: 'Reserva no encontrada para este comercio' });
+    }
+
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/comercio/:slug/reservas/:id/reprogramar
+router.put('/:slug/reservas/:id/reprogramar', authAdminOrComercio, async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { fecha, hora, trabajador_id } = req.body;
+
+    if (!validarFechaISO(fecha)) {
+      return res.status(400).json({ error: 'Fecha inválida' });
+    }
+
+    if (!validarHora(hora)) {
+      return res.status(400).json({ error: 'Hora inválida' });
+    }
+
+    await client.query('BEGIN');
+
+    const comercioRes = await client.query(
+      'SELECT id FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercioRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const comercioId = comercioRes.rows[0].id;
+
+    const actualRes = await client.query(
+      `SELECT r.*, s.trabajador_id AS servicio_trabajador_id
+       FROM reservas r
+       JOIN servicios s ON s.id=r.servicio_id
+       WHERE r.id=$1 AND r.comercio_id=$2
+       LIMIT 1`,
+      [req.params.id, comercioId]
+    );
+
+    const actual = actualRes.rows[0];
+
+    if (!actual) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Reserva no encontrada para este comercio' });
+    }
+
+    if (actual.estado === 'cancelada' || actual.estado === 'completada') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'No se puede reprogramar una reserva cancelada o completada' });
+    }
+
+    let trabajadorId = actual.servicio_trabajador_id || actual.trabajador_id || null;
+
+    if (trabajador_id) {
+      if (actual.servicio_trabajador_id && Number(trabajador_id) !== Number(actual.servicio_trabajador_id)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Ese servicio no pertenece al profesional elegido' });
+      }
+
+      const trabajador = await client.query(
+        'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+        [trabajador_id, comercioId]
+      );
+
+      if (!trabajador.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Profesional no encontrado para este comercio' });
+      }
+
+      trabajadorId = trabajador.rows[0].id;
+    }
+
+    const bloqueo = await existeBloqueoDisponibilidad(client, comercioId, trabajadorId, fecha, hora);
+
+    if (bloqueo) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: bloqueo.motivo
+          ? `Ese horario está bloqueado: ${bloqueo.motivo}`
+          : 'Ese horario está bloqueado por el comercio'
+      });
+    }
+
+    let ocupadaQuery = `
+      SELECT id
+      FROM reservas
+      WHERE comercio_id=$1
+        AND fecha=$2
+        AND hora=$3
+        AND estado!='cancelada'
+        AND id<>$4
+    `;
+
+    const ocupadaParams = [comercioId, fecha, hora, actual.id];
+
+    if (trabajadorId) {
+      ocupadaParams.push(trabajadorId);
+      ocupadaQuery += ` AND trabajador_id=$${ocupadaParams.length}`;
+    }
+
+    const ocupada = await client.query(ocupadaQuery, ocupadaParams);
+
+    if (ocupada.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Ese horario ya tiene una reserva cargada' });
+    }
+
+    const r = await client.query(
+      `UPDATE reservas
+       SET fecha_original=COALESCE(fecha_original, fecha),
+           hora_original=COALESCE(hora_original, hora),
+           fecha=$1,
+           hora=$2,
+           trabajador_id=$3,
+           reprogramada_en=NOW()
+       WHERE id=$4 AND comercio_id=$5
+       RETURNING *`,
+      [fecha, hora, trabajadorId, actual.id, comercioId]
+    );
+
+    await client.query('COMMIT');
+    res.json(r.rows[0]);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
 // PUT /api/comercio/:slug/reservas/:id/estado
 router.put('/:slug/reservas/:id/estado', authAdminOrComercio, async (req, res) => {
   try {
-    const estadosPermitidos = new Set(['confirmada', 'cancelada', 'completada']);
     const estado = req.body.estado;
 
-    if (!estadosPermitidos.has(estado)) {
+    if (!ESTADOS_RESERVA.has(estado)) {
       return res.status(400).json({ error: 'Estado de reserva inválido' });
     }
 

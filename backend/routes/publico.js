@@ -64,6 +64,42 @@ function ahoraMsUY() {
   );
 }
 
+async function existeBloqueoDisponibilidad(client, comercioId, trabajadorId, fecha, hora) {
+  const params = [comercioId, fecha];
+  let query = `
+    SELECT id, motivo
+    FROM disponibilidad_bloqueos
+    WHERE comercio_id=$1
+      AND activo=true
+      AND fecha_desde <= $2
+      AND fecha_hasta >= $2
+  `;
+
+  if (trabajadorId) {
+    params.push(trabajadorId);
+    query += ` AND (trabajador_id IS NULL OR trabajador_id=$${params.length})`;
+  } else {
+    query += ` AND trabajador_id IS NULL`;
+  }
+
+  if (hora) {
+    params.push(hora);
+    query += `
+      AND (
+        tipo IN ('dia','rango')
+        OR hora_desde IS NULL
+        OR hora_hasta IS NULL
+        OR ($${params.length}::time >= hora_desde AND $${params.length}::time < hora_hasta)
+      )
+    `;
+  }
+
+  query += ' LIMIT 1';
+
+  const r = await client.query(query, params);
+  return r.rows[0] || null;
+}
+
 // GET /api/p/:slug/disponibilidad?fecha=YYYY-MM-DD&servicio_id=N&trabajador_id=N
 router.get('/:slug/disponibilidad', async (req, res) => {
   try {
@@ -168,11 +204,41 @@ router.get('/:slug/disponibilidad', async (req, res) => {
       for (let m = inicio; m < inicio + r.duracion_min; m += duracion) ocupadasSet.add(toStr(m));
     }
 
+    const bloqueosParams = [cid, fecha];
+    let bloqueosQuery = `
+      SELECT tipo, hora_desde::text AS hora_desde, hora_hasta::text AS hora_hasta
+      FROM disponibilidad_bloqueos
+      WHERE comercio_id=$1
+        AND activo=true
+        AND fecha_desde <= $2
+        AND fecha_hasta >= $2
+    `;
+
+    if (trabajadorId) {
+      bloqueosParams.push(trabajadorId);
+      bloqueosQuery += ` AND (trabajador_id IS NULL OR trabajador_id=$${bloqueosParams.length})`;
+    } else {
+      bloqueosQuery += ' AND trabajador_id IS NULL';
+    }
+
+    const bloqueos = await pool.query(bloqueosQuery, bloqueosParams);
+
+    const slotBloqueado = horaSlot => bloqueos.rows.some(b => {
+      if (b.tipo !== 'horario' || !b.hora_desde || !b.hora_hasta) return true;
+
+      const inicio = toMin(horaSlot);
+      const desde = toMin(b.hora_desde.slice(0, 5));
+      const hasta = toMin(b.hora_hasta.slice(0, 5));
+
+      return inicio >= desde && inicio < hasta;
+    });
+
     const anticipacionMin = Number(c.rows[0].anticipacion_reserva_min || 0);
     const limiteMs = ahoraMsUY() + anticipacionMin * 60000;
 
     const disponibles = slots.filter(s => {
       if (ocupadasSet.has(s)) return false;
+      if (slotBloqueado(s)) return false;
       return fechaHoraMsUY(fecha, s) >= limiteMs;
     });
     res.json({ horas: disponibles });
@@ -311,6 +377,17 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
         [trabajadorId, comercio.id]
       );
       trabajadorNombre = trabajador.rows[0]?.nombre || null;
+    }
+
+    const bloqueo = await existeBloqueoDisponibilidad(client, comercio.id, trabajadorId, fecha, hora);
+
+    if (bloqueo) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: bloqueo.motivo
+          ? `Ese horario está bloqueado: ${bloqueo.motivo}`
+          : 'Ese horario no está disponible.'
+      });
     }
 
     let ocupadaQuery = `

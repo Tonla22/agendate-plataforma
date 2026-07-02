@@ -591,7 +591,7 @@ input,select,textarea { font-family: inherit; }
   --bg3: #FFFFFF;
   --texto: #171717;
   --texto2: #6D6257;
-    --oro: #111111;
+  --oro: #111111;
   --texto-acento: #FFFFFF;
   --borde2: rgba(0,0,0,0.10);
   background: var(--bg);
@@ -668,7 +668,7 @@ input,select,textarea { font-family: inherit; }
 .pc-footer-links a:hover { color:var(--oro); }
 .pc-footer-copy { color:var(--texto2); font-size:0.72rem; }
 
-#pc-hero.con-imagen .btn-oro {
+#pc-hero .pc-cta .btn-oro {
   background: rgba(255,255,255,0.08);
   color: #fff;
   border: 1px solid rgba(255,255,255,0.55);
@@ -676,27 +676,20 @@ input,select,textarea { font-family: inherit; }
   backdrop-filter: blur(4px);
 }
 
-#pc-hero.con-imagen .btn-oro:hover {
+#pc-hero .pc-cta .btn-oro:hover {
   background: rgba(255,255,255,0.16);
   color: #fff;
   opacity: 1;
 }
 
-.pc-acento-oscuro #pc-hero.con-imagen .btn-oro:hover {
-  background: rgba(255,255,255,0.16);
-  color: #fff;
-  opacity: 1;
+#pc-hero:not(.con-imagen) .pc-cta .btn-oro {
+  color: var(--texto);
+  border-color: var(--borde2);
 }
 
-.pc-acento-oscuro #pc-hero.con-imagen .btn-ghost {
-  color: #fff;
-  border-color: rgba(255,255,255,0.45);
-  background: rgba(255,255,255,0.08);
-}
-
-.pc-acento-oscuro #pc-hero.con-imagen .btn-ghost:hover {
-  background: rgba(255,255,255,0.16);
-  color: #fff;
+.pc-tema-claro #pc-hero:not(.con-imagen) .pc-cta .btn-oro {
+  color: var(--texto);
+  border-color: rgba(0,0,0,0.24);
 }
 
 /* ==================================================================
@@ -742,6 +735,7 @@ input,select,textarea { font-family: inherit; }
 .com-header h1 { font-size:1.3rem; font-weight:600; }
 .com-secciones .com-sec { display:none; }
 .com-secciones .com-sec.act { display:block; }
+.dashboard-grid { grid-template-columns:1.1fr 1fr; }
 
 /* Login */
 #pagina-login { min-height:100vh; display:flex; align-items:center; justify-content:center; background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 60%), var(--bg); }
@@ -824,6 +818,7 @@ input,select,textarea { font-family: inherit; }
   .com-header { align-items:flex-start; gap:0.8rem; flex-direction:column; }
   .com-header h1 { font-size:1.08rem; }
   .stats-grid { grid-template-columns:1fr; gap:0.75rem; }
+  .dashboard-grid { grid-template-columns:1fr !important; }
   .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .tabla { min-width:720px; }
   .modal-overlay { align-items:flex-end; padding:0; }
@@ -1379,10 +1374,7 @@ function abrirModalNuevoComercio() {
       <div class="form-group"><label class="label">Email notificaciones</label><input class="input" id="nc-emailnot" type="email"></div>
     </div>
     <div class="form-group"><label class="label">Dirección</label><input class="input" id="nc-dir" placeholder="Av. 18 de Julio 1234, Montevideo"></div>
-    <div class="input-grid-2">
-      <div class="form-group"><label class="label">Color acento</label><input class="input" id="nc-acento" type="color" value="#C9A84C" style="height:40px;padding:0.2rem"></div>
-      <div class="form-group"><label class="label">Moneda</label><input class="input" id="nc-moneda" placeholder="$" style="max-width:80px"></div>
-    </div>
+    <div class="form-group"><label class="label">Moneda</label><input class="input" id="nc-moneda" placeholder="$" style="max-width:80px"></div>
     <div class="form-group"><label class="label">Webhook (n8n/Google Calendar)</label><input class="input" id="nc-webhook" placeholder="https://tu-n8n.com/webhook/..."></div>
     <hr style="border-color:var(--borde2);margin:1rem 0">
     <h4 style="margin-bottom:1rem;color:var(--texto2)">Acceso del dueño</h4>
@@ -1419,7 +1411,6 @@ function abrirModalNuevoComercio() {
       email_contacto:       document.getElementById('nc-email').value,
       email_notificaciones: document.getElementById('nc-emailnot').value,
       direccion:            document.getElementById('nc-dir').value,
-      color_acento:         document.getElementById('nc-acento').value,
       moneda:               document.getElementById('nc-moneda').value || '$',
       webhook_url:          document.getElementById('nc-webhook').value,
       dueno_nombre:         document.getElementById('nc-dnom').value,
@@ -1452,13 +1443,15 @@ async function mostrarPanelComercio() {
         <div class="slug" id="cs-slug"></div>
       </div>
       <nav class="com-nav">
-        <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">Reservas</a>
+        <a href="#" onclick="comSec('dashboard');return false" class="act" id="cn-dashboard">Inicio</a>
+        <a href="#" onclick="comSec('reservas');return false" id="cn-reservas">Reservas</a>
         <a href="#" onclick="comSec('compartir');return false" id="cn-compartir">Compartir</a>
         <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">Metricas</a>
         <a href="#" onclick="comSec('clientes');return false" id="cn-clientes">Clientes</a>
         <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
         <a href="#" onclick="comSec('servicios');return false" id="cn-servicios">Servicios</a>
         <a href="#" onclick="comSec('horarios');return false" id="cn-horarios">Horarios</a>
+        <a href="#" onclick="comSec('bloqueos');return false" id="cn-bloqueos">Bloqueos</a>
         <a href="#" onclick="comSec('automatizaciones');return false" id="cn-automatizaciones">Automatizaciones</a>
         <a href="#" onclick="comSec('perfil');return false" id="cn-perfil">Perfil</a>
       </nav>
@@ -1469,13 +1462,15 @@ async function mostrarPanelComercio() {
     </aside>
     <main class="com-main">
       <div class="com-secciones">
-        <div id="com-reservas" class="com-sec act"></div>
+        <div id="com-dashboard" class="com-sec act"></div>
+        <div id="com-reservas" class="com-sec"></div>
         <div id="com-compartir" class="com-sec"></div>
         <div id="com-metricas" class="com-sec"></div>
         <div id="com-clientes" class="com-sec"></div>
         <div id="com-trabajadores" class="com-sec"></div>
         <div id="com-servicios" class="com-sec"></div>
         <div id="com-horarios" class="com-sec"></div>
+        <div id="com-bloqueos" class="com-sec"></div>
         <div id="com-automatizaciones" class="com-sec"></div>
         <div id="com-perfil" class="com-sec"></div>
       </div>
@@ -1487,7 +1482,7 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-mobile-nombre').textContent = data.nombre;
     document.getElementById('cs-slug').textContent = '/' + data.slug;
   } catch(e) {}
-  cargarComReservas();
+  cargarComDashboard();
 }
 
 function getLinkPublicoComercio() {
@@ -1596,6 +1591,7 @@ function comSec(sec) {
   document.getElementById('com-' + sec).classList.add('act');
   document.getElementById('cn-' + sec).classList.add('act');
   cerrarMenuComercio();
+  if (sec === 'dashboard') cargarComDashboard();
   if (sec === 'reservas') cargarComReservas();
   if (sec === 'compartir') cargarComCompartir();
   if (sec === 'metricas') cargarComMetricas();
@@ -1603,6 +1599,7 @@ function comSec(sec) {
   if (sec === 'trabajadores') cargarComTrabajadores();
   if (sec === 'servicios') cargarComServicios();
   if (sec === 'horarios') cargarComHorarios();
+  if (sec === 'bloqueos') cargarComBloqueos();
   if (sec === 'automatizaciones') cargarComAutomatizaciones();
   if (sec === 'perfil') cargarComPerfil();
 }
@@ -1613,6 +1610,34 @@ function fechaHoyLocal() {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
+}
+
+function sumarDiasISO(fechaISO, dias) {
+  const base = fechaISO ? new Date(fechaISO + 'T12:00:00') : new Date();
+  base.setDate(base.getDate() + dias);
+  return `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-${String(base.getDate()).padStart(2, '0')}`;
+}
+
+function renderMiniCalendarioReservas(fechaActiva) {
+  const inicio = fechaActiva || fechaHoyLocal();
+  const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const fecha = sumarDiasISO(inicio, i);
+    const d = new Date(fecha + 'T12:00:00');
+    const activo = fecha === fechaActiva;
+
+    return `
+      <button
+        class="btn ${activo ? 'btn-oro' : 'btn-ghost'} btn-sm"
+        style="min-width:92px"
+        onclick="cargarComReservas('${fecha}')"
+      >
+        <span style="display:block;font-size:0.72rem">${dias[d.getDay()]}</span>
+        <strong>${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}</strong>
+      </button>
+    `;
+  }).join('');
 }
 
 function formatearFechaReserva(fecha) {
@@ -1641,6 +1666,147 @@ function finMesActual() {
   const d = new Date();
   const fin = new Date(d.getFullYear(), d.getMonth() + 1, 0);
   return `${fin.getFullYear()}-${String(fin.getMonth() + 1).padStart(2, '0')}-${String(fin.getDate()).padStart(2, '0')}`;
+}
+
+function estadoReservaLabel(estado) {
+  const labels = {
+    pendiente: 'Pendiente',
+    confirmada: 'Confirmada',
+    completada: 'Completada',
+    cancelada: 'Cancelada',
+    no_asistio: 'No asistió'
+  };
+
+  return labels[estado] || estado || 'Sin estado';
+}
+
+function horaCorta(hora) {
+  return hora ? String(hora).slice(0, 5) : '';
+}
+
+function reservaNombreCliente(r) {
+  return `${r.cliente_nombre || ''} ${r.cliente_apellido || ''}`.trim() || 'Cliente';
+}
+
+function abrirWhatsAppNumero(numero) {
+  const limpio = String(numero || '').replace(/\D/g, '');
+
+  if (!limpio) {
+    toast('La reserva no tiene WhatsApp cargado', 'error');
+    return;
+  }
+
+  window.open(`https://wa.me/${limpio}`, '_blank');
+}
+
+async function cargarComDashboard() {
+  const el = document.getElementById('com-dashboard');
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Inicio</h1>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
+        <button class="btn btn-ghost btn-sm" onclick="copiarLinkPublico()">Copiar link</button>
+      </div>
+    </div>
+
+    <div><span class="loader-inline claro"></span> Cargando resumen...</div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/dashboard`);
+    const moneda = data.moneda || '$';
+    const stats = data.stats || {};
+    const turnosHoy = data.turnos_hoy || [];
+    const proximos = data.proximos_turnos || [];
+
+    el.innerHTML = `
+      <div class="com-header">
+        <div>
+          <h1>Inicio</h1>
+          <p style="color:var(--texto2);font-size:0.88rem;margin-top:0.3rem">
+            Resumen rápido para controlar el día sin entrar a cada sección.
+          </p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+          <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
+          <button class="btn btn-ghost btn-sm" onclick="comSec('compartir')">Compartir página</button>
+          <button class="btn btn-ghost btn-sm" onclick="window.open('/${S.slug}','_blank')">Ver página</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">${stats.turnos_hoy || 0}</div>
+          <div class="stat-lbl">Turnos de hoy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${stats.reservas_pendientes || 0}</div>
+          <div class="stat-lbl">Reservas próximas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${formatoDinero(stats.ingresos_hoy || 0, moneda)}</div>
+          <div class="stat-lbl">Ingresos completados hoy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${stats.profesionales_activos || 0}</div>
+          <div class="stat-lbl">Profesionales activos</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:1rem;align-items:start" class="dashboard-grid">
+        <div class="card">
+          <h3 style="margin-bottom:1rem">Turnos de hoy</h3>
+          ${turnosHoy.length ? turnosHoy.map(r => `
+            <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--borde2)">
+              <div>
+                <strong>${horaCorta(r.hora)} · ${reservaNombreCliente(r)}</strong>
+                <div style="color:var(--texto2);font-size:0.82rem">${r.servicio_nombre} · ${r.trabajador_nombre || 'Sin profesional'}</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="abrirDetalleReserva(${r.id})">Ver</button>
+            </div>
+          `).join('') : `<p style="color:var(--texto2)">No hay turnos para hoy.</p>`}
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:1rem">Accesos rápidos</h3>
+          <div style="display:grid;gap:0.65rem">
+            <button class="btn btn-ghost btn-full" onclick="comSec('reservas')">Ver reservas</button>
+            <button class="btn btn-ghost btn-full" onclick="comSec('bloqueos')">Bloquear horario</button>
+            <button class="btn btn-ghost btn-full" onclick="comSec('clientes')">Ver clientes</button>
+            <button class="btn btn-ghost btn-full" onclick="comSec('metricas')">Ver métricas</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-bottom:1rem">Próximos turnos</h3>
+        ${proximos.length ? `
+          <div class="table-wrap">
+            <table class="tabla">
+              <thead>
+                <tr><th>Cliente</th><th>Servicio</th><th>Profesional</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                ${proximos.map(r => `
+                  <tr>
+                    <td>${reservaNombreCliente(r)}</td>
+                    <td>${r.servicio_nombre}</td>
+                    <td>${r.trabajador_nombre || 'Sin asignar'}</td>
+                    <td>${formatearFechaReserva(r.fecha)}</td>
+                    <td>${horaCorta(r.hora)}</td>
+                    <td>${estadoReservaLabel(r.estado)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : `<p style="color:var(--texto2)">No hay próximos turnos pendientes.</p>`}
+      </div>
+    `;
+  } catch (e) {
+    el.innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
 }
 async function cargarComClientes() {
   const el = document.getElementById('com-clientes');
@@ -1758,7 +1924,6 @@ async function cargarComMetricas() {
       <h1>Metricas</h1>
 
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
         <input class="input" type="date" id="met-desde" style="max-width:160px" value="${desde}">
         <input class="input" type="date" id="met-hasta" style="max-width:160px" value="${hasta}">
         <button class="btn btn-ghost btn-sm" onclick="aplicarFiltroMetricas()">Filtrar</button>
@@ -1924,6 +2089,7 @@ try {
       <h1>Reservas</h1>
 
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
         <select class="input" id="filtro-trabajador" style="max-width:180px">
   <option value="">Todos los profesionales</option>
   ${trabajadoresFiltro.map(t => `
@@ -1935,9 +2101,11 @@ try {
 
 <select class="input" id="filtro-estado" style="max-width:150px">
   <option value="">Todos los estados</option>
+  <option value="pendiente" ${window._comFiltroEstado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
   <option value="confirmada" ${window._comFiltroEstado === 'confirmada' ? 'selected' : ''}>Confirmada</option>
   <option value="completada" ${window._comFiltroEstado === 'completada' ? 'selected' : ''}>Completada</option>
   <option value="cancelada" ${window._comFiltroEstado === 'cancelada' ? 'selected' : ''}>Cancelada</option>
+  <option value="no_asistio" ${window._comFiltroEstado === 'no_asistio' ? 'selected' : ''}>No asistió</option>
 </select>
         <input 
           class="input" 
@@ -1962,6 +2130,12 @@ try {
 </button>
       </div>
     </div>
+
+<div class="card" style="padding:0.9rem;margin-bottom:1rem;overflow-x:auto">
+  <div style="display:flex;gap:0.5rem;min-width:max-content">
+    ${renderMiniCalendarioReservas(fechaActual)}
+  </div>
+</div>
 
 <div id="resumen-ingresos-dia" style="margin-bottom:1rem">
   <span class="loader-inline claro"></span> Calculando ingresos de hoy...
@@ -2004,6 +2178,15 @@ const params = query.toString() ? `?${query.toString()}` : '';
 
 const lista = document.getElementById('reservas-lista');
 
+    if (!data.length) {
+      lista.innerHTML = `
+        <div class="card" style="padding:1rem;color:var(--texto2)">
+          No hay reservas para los filtros seleccionados.
+        </div>
+      `;
+      return;
+    }
+
     lista.innerHTML = `
       <div class="table-wrap">
         <table class="tabla">
@@ -2015,7 +2198,7 @@ const lista = document.getElementById('reservas-lista');
               <th>Fecha</th>
               <th>Hora</th>
               <th>Estado</th>
-              <th>WA</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -2036,24 +2219,27 @@ const lista = document.getElementById('reservas-lista');
 
                 <td>${formatearFechaReserva(r.fecha)}</td>
 
-                <td>${r.hora?.slice(0,5)}</td>
+                <td>${horaCorta(r.hora)}</td>
 
                 <td>
                   <select 
                     onchange="cambiarEstadoReserva(${r.id},this.value)" 
                     style="background:var(--bg3);border:1px solid var(--borde2);color:var(--texto);padding:0.3rem;border-radius:2px;font-size:0.78rem"
                   >
+                    <option value="pendiente" ${r.estado==='pendiente'?'selected':''}>Pendiente</option>
                     <option value="confirmada" ${r.estado==='confirmada'?'selected':''}>Confirmada</option>
                     <option value="completada" ${r.estado==='completada'?'selected':''}>Completada</option>
                     <option value="cancelada" ${r.estado==='cancelada'?'selected':''}>Cancelada</option>
+                    <option value="no_asistio" ${r.estado==='no_asistio'?'selected':''}>No asistió</option>
                   </select>
                 </td>
 
                 <td>
-                  ${r.cliente_whatsapp 
-                    ? `<a href="https://wa.me/${r.cliente_whatsapp.replace(/\D/g,'')}" target="_blank" style="font-size:0.78rem">${r.cliente_whatsapp}</a>` 
-                    : '—'
-                  }
+                  <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
+                    <button class="btn btn-ghost btn-sm" onclick="abrirDetalleReserva(${r.id})">Detalle</button>
+                    <button class="btn btn-ghost btn-sm" onclick="abrirReprogramarReserva(${r.id})">Reprogramar</button>
+                    <button class="btn btn-ghost btn-sm" onclick="abrirWhatsAppNumero('${r.cliente_whatsapp || ''}')">WA</button>
+                  </div>
                 </td>
               </tr>
             `).join('')}
@@ -2158,9 +2344,11 @@ async function abrirModalReservaManual() {
         <div class="form-group">
           <label class="label">Estado inicial</label>
           <select class="input" id="rm-estado">
+            <option value="pendiente">Pendiente</option>
             <option value="confirmada">Confirmada</option>
             <option value="completada">Completada</option>
             <option value="cancelada">Cancelada</option>
+            <option value="no_asistio">No asistió</option>
           </select>
         </div>
 
@@ -2249,6 +2437,128 @@ async function cambiarEstadoReserva(id, estado) {
     toast('Estado actualizado');
   } catch(e) { 
     toast(e.message, 'error'); 
+  }
+}
+
+async function abrirDetalleReserva(id) {
+  try {
+    const r = await api('GET', `/comercio/${S.slug}/reservas/${id}`);
+
+    abrirModal('Detalle de reserva', `
+      <div class="card" style="padding:1rem;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+          <div>
+            <div style="color:var(--texto2);font-size:0.78rem">Cliente</div>
+            <strong>${reservaNombreCliente(r)}</strong>
+          </div>
+          <div>
+            <div style="color:var(--texto2);font-size:0.78rem">Estado</div>
+            <strong>${estadoReservaLabel(r.estado)}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Servicio</label>
+          <div>${r.servicio_nombre}</div>
+        </div>
+        <div class="form-group">
+          <label class="label">Profesional</label>
+          <div>${r.trabajador_nombre || 'Sin asignar'}</div>
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Fecha</label>
+          <div>${formatearFechaReserva(r.fecha)}</div>
+        </div>
+        <div class="form-group">
+          <label class="label">Hora</label>
+          <div>${horaCorta(r.hora)}</div>
+        </div>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">WhatsApp</label>
+          <div>${r.cliente_whatsapp || 'Sin dato'}</div>
+        </div>
+        <div class="form-group">
+          <label class="label">Email</label>
+          <div>${r.cliente_email || 'Sin dato'}</div>
+        </div>
+      </div>
+
+      ${r.comentarios ? `
+        <div class="form-group">
+          <label class="label">Nota interna</label>
+          <div style="color:var(--texto2);line-height:1.5">${r.comentarios}</div>
+        </div>
+      ` : ''}
+
+      ${r.reprogramada_en ? `
+        <p style="color:var(--texto2);font-size:0.82rem">
+          Reprogramada desde ${formatearFechaReserva(r.fecha_original)} ${horaCorta(r.hora_original)}.
+        </p>
+      ` : ''}
+    `, async () => {
+      return true;
+    });
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function abrirReprogramarReserva(id) {
+  try {
+    const [r, trabajadores] = await Promise.all([
+      api('GET', `/comercio/${S.slug}/reservas/${id}`),
+      api('GET', `/comercio/${S.slug}/trabajadores`)
+    ]);
+
+    abrirModal('Reprogramar reserva', `
+      <p style="color:var(--texto2);font-size:0.88rem;margin-bottom:1rem">
+        Cambia la fecha u hora de ${reservaNombreCliente(r)}. La reserva mantiene su historial.
+      </p>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Fecha nueva</label>
+          <input class="input" type="date" id="rp-fecha" value="${String(r.fecha).slice(0, 10)}">
+        </div>
+        <div class="form-group">
+          <label class="label">Hora nueva</label>
+          <input class="input" type="time" id="rp-hora" value="${horaCorta(r.hora)}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Profesional</label>
+        <select class="input" id="rp-trabajador">
+          <option value="">Sin asignar</option>
+          ${trabajadores.map(t => `
+            <option value="${t.id}" ${String(r.trabajador_id || '') === String(t.id) ? 'selected' : ''}>
+              ${t.nombre}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+    `, async () => {
+      const payload = {
+        fecha: document.getElementById('rp-fecha').value,
+        hora: document.getElementById('rp-hora').value,
+        trabajador_id: document.getElementById('rp-trabajador').value || null
+      };
+
+      await api('PUT', `/comercio/${S.slug}/reservas/${id}/reprogramar`, payload);
+      toast('Reserva reprogramada');
+      cargarComReservas(window._comFiltroFecha || null);
+      if (document.getElementById('com-dashboard')?.classList.contains('act')) cargarComDashboard();
+    });
+  } catch (e) {
+    toast(e.message, 'error');
   }
 }
 
@@ -2990,6 +3300,190 @@ async function guardarHorarios() {
   }
 }
 
+async function cargarComBloqueos() {
+  const el = document.getElementById('com-bloqueos');
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Bloqueos</h1>
+        <p style="color:var(--texto2);font-size:0.88rem;margin-top:0.3rem">
+          Cerrá días, vacaciones o franjas donde no se pueden tomar reservas.
+        </p>
+      </div>
+      <button class="btn btn-oro btn-sm" onclick="abrirModalBloqueo()">+ Nuevo bloqueo</button>
+    </div>
+
+    <div id="bloqueos-lista">
+      <span class="loader-inline claro"></span> Cargando bloqueos...
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/bloqueos`);
+    window._comBloqueosActuales = data;
+    const lista = document.getElementById('bloqueos-lista');
+
+    if (!data.length) {
+      lista.innerHTML = `
+        <div class="card" style="color:var(--texto2)">
+          No hay bloqueos cargados. Podés crear uno para feriados, vacaciones o ausencias.
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = `
+      <div class="table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Profesional</th>
+              <th>Tipo</th>
+              <th>Desde</th>
+              <th>Hasta</th>
+              <th>Horario</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(b => `
+              <tr>
+                <td>${b.trabajador_nombre || 'Todo el comercio'}</td>
+                <td>${b.tipo === 'horario' ? 'Franja horaria' : b.tipo === 'rango' ? 'Rango de días' : 'Día completo'}</td>
+                <td>${formatearFechaReserva(b.fecha_desde)}</td>
+                <td>${formatearFechaReserva(b.fecha_hasta)}</td>
+                <td>${b.tipo === 'horario' ? `${horaCorta(b.hora_desde)} a ${horaCorta(b.hora_hasta)}` : 'Todo el día'}</td>
+                <td>${b.motivo || 'Sin motivo'}</td>
+                <td>${b.activo === false ? 'Inactivo' : 'Activo'}</td>
+                <td>
+                  <button class="btn btn-ghost btn-sm" onclick="abrirModalBloqueoPorId(${b.id})">Editar</button>
+                  <button class="btn btn-peligro btn-sm" onclick="eliminarBloqueo(${b.id})">Quitar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('bloqueos-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function abrirModalBloqueoPorId(id) {
+  const bloqueo = (window._comBloqueosActuales || []).find(b => Number(b.id) === Number(id));
+  abrirModalBloqueo(bloqueo || null);
+}
+
+async function abrirModalBloqueo(bloqueo = null) {
+  try {
+    const trabajadores = await api('GET', `/comercio/${S.slug}/trabajadores`);
+    const hoy = fechaHoyLocal();
+    const fechaDesde = bloqueo?.fecha_desde ? String(bloqueo.fecha_desde).slice(0, 10) : hoy;
+    const fechaHasta = bloqueo?.fecha_hasta ? String(bloqueo.fecha_hasta).slice(0, 10) : fechaDesde;
+    const tipo = bloqueo?.tipo || 'dia';
+
+    abrirModal(bloqueo ? 'Editar bloqueo' : 'Nuevo bloqueo', `
+      <div class="form-group">
+        <label class="label">Profesional</label>
+        <select class="input" id="bl-trabajador">
+          <option value="">Todo el comercio</option>
+          ${trabajadores.map(t => `
+            <option value="${t.id}" ${String(bloqueo?.trabajador_id || '') === String(t.id) ? 'selected' : ''}>
+              ${t.nombre}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Tipo de bloqueo</label>
+        <select class="input" id="bl-tipo" onchange="actualizarCamposBloqueo()">
+          <option value="dia" ${tipo === 'dia' ? 'selected' : ''}>Día completo</option>
+          <option value="rango" ${tipo === 'rango' ? 'selected' : ''}>Varios días</option>
+          <option value="horario" ${tipo === 'horario' ? 'selected' : ''}>Solo una franja horaria</option>
+        </select>
+      </div>
+
+      <div class="input-grid-2">
+        <div class="form-group">
+          <label class="label">Desde</label>
+          <input class="input" type="date" id="bl-fecha-desde" value="${fechaDesde}">
+        </div>
+        <div class="form-group" id="bl-fecha-hasta-wrap">
+          <label class="label">Hasta</label>
+          <input class="input" type="date" id="bl-fecha-hasta" value="${fechaHasta}">
+        </div>
+      </div>
+
+      <div class="input-grid-2" id="bl-horas-wrap">
+        <div class="form-group">
+          <label class="label">Hora desde</label>
+          <input class="input" type="time" id="bl-hora-desde" value="${horaCorta(bloqueo?.hora_desde) || '09:00'}">
+        </div>
+        <div class="form-group">
+          <label class="label">Hora hasta</label>
+          <input class="input" type="time" id="bl-hora-hasta" value="${horaCorta(bloqueo?.hora_hasta) || '10:00'}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Motivo</label>
+        <input class="input" id="bl-motivo" placeholder="Ej: feriado, médico, vacaciones" value="${bloqueo?.motivo || ''}">
+      </div>
+    `, async () => {
+      const payload = {
+        trabajador_id: document.getElementById('bl-trabajador').value || null,
+        tipo: document.getElementById('bl-tipo').value,
+        fecha_desde: document.getElementById('bl-fecha-desde').value,
+        fecha_hasta: document.getElementById('bl-fecha-hasta').value || document.getElementById('bl-fecha-desde').value,
+        hora_desde: document.getElementById('bl-hora-desde').value,
+        hora_hasta: document.getElementById('bl-hora-hasta').value,
+        motivo: document.getElementById('bl-motivo').value.trim()
+      };
+
+      if (payload.tipo === 'dia') payload.fecha_hasta = payload.fecha_desde;
+
+      if (bloqueo?.id) {
+        await api('PUT', `/comercio/${S.slug}/bloqueos/${bloqueo.id}`, payload);
+        toast('Bloqueo actualizado');
+      } else {
+        await api('POST', `/comercio/${S.slug}/bloqueos`, payload);
+        toast('Bloqueo creado');
+      }
+
+      cargarComBloqueos();
+    });
+
+    actualizarCamposBloqueo();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function actualizarCamposBloqueo() {
+  const tipo = document.getElementById('bl-tipo')?.value;
+  const fechaHasta = document.getElementById('bl-fecha-hasta-wrap');
+  const horas = document.getElementById('bl-horas-wrap');
+
+  if (fechaHasta) fechaHasta.style.display = tipo === 'dia' ? 'none' : '';
+  if (horas) horas.style.display = tipo === 'horario' ? '' : 'none';
+}
+
+async function eliminarBloqueo(id) {
+  if (!confirm('¿Querés quitar este bloqueo?')) return;
+
+  try {
+    await api('DELETE', `/comercio/${S.slug}/bloqueos/${id}`);
+    toast('Bloqueo quitado');
+    cargarComBloqueos();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
 async function cargarComAutomatizaciones() {
   const el = document.getElementById('com-automatizaciones');
 
@@ -3421,42 +3915,10 @@ async function cargarComercioPublico(slug) {
 
 function formatTime(t) { return t ? t.slice(0,5) : ''; }
 
-function colorTextoSobre(hex) {
-  const color = String(hex || '#C9A84C').replace('#', '');
-
-  if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
-    return '#0D0D0D';
-  }
-
-  const r = parseInt(color.slice(0, 2), 16);
-  const g = parseInt(color.slice(2, 4), 16);
-  const b = parseInt(color.slice(4, 6), 16);
-
-  const brillo = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brillo < 140 ? '#FFFFFF' : '#0D0D0D';
-}
-
-function colorEsOscuro(hex) {
-  const color = String(hex || '#C9A84C').replace('#', '');
-
-  if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
-    return false;
-  }
-
-  const r = parseInt(color.slice(0, 2), 16);
-  const g = parseInt(color.slice(2, 4), 16);
-  const b = parseInt(color.slice(4, 6), 16);
-
-  const brillo = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brillo < 70;
-}
-
 function renderComercioPublico(d) {
   const temaClaro = String(d.color_fondo || '').toLowerCase() === '#ffffff';
-const acento = temaClaro ? '#111111' : '#FFFFFF';
-const textoSobreAcento = temaClaro ? '#FFFFFF' : '#111111';
+  const acento = temaClaro ? '#111111' : '#FFFFFF';
+  const textoSobreAcento = temaClaro ? '#FFFFFF' : '#111111';
   const pagina = document.getElementById('pagina-comercio');
   pagina.classList.toggle('pc-tema-claro', temaClaro);
   const diasHorario = {};
@@ -3513,9 +3975,9 @@ const textoSobreAcento = temaClaro ? '#FFFFFF' : '#111111';
     </div>`).join('');
   const requiereTrabajador = trabajadores.length > 0;
   const waNumero = String(d.whatsapp || '').replace(/\D/g, '');
-const waUrl = waNumero ? `https://wa.me/${waNumero}` : '#';
-const mapsUrl = d.direccion ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.direccion)}` : '#';
-const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURIComponent(d.direccion)}&output=embed` : '';
+  const waUrl = waNumero ? `https://wa.me/${waNumero}` : '#';
+  const mapsUrl = d.direccion ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.direccion)}` : '#';
+  const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURIComponent(d.direccion)}&output=embed` : '';
 
   const opcsTrabHTML = requiereTrabajador
     ? trabajadores.map(t => `
@@ -3531,8 +3993,8 @@ const mapsEmbedUrl = d.direccion ? `https://www.google.com/maps?q=${encodeURICom
       </div>
     `;
 
-    pagina.innerHTML = `
-        <style>:root{--oro:${acento};--texto-acento:${textoSobreAcento}}</style>
+  pagina.innerHTML = `
+    <style>#pagina-comercio{--oro:${acento};--texto-acento:${textoSobreAcento}}</style>
     <nav id="pc-nav">
       <div class="pc-brand">
   ${d.logo_url ? `<img class="pc-brand-img" src="${d.logo_url}" alt="${d.nombre}">` : ''}

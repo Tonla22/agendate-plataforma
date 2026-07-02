@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS reservas (
   cliente_whatsapp VARCHAR(50) NOT NULL,
   cliente_email VARCHAR(255),
   comentarios TEXT,
-    estado VARCHAR(50) DEFAULT 'confirmada', -- confirmada, cancelada, completada
+    estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
   confirmacion_enviada BOOLEAN DEFAULT false,
   confirmacion_enviada_en TIMESTAMP,
   recordatorio_enviado BOOLEAN DEFAULT false,
@@ -141,6 +141,24 @@ CREATE TABLE IF NOT EXISTS reservas (
   cancelacion_enviada BOOLEAN DEFAULT false,
   cancelacion_enviada_en TIMESTAMP,
   cancelada_por_cliente_en TIMESTAMP,
+  reprogramada_en TIMESTAMP,
+  fecha_original DATE,
+  hora_original TIME,
+  creado_en TIMESTAMP DEFAULT NOW()
+);
+
+-- Bloqueos de disponibilidad: feriados, vacaciones, trámites, eventos, etc.
+CREATE TABLE IF NOT EXISTS disponibilidad_bloqueos (
+  id SERIAL PRIMARY KEY,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE CASCADE,
+  trabajador_id INTEGER REFERENCES trabajadores(id) ON DELETE CASCADE,
+  tipo VARCHAR(30) DEFAULT 'dia', -- dia, rango, horario
+  fecha_desde DATE NOT NULL,
+  fecha_hasta DATE NOT NULL,
+  hora_desde TIME,
+  hora_hasta TIME,
+  motivo TEXT,
+  activo BOOLEAN DEFAULT true,
   creado_en TIMESTAMP DEFAULT NOW()
 );
 
@@ -152,6 +170,7 @@ CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horario_bloques_comercio ON horario_bloques(comercio_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_reservas_trabajador_fecha ON reservas(trabajador_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_trabajador_horario_bloques ON trabajador_horario_bloques(trabajador_id, dia_semana);
+CREATE INDEX IF NOT EXISTS idx_bloqueos_comercio_fecha ON disponibilidad_bloqueos(comercio_id, fecha_desde, fecha_hasta);
 
 -- Columnas nuevas (para migraciones en BD existente - ignorar si ya existen)
 DO $$ BEGIN
@@ -174,6 +193,9 @@ DO $$ BEGIN
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelada_por_cliente_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS reprogramada_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS fecha_original DATE;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS hora_original TIME;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_reserva_min INTEGER DEFAULT 0;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_cancelacion_min INTEGER DEFAULT 0;
 EXCEPTION WHEN others THEN NULL;
