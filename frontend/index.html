@@ -1453,6 +1453,7 @@ async function mostrarPanelComercio() {
       </div>
       <nav class="com-nav">
         <a href="#" onclick="comSec('reservas');return false" class="act" id="cn-reservas">Reservas</a>
+        <a href="#" onclick="comSec('compartir');return false" id="cn-compartir">Compartir</a>
         <a href="#" onclick="comSec('metricas');return false" id="cn-metricas">Metricas</a>
         <a href="#" onclick="comSec('clientes');return false" id="cn-clientes">Clientes</a>
         <a href="#" onclick="comSec('trabajadores');return false" id="cn-trabajadores">Profesionales</a>
@@ -1469,6 +1470,7 @@ async function mostrarPanelComercio() {
     <main class="com-main">
       <div class="com-secciones">
         <div id="com-reservas" class="com-sec act"></div>
+        <div id="com-compartir" class="com-sec"></div>
         <div id="com-metricas" class="com-sec"></div>
         <div id="com-clientes" class="com-sec"></div>
         <div id="com-trabajadores" class="com-sec"></div>
@@ -1486,6 +1488,93 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-slug').textContent = '/' + data.slug;
   } catch(e) {}
   cargarComReservas();
+}
+
+function getLinkPublicoComercio() {
+  return `${window.location.origin}/${S.slug}`;
+}
+
+async function copiarLinkPublico() {
+  try {
+    const url = getLinkPublicoComercio();
+    await navigator.clipboard.writeText(url);
+    toast('Link copiado');
+  } catch (e) {
+    toast('No se pudo copiar el link', 'error');
+  }
+}
+
+function compartirLinkWhatsApp() {
+  const url = getLinkPublicoComercio();
+  const texto = `Reservá tu turno acá: ${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+}
+
+async function descargarQRComercio() {
+  try {
+    const url = getLinkPublicoComercio();
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(url)}`;
+    const resp = await fetch(qrUrl);
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `qr-${S.slug}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(blobUrl);
+  } catch (e) {
+    toast('No se pudo descargar el QR', 'error');
+  }
+}
+
+function cargarComCompartir() {
+  const el = document.getElementById('com-compartir');
+  const url = getLinkPublicoComercio();
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(url)}`;
+
+  el.innerHTML = `
+    <div class="com-header">
+      <h1>Compartir página</h1>
+    </div>
+
+    <div class="card" style="max-width:760px">
+      <p style="color:var(--texto2);font-size:0.9rem;margin-bottom:1.2rem">
+        Compartí este link para que tus clientes puedan reservar desde la página pública del comercio.
+      </p>
+
+      <div class="form-group">
+        <label class="label">Link público</label>
+        <div style="display:flex;gap:0.7rem;flex-wrap:wrap">
+          <input class="input" value="${url}" readonly style="flex:1;min-width:260px">
+          <button class="btn btn-oro" onclick="copiarLinkPublico()">Copiar</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:1.5rem">
+        <button class="btn btn-ghost" onclick="window.open('${url}', '_blank')">Abrir página</button>
+        <button class="btn btn-ghost" onclick="compartirLinkWhatsApp()">Compartir por WhatsApp</button>
+        <button class="btn btn-ghost" onclick="descargarQRComercio()">Descargar QR</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:center">
+        <div style="background:#fff;border-radius:6px;padding:1rem;width:292px;max-width:100%">
+          <img src="${qrUrl}" alt="QR de la página pública" style="width:100%;display:block">
+        </div>
+
+        <div>
+          <h3 style="margin-bottom:0.6rem">Código QR</h3>
+          <p style="color:var(--texto2);font-size:0.88rem;line-height:1.6">
+            Podés imprimirlo, ponerlo en historias, pegarlo en el mostrador o enviarlo por WhatsApp.
+            Al escanearlo, el cliente entra directo a reservar.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function toggleMenuComercio() {
@@ -1508,6 +1597,7 @@ function comSec(sec) {
   document.getElementById('cn-' + sec).classList.add('act');
   cerrarMenuComercio();
   if (sec === 'reservas') cargarComReservas();
+  if (sec === 'compartir') cargarComCompartir();
   if (sec === 'metricas') cargarComMetricas();
   if (sec === 'clientes') cargarComClientes();
   if (sec === 'trabajadores') cargarComTrabajadores();
