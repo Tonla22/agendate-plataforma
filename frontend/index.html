@@ -11,6 +11,26 @@
   --borde: rgba(201,168,76,0.18); --borde2: rgba(255,255,255,0.08);
   --verde: #27AE60; --rojo: #C0392B; --azul: #2980B9;
 }
+body.panel-theme-light {
+  --bg: #F4F1EA;
+  --bg2: #FFFFFF;
+  --bg3: #F8F6F1;
+  --texto: #181511;
+  --texto2: #6C6259;
+  --borde: rgba(20,18,16,0.12);
+  --borde2: rgba(20,18,16,0.10);
+}
+body.panel-theme-light .com-sidebar,
+body.panel-theme-light .admin-sidebar,
+body.panel-theme-light .com-mobile-bar {
+  background: rgba(255,255,255,0.96);
+}
+body.panel-theme-light .com-user-mini,
+body.panel-theme-light .panel-soft-card,
+body.panel-theme-light .card,
+body.panel-theme-light .modal {
+  box-shadow: 0 12px 30px rgba(24,21,17,0.04);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--texto); font-family: -apple-system,'Segoe UI',sans-serif; }
@@ -710,6 +730,60 @@ input,select,textarea { font-family: inherit; }
 .stat-card { background:var(--bg2); border:1px solid var(--borde2); border-radius:4px; padding:1.2rem; }
 .stat-num { font-size:2rem; font-weight:700; color:var(--oro); }
 .stat-lbl { font-size:0.75rem; color:var(--texto2); margin-top:0.2rem; letter-spacing:0.05em; }
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.metric-card::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: var(--metric-glow, rgba(201,168,76,0.12));
+}
+.metric-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+.metric-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--metric-color, var(--oro));
+  background: var(--metric-bg, rgba(201,168,76,0.14));
+  border: 1px solid var(--metric-border, rgba(201,168,76,0.20));
+  flex: 0 0 auto;
+}
+.metric-icon svg {
+  width: 21px;
+  height: 21px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.metric-note {
+  color: var(--texto2);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  position: relative;
+  z-index: 1;
+}
 .admin-secciones {
   min-height: 100vh;
 }
@@ -748,6 +822,222 @@ input,select,textarea { font-family: inherit; }
 .com-secciones .com-sec { display:none; }
 .com-secciones .com-sec.act { display:block; }
 .dashboard-grid { grid-template-columns:1.1fr 1fr; }
+
+.calendario-modern {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+  gap: 1rem;
+  align-items: start;
+}
+.calendario-shell {
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.calendario-modern-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--borde2);
+}
+.calendario-modern-title {
+  font-size: 1rem;
+  font-weight: 800;
+}
+.calendario-modern-sub {
+  color: var(--texto2);
+  font-size: 0.78rem;
+  margin-top: 0.15rem;
+}
+.calendario-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--borde2);
+}
+.calendario-week span {
+  background: var(--bg2);
+  padding: 0.65rem 0.45rem;
+  color: var(--texto2);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.calendario-month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--borde2);
+}
+.cal-dia {
+  min-height: 118px;
+  background: var(--bg2);
+  border: 0;
+  color: var(--texto);
+  padding: 0.7rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.cal-dia:hover {
+  background: rgba(201,168,76,0.06);
+}
+.cal-dia.fuera {
+  opacity: 0.35;
+}
+.cal-dia.hoy .cal-num {
+  background: var(--oro);
+  color: var(--texto-acento, #111);
+}
+.cal-dia.sel {
+  box-shadow: inset 0 0 0 2px var(--oro);
+}
+.cal-num {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.cal-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+.cal-pill {
+  min-width: 22px;
+  height: 20px;
+  border-radius: 999px;
+  padding: 0 0.42rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #fff;
+}
+.cal-pill.pendiente { background:#c9a84c; color:#111; }
+.cal-pill.confirmada { background:#23c56b; }
+.cal-pill.completada { background:#4d8dff; }
+.cal-pill.cancelada { background:#d85245; }
+.cal-pill.no_asistio { background:#777; }
+.cal-dia-more {
+  color: var(--texto2);
+  font-size: 0.66rem;
+}
+.cal-dia-total {
+  color: var(--texto2);
+  font-size: 0.7rem;
+}
+.cal-side {
+  background: var(--bg2);
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.cal-side-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+.cal-res-card {
+  width: 100%;
+  text-align: left;
+  background: var(--bg3);
+  border: 1px solid var(--borde2);
+  border-left: 4px solid var(--oro);
+  border-radius: 8px;
+  color: var(--texto);
+  padding: 0.8rem;
+}
+.cal-res-card:hover {
+  border-color: var(--oro);
+}
+.cal-res-time {
+  font-weight: 900;
+  color: var(--oro);
+  font-size: 0.88rem;
+}
+.cal-res-client {
+  margin-top: 0.25rem;
+  font-weight: 800;
+}
+.cal-res-meta {
+  color: var(--texto2);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin-top: 0.2rem;
+}
+
+.cliente-id-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(201,168,76,0.13);
+  color: var(--oro);
+  border: 1px solid rgba(201,168,76,0.22);
+  font-weight: 800;
+  font-size: 0.74rem;
+}
+.cliente-name-cell small {
+  color: var(--texto2);
+  display: block;
+  margin-top: 0.22rem;
+}
+
+.perfil-panel-card {
+  background: var(--bg2);
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+}
+.perfil-panel-card h3 {
+  font-size: 0.96rem;
+  margin-bottom: 0.75rem;
+}
+.perfil-toolbar {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.tema-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  background: var(--bg3);
+  border: 1px solid var(--borde2);
+  border-radius: 8px;
+  padding: 0.3rem;
+}
+.tema-switch button {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  background: transparent;
+  color: var(--texto2);
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.tema-switch button.act {
+  background: var(--oro);
+  color: var(--texto-acento, #111);
+}
 
 /* Login */
 #pagina-login { min-height:100vh; display:flex; align-items:center; justify-content:center; background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 60%), var(--bg); }
@@ -831,6 +1121,12 @@ input,select,textarea { font-family: inherit; }
   .com-header h1 { font-size:1.08rem; }
   .stats-grid { grid-template-columns:1fr; gap:0.75rem; }
   .dashboard-grid { grid-template-columns:1fr !important; }
+  .calendario-modern { grid-template-columns:1fr; }
+  .calendario-modern-head { align-items:flex-start; flex-direction:column; }
+  .cal-dia { min-height:86px; padding:0.48rem; }
+  .cal-dia-total { display:none; }
+  .cal-pill { min-width:18px; height:18px; font-size:0.6rem; padding:0 0.32rem; }
+  .calendario-week span { font-size:0.58rem; padding:0.48rem 0.2rem; }
   .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .tabla { min-width:720px; }
   .modal-overlay { align-items:flex-end; padding:0; }
@@ -873,6 +1169,17 @@ const API = '/api';
 const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DIAS_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function aplicarTemaPanel(tema = localStorage.getItem('panelTema') || 'oscuro') {
+  const claro = tema === 'claro';
+  document.body.classList.toggle('panel-theme-light', claro);
+  localStorage.setItem('panelTema', claro ? 'claro' : 'oscuro');
+  document.querySelectorAll('[data-panel-theme]').forEach(btn => {
+    btn.classList.toggle('act', btn.dataset.panelTheme === (claro ? 'claro' : 'oscuro'));
+  });
+}
+
+aplicarTemaPanel();
 
 // ============================================================
 // ROUTING
@@ -1153,6 +1460,7 @@ function logout() {
 // ============================================================
 async function mostrarAdmin() {
   if (!S.token || S.tipo !== 'admin') { navegar('/admin-acceso'); return; }
+  aplicarTemaPanel();
   const el = document.getElementById('panel-admin');
   el.classList.add('activa');
   el.innerHTML = `
@@ -1486,6 +1794,7 @@ function inicialesPanel(nombre) {
 
 async function mostrarPanelComercio() {
   if (!S.token || S.tipo !== 'comercio') { navegar('/login'); return; }
+  aplicarTemaPanel();
   const el = document.getElementById('panel-comercio');
   el.classList.add('activa');
   el.innerHTML = `
@@ -1770,6 +2079,187 @@ function moverCalendarioPanel(meses) {
   const base = new Date((window._calendarioPanelFecha || fechaHoyLocal()) + 'T12:00:00');
   base.setMonth(base.getMonth() + meses);
   window._calendarioPanelFecha = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-01`;
+  cargarComCalendario();
+}
+
+async function cargarComCalendario() {
+  const el = document.getElementById('com-calendario');
+  const base = window._calendarioPanelFecha || fechaHoyLocal();
+  const fechaBase = new Date(base + 'T12:00:00');
+  const desde = `${fechaBase.getFullYear()}-${String(fechaBase.getMonth() + 1).padStart(2, '0')}-01`;
+  const hastaDate = new Date(fechaBase.getFullYear(), fechaBase.getMonth() + 1, 0);
+  const hasta = `${hastaDate.getFullYear()}-${String(hastaDate.getMonth() + 1).padStart(2, '0')}-${String(hastaDate.getDate()).padStart(2, '0')}`;
+
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Calendario</h1>
+        <small style="color:var(--texto2)">Vista mensual rápida de las reservas del comercio.</small>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="btn btn-oro btn-sm" onclick="abrirModalReservaManual()">+ Nueva reserva</button>
+        <button class="btn btn-ghost btn-sm" onclick="calIrHoy()">Hoy</button>
+        <button class="btn btn-ghost btn-sm" onclick="moverCalendarioPanel(-1)">Anterior</button>
+        <button class="btn btn-ghost btn-sm" onclick="moverCalendarioPanel(1)">Siguiente</button>
+      </div>
+    </div>
+    <div id="calendario-panel-lista"><span class="loader-inline claro"></span> Cargando calendario...</div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/reservas?desde=${desde}&hasta=${hasta}`);
+    const estadoFiltro = window._calFiltroEstado || '';
+    const trabajadorFiltro = window._calFiltroTrabajador || '';
+    const trabajadoresMes = [...new Map(data.filter(r => r.trabajador_id).map(r => [String(r.trabajador_id), r.trabajador_nombre || 'Profesional'])).entries()];
+    const filtrosHTML = `
+      <div class="card" style="margin-bottom:1rem">
+        <div class="input-grid-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="label">Estado</label>
+            <select class="input" onchange="window._calFiltroEstado=this.value;cargarComCalendario()">
+              <option value="" ${!estadoFiltro ? 'selected' : ''}>Todos</option>
+              <option value="pendiente" ${estadoFiltro === 'pendiente' ? 'selected' : ''}>Pendientes</option>
+              <option value="confirmada" ${estadoFiltro === 'confirmada' ? 'selected' : ''}>Confirmadas</option>
+              <option value="completada" ${estadoFiltro === 'completada' ? 'selected' : ''}>Completadas</option>
+              <option value="cancelada" ${estadoFiltro === 'cancelada' ? 'selected' : ''}>Canceladas</option>
+              <option value="no_asistio" ${estadoFiltro === 'no_asistio' ? 'selected' : ''}>No asistió</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="label">Profesional</label>
+            <select class="input" onchange="window._calFiltroTrabajador=this.value;cargarComCalendario()">
+              <option value="" ${!trabajadorFiltro ? 'selected' : ''}>Todos</option>
+              ${trabajadoresMes.map(([id, nombre]) => `<option value="${id}" ${trabajadorFiltro === id ? 'selected' : ''}>${nombre}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const reservasFiltradas = data.filter(r => {
+      if (estadoFiltro && r.estado !== estadoFiltro) return false;
+      if (trabajadorFiltro && String(r.trabajador_id || '') !== trabajadorFiltro) return false;
+      return true;
+    });
+    const porFecha = reservasFiltradas.reduce((acc, r) => {
+      const clave = String(r.fecha).slice(0, 10);
+      if (!acc[clave]) acc[clave] = [];
+      acc[clave].push(r);
+      return acc;
+    }, {});
+
+    const hoy = fechaHoyLocal();
+    const seleccionActual = window._calDiaSeleccionado;
+    const primerConReserva = Object.keys(porFecha).sort()[0];
+    const seleccionado = seleccionActual && seleccionActual >= desde && seleccionActual <= hasta
+      ? seleccionActual
+      : (hoy >= desde && hoy <= hasta ? hoy : (primerConReserva || desde));
+    window._calDiaSeleccionado = seleccionado;
+    const dias = construirDiasCalendario(fechaBase, porFecha);
+    const reservasDelDia = porFecha[seleccionado] || [];
+
+    document.getElementById('calendario-panel-lista').innerHTML = `
+      ${filtrosHTML}
+      <div class="calendario-modern">
+        <div class="calendario-shell">
+          <div class="calendario-modern-head">
+            <div>
+              <div class="calendario-modern-title">${MESES[fechaBase.getMonth()]} ${fechaBase.getFullYear()}</div>
+              <div class="calendario-modern-sub">${reservasFiltradas.length} reservas en el mes seleccionado</div>
+            </div>
+            <div style="display:flex;gap:0.45rem;flex-wrap:wrap">
+              ${resumenEstadosCalendario(reservasFiltradas)}
+            </div>
+          </div>
+          <div class="calendario-week">${DIAS.map(d => `<span>${d}</span>`).join('')}</div>
+          <div class="calendario-month">
+            ${dias.map(dia => renderDiaCalendario(dia, seleccionado)).join('')}
+          </div>
+        </div>
+
+        <aside class="cal-side">
+          <div class="calendario-modern-title">${formatearFechaReserva(seleccionado)}</div>
+          <div class="calendario-modern-sub">${reservasDelDia.length ? `${reservasDelDia.length} turno(s) para este día` : 'Sin turnos para este día'}</div>
+          <div class="cal-side-list">
+            ${reservasDelDia.length ? reservasDelDia.map(r => `
+              <button class="cal-res-card" style="border-left-color:${colorEstadoCalendario(r.estado)}" onclick="abrirDetalleReserva(${r.id})">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem">
+                  <span class="cal-res-time">${horaCorta(r.hora)}</span>
+                  <span class="badge ${badgeEstado(r.estado)}">${estadoReservaLabel(r.estado)}</span>
+                </div>
+                <div class="cal-res-client">${reservaNombreCliente(r)}</div>
+                <div class="cal-res-meta">
+                  ${r.servicio_nombre || 'Servicio sin nombre'}${r.trabajador_nombre ? ` · ${r.trabajador_nombre}` : ''}
+                  ${r.ubicacion_nombre ? `<br>${r.ubicacion_nombre}` : ''}
+                </div>
+              </button>
+            `).join('') : `
+              <div class="card" style="color:var(--texto2);padding:1rem">
+                No hay reservas para mostrar. Podés crear una nueva reserva manual desde el botón superior.
+              </div>
+            `}
+          </div>
+        </aside>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('calendario-panel-lista').innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function construirDiasCalendario(fechaBase, porFecha) {
+  const year = fechaBase.getFullYear();
+  const month = fechaBase.getMonth();
+  const primerDia = new Date(year, month, 1);
+  const inicio = new Date(year, month, 1 - primerDia.getDay());
+  return Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(inicio);
+    d.setDate(inicio.getDate() + i);
+    const fecha = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const reservas = porFecha[fecha] || [];
+    return { fecha, dia: d.getDate(), fuera: d.getMonth() !== month, hoy: fecha === fechaHoyLocal(), reservas };
+  });
+}
+
+function renderDiaCalendario(dia, seleccionado) {
+  const estados = dia.reservas.reduce((acc, r) => {
+    const estado = r.estado || 'confirmada';
+    acc[estado] = (acc[estado] || 0) + 1;
+    return acc;
+  }, {});
+  const principales = Object.entries(estados).slice(0, 3);
+  const clases = ['cal-dia', dia.fuera ? 'fuera' : '', dia.hoy ? 'hoy' : '', dia.fecha === seleccionado ? 'sel' : ''].filter(Boolean).join(' ');
+
+  return `
+    <button class="${clases}" onclick="calSeleccionarDia('${dia.fecha}')">
+      <span class="cal-num">${dia.dia}</span>
+      ${dia.reservas.length ? `<span class="cal-dia-total">${dia.reservas.length} reserva${dia.reservas.length === 1 ? '' : 's'}</span>` : '<span class="cal-dia-total">Libre</span>'}
+      <span class="cal-pills">
+        ${principales.map(([estado, cantidad]) => `<span class="cal-pill ${estado}">${cantidad}</span>`).join('')}
+        ${Object.keys(estados).length > 3 ? `<span class="cal-dia-more">+${Object.keys(estados).length - 3}</span>` : ''}
+      </span>
+    </button>
+  `;
+}
+
+function resumenEstadosCalendario(reservas) {
+  const estados = ['pendiente', 'confirmada', 'completada', 'cancelada', 'no_asistio'];
+  return estados.map(estado => {
+    const total = reservas.filter(r => r.estado === estado).length;
+    if (!total) return '';
+    return `<span class="badge ${badgeEstado(estado)}">${estadoReservaLabel(estado)}: ${total}</span>`;
+  }).join('') || '<span class="badge badge-gris">Sin reservas</span>';
+}
+
+function calSeleccionarDia(fecha) {
+  window._calDiaSeleccionado = fecha;
+  cargarComCalendario();
+}
+
+function calIrHoy() {
+  const hoy = fechaHoyLocal();
+  window._calendarioPanelFecha = hoy.slice(0, 7) + '-01';
+  window._calDiaSeleccionado = hoy;
   cargarComCalendario();
 }
 
@@ -2242,6 +2732,20 @@ function labelEstadoPago(valor) {
   return labels[valor] || 'Pendiente';
 }
 
+function iconoMetrica(nombre) {
+  const iconos = {
+    dinero: '<svg viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+    calendario: '<svg viewBox="0 0 24 24"><path d="M7 3v4"></path><path d="M17 3v4"></path><rect x="4" y="5" width="16" height="16" rx="2"></rect><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>',
+    reloj: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v5l3 2"></path></svg>',
+    estrella: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.8l1-6.1-4.4-4.3 6.1-.9L12 3Z"></path></svg>',
+    usuario: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg>',
+    alerta: '<svg viewBox="0 0 24 24"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="m10.3 3.9-8.1 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8.1-14a2 2 0 0 0-3.4 0Z"></path></svg>'
+  };
+
+  return iconos[nombre] || iconos.calendario;
+}
+
 function horaCorta(hora) {
   return hora ? String(hora).slice(0, 5) : '';
 }
@@ -2393,7 +2897,7 @@ async function cargarComClientes() {
     if (!clientes.length) {
       lista.innerHTML = `
         <div class="card" style="color:var(--texto2)">
-          Todavia no hay clientes para mostrar.
+          Todavía no hay clientes para mostrar.
         </div>
       `;
       return;
@@ -2430,10 +2934,10 @@ async function cargarComClientes() {
               <th>Cliente</th>
               <th>WhatsApp</th>
               <th>Reservas</th>
-              <th>Ultima visita</th>
+              <th>Última visita</th>
               <th>Total gastado</th>
               <th>Servicio favorito</th>
-              <th>Accion</th>
+              <th>Acción</th>
             </tr>
           </thead>
 
@@ -2443,9 +2947,10 @@ async function cargarComClientes() {
 
               return `
                 <tr class="cliente-panel-row" data-cliente="${`${c.codigo || ''} ${c.nombre || ''} ${c.apellido || ''} ${c.cliente_whatsapp || ''}`.toLowerCase()}">
-                  <td><span class="badge badge-oro">${c.codigo || 'Nuevo'}</span></td>
-                  <td>
+                  <td><span class="cliente-id-box">ID ${c.codigo || 'Nuevo'}</span></td>
+                  <td class="cliente-name-cell">
                     <strong>${c.nombre || 'Sin nombre'}</strong>
+                    <small>${c.codigo ? `Código de cliente: ${c.codigo}` : 'Código pendiente'}</small>
                     ${esFrecuente ? `<br><span class="badge badge-verde">Frecuente</span>` : ''}
                   </td>
 
@@ -2498,7 +3003,7 @@ async function cargarComMetricas() {
 
   el.innerHTML = `
     <div class="com-header">
-      <h1>Metricas</h1>
+      <h1>Métricas</h1>
 
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
         <input class="input" type="date" id="met-desde" style="max-width:160px" value="${desde}">
@@ -2508,7 +3013,7 @@ async function cargarComMetricas() {
     </div>
 
     <div id="metricas-contenido">
-      <span class="loader-inline claro"></span> Cargando metricas...
+      <span class="loader-inline claro"></span> Cargando métricas...
     </div>
   `;
 
@@ -2519,45 +3024,78 @@ async function cargarComMetricas() {
     const hoy = data.hoy || {};
 
     document.getElementById('metricas-contenido').innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem">
-        <div class="stat-card">
-          <div class="stat-lbl">Ingresos hoy</div>
-          <div class="stat-num">${formatoDinero(hoy.ingresos_hoy, moneda)}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-bottom:1rem">
+        <div class="stat-card metric-card" style="--metric-color:#27AE60;--metric-bg:rgba(39,174,96,0.14);--metric-border:rgba(39,174,96,0.24);--metric-glow:rgba(39,174,96,0.12)">
+          <div class="metric-top">
+            <div>
+              <div class="stat-lbl">Ingresos hoy</div>
+              <div class="stat-num">${formatoDinero(hoy.ingresos_hoy, moneda)}</div>
+            </div>
+            <div class="metric-icon">${iconoMetrica('dinero')}</div>
+          </div>
+          <div class="metric-note">Dinero registrado en reservas completadas durante el día.</div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-lbl">Ingresos del periodo</div>
-          <div class="stat-num">${formatoDinero(resumen.ingresos, moneda)}</div>
+        <div class="stat-card metric-card" style="--metric-color:#C9A84C;--metric-bg:rgba(201,168,76,0.15);--metric-border:rgba(201,168,76,0.25);--metric-glow:rgba(201,168,76,0.13)">
+          <div class="metric-top">
+            <div>
+              <div class="stat-lbl">Ingresos del período</div>
+              <div class="stat-num">${formatoDinero(resumen.ingresos, moneda)}</div>
+            </div>
+            <div class="metric-icon">${iconoMetrica('calendario')}</div>
+          </div>
+          <div class="metric-note">Total generado entre las fechas seleccionadas.</div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-lbl">Reservas completadas</div>
-          <div class="stat-num">${resumen.completadas || 0}</div>
+        <div class="stat-card metric-card" style="--metric-color:#4D8DFF;--metric-bg:rgba(77,141,255,0.13);--metric-border:rgba(77,141,255,0.24);--metric-glow:rgba(77,141,255,0.11)">
+          <div class="metric-top">
+            <div>
+              <div class="stat-lbl">Reservas completadas</div>
+              <div class="stat-num">${resumen.completadas || 0}</div>
+            </div>
+            <div class="metric-icon">${iconoMetrica('check')}</div>
+          </div>
+          <div class="metric-note">Turnos marcados como finalizados correctamente.</div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-lbl">Reservas pendientes</div>
-          <div class="stat-num">${resumen.confirmadas || 0}</div>
+        <div class="stat-card metric-card" style="--metric-color:#F39C12;--metric-bg:rgba(243,156,18,0.14);--metric-border:rgba(243,156,18,0.24);--metric-glow:rgba(243,156,18,0.11)">
+          <div class="metric-top">
+            <div>
+              <div class="stat-lbl">Reservas pendientes</div>
+              <div class="stat-num">${resumen.confirmadas || 0}</div>
+            </div>
+            <div class="metric-icon">${iconoMetrica('reloj')}</div>
+          </div>
+          <div class="metric-note">Reservas confirmadas o próximas a atender.</div>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem">
         <div class="card">
-          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Servicio mas vendido</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.6rem">
+            <div style="color:var(--texto2);font-size:0.78rem">Servicio más vendido</div>
+            <span class="metric-icon" style="width:34px;height:34px;--metric-color:#C9A84C;--metric-bg:rgba(201,168,76,0.12)">${iconoMetrica('estrella')}</span>
+          </div>
           <div style="font-size:1.1rem;font-weight:700">${data.servicio_top?.nombre || 'Sin datos'}</div>
           <small style="color:var(--texto2)">${data.servicio_top?.cantidad || 0} reservas completadas</small>
         </div>
 
         <div class="card">
-          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Profesional con mas reservas</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.6rem">
+            <div style="color:var(--texto2);font-size:0.78rem">Profesional con más reservas</div>
+            <span class="metric-icon" style="width:34px;height:34px;--metric-color:#4D8DFF;--metric-bg:rgba(77,141,255,0.12)">${iconoMetrica('usuario')}</span>
+          </div>
           <div style="font-size:1.1rem;font-weight:700">${data.trabajador_top?.nombre || 'Sin datos'}</div>
           <small style="color:var(--texto2)">${data.trabajador_top?.cantidad || 0} reservas completadas</small>
         </div>
 
         <div class="card">
-          <div style="color:var(--texto2);font-size:0.78rem;margin-bottom:0.35rem">Canceladas</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.6rem">
+            <div style="color:var(--texto2);font-size:0.78rem">Canceladas</div>
+            <span class="metric-icon" style="width:34px;height:34px;--metric-color:#E74C3C;--metric-bg:rgba(231,76,60,0.12)">${iconoMetrica('alerta')}</span>
+          </div>
           <div style="font-size:1.1rem;font-weight:700">${resumen.canceladas || 0}</div>
-          <small style="color:var(--texto2)">En el periodo seleccionado</small>
+          <small style="color:var(--texto2)">En el período seleccionado</small>
         </div>
       </div>
 
@@ -3069,11 +3607,11 @@ function actualizarResumenPagoReservaManual() {
   const moneda = S.comercio?.moneda || '$';
 
   if (sena > 0) {
-    resumen.innerHTML = `Este servicio pide seña de <strong style="color:var(--oro)">${moneda} ${sena.toLocaleString()}</strong>.`;
+    resumen.innerHTML = `Este servicio requiere seña o pago anticipado de <strong style="color:var(--oro)">${moneda} ${sena.toLocaleString()}</strong>.`;
     if (formaPago && formaPago.value === 'local') formaPago.value = 'sena';
     if (estadoPago && estadoPago.value === 'pendiente') estadoPago.value = 'parcial';
   } else {
-    resumen.innerHTML = 'Este servicio no tiene seña obligatoria. Podés marcar pago en local u online.';
+    resumen.innerHTML = 'Este servicio no tiene seña ni pago anticipado obligatorio. Podés marcar pago en local u online.';
   }
 }
 
@@ -3543,7 +4081,7 @@ async function cargarComServicios() {
       return;
     }
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
-      <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Seña</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Seña / pago</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(s => `<tr>
         <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">—</span>'}</td>
         <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'...':''}</small>` : ''}</td>
@@ -3604,8 +4142,11 @@ function abrirModalServicio(s = null) {
     <div class="card" style="padding:1rem;margin-bottom:1rem">
       <label style="display:flex;align-items:center;gap:0.55rem;color:var(--texto);font-size:0.9rem;margin-bottom:0.9rem">
         <input type="checkbox" id="sv-requiere-sena" ${s?.requiere_sena ? 'checked' : ''} onchange="toggleServicioSena()">
-        Este servicio requiere seña
+        Este servicio requiere seña o pago anticipado
       </label>
+      <small class="perfil-ayuda" style="margin-top:-0.45rem;margin-bottom:0.9rem">
+        Activá esta opción cuando el cliente deba dejar una seña o pagar por adelantado para confirmar el turno.
+      </small>
 
       <div class="input-grid-2" id="sv-sena-wrap" style="${s?.requiere_sena ? '' : 'display:none'}">
         <div class="form-group">
@@ -4534,6 +5075,223 @@ if (archivoLogo) {
   }
 }
 
+async function cargarComPerfil() {
+  const el = document.getElementById('com-perfil');
+  el.innerHTML = `
+    <div class="com-header">
+      <div>
+        <h1>Perfil del comercio</h1>
+        <small style="color:var(--texto2)">Ajustá la información, la portada y el tema que ven tus clientes.</small>
+      </div>
+    </div>
+    <div id="perfil-form"><span class="loader-inline claro"></span> Cargando perfil...</div>
+  `;
+
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/perfil`);
+    const temaPanel = localStorage.getItem('panelTema') || 'oscuro';
+    document.getElementById('perfil-form').innerHTML = `
+      <div class="perfil-toolbar">
+        <div>
+          <strong>Configuración visual</strong>
+          <div style="color:var(--texto2);font-size:0.8rem;margin-top:0.2rem">Los cambios se reflejan en la vista previa antes de guardar.</div>
+        </div>
+        <div class="tema-switch" aria-label="Tema del panel">
+          <button type="button" data-panel-theme="oscuro" class="${temaPanel !== 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('oscuro')">Oscuro</button>
+          <button type="button" data-panel-theme="claro" class="${temaPanel === 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('claro')">Claro</button>
+        </div>
+      </div>
+
+      <div class="perfil-layout">
+        <div>
+          <div class="perfil-panel-card">
+            <h3>Identidad del comercio</h3>
+            <div class="form-group">
+              <label class="label">Logo del comercio</label>
+              <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview');actualizarPreviewPerfil()">
+              <input type="hidden" id="pf-logo" value="${data.logo_url || ''}">
+              <small class="perfil-ayuda">Subí el logo desde tu computadora. Recomendado: PNG cuadrado con fondo transparente.</small>
+              ${data.logo_url
+                ? `<img id="pf-logo-preview" class="img-preview img-preview-logo visible" src="${data.logo_url}" alt="Vista previa del logo">`
+                : `<img id="pf-logo-preview" class="img-preview img-preview-logo" alt="Vista previa del logo">`
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="label">Nombre visible del comercio</label>
+              <input class="input" id="pf-nom" value="${data.nombre || ''}" placeholder="Ej: Mc Barber Studio">
+              <small class="perfil-ayuda">Este nombre aparece en la página pública y en las reservas.</small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Frase principal</label>
+              <textarea class="input" id="pf-slo" rows="4" maxlength="800" placeholder="Contale al cliente qué hace especial a tu comercio">${data.slogan || ''}</textarea>
+              <small class="perfil-ayuda">Se muestra en la portada. Puede ser un texto corto o una descripción más completa.</small>
+            </div>
+          </div>
+
+          <div class="perfil-panel-card">
+            <h3>Contacto y ubicación</h3>
+            <div class="input-grid-2">
+              <div class="form-group">
+                <label class="label">Teléfono del local</label>
+                <input class="input" id="pf-tel" value="${data.telefono || ''}" placeholder="092 000 000">
+              </div>
+              <div class="form-group">
+                <label class="label">WhatsApp de contacto</label>
+                <input class="input" id="pf-wa" value="${data.whatsapp || ''}" placeholder="092 000 000">
+                <small class="perfil-ayuda">Este número se usa para el botón de WhatsApp de la página.</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Dirección principal</label>
+              <input class="input" id="pf-dir" value="${data.direccion || ''}" placeholder="Calle, número, ciudad">
+              <small class="perfil-ayuda">Se usa como dirección general del comercio y como respaldo si no hay ubicaciones cargadas.</small>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Instagram</label>
+              <input class="input" id="pf-ig" value="${data.instagram_url || ''}" placeholder="@usuario o link de Instagram">
+            </div>
+          </div>
+
+          <div class="perfil-panel-card">
+            <h3>Apariencia de la página pública</h3>
+            <div class="input-grid-2">
+              <div class="form-group">
+                <label class="label">Moneda de precios</label>
+                <input class="input" id="pf-mon" value="${data.moneda || '$'}" placeholder="$">
+              </div>
+              <div class="form-group">
+                <label class="label">Tema de la página pública</label>
+                <select class="input" id="pf-tema" onchange="actualizarPreviewPerfil()">
+                  <option value="#0D0D0D" ${String(data.color_fondo || '#0D0D0D').toLowerCase() !== '#ffffff' ? 'selected' : ''}>Oscuro</option>
+                  <option value="#FFFFFF" ${String(data.color_fondo || '').toLowerCase() === '#ffffff' ? 'selected' : ''}>Claro</option>
+                </select>
+                <small class="perfil-ayuda">Esto cambia el fondo general de la página que ven tus clientes.</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Imagen principal de la página</label>
+              <input class="input" type="file" id="pf-fondo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-fondo-preview');actualizarPreviewPerfil()">
+              <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url || ''}">
+              <small class="perfil-ayuda">Es la imagen grande de portada. En celular conviene que el centro de la foto sea lo más importante.</small>
+              ${data.imagen_fondo_url
+                ? `<img id="pf-fondo-preview" class="img-preview img-preview-fondo visible" src="${data.imagen_fondo_url}" alt="Vista previa de portada">`
+                : `<img id="pf-fondo-preview" class="img-preview img-preview-fondo" alt="Vista previa de portada">`
+              }
+              ${data.imagen_fondo_url
+                ? `<button class="btn btn-ghost btn-sm" style="margin-top:0.5rem" onclick="document.getElementById('pf-fondo').value='';document.getElementById('pf-fondo-preview').classList.remove('visible');actualizarPreviewPerfil()">Quitar imagen</button>`
+                : ''
+              }
+            </div>
+          </div>
+
+          <button class="btn btn-oro" onclick="guardarPerfil()">Guardar cambios</button>
+        </div>
+
+        <div class="perfil-preview">
+          <div class="perfil-preview-head">
+            <strong>Vista previa</strong>
+            <span style="color:var(--texto2);font-size:0.78rem">Así podría verse la portada para tus clientes.</span>
+          </div>
+          <div class="perfil-preview-hero" id="perfil-preview-hero" style="${data.imagen_fondo_url ? `background-image:url('${data.imagen_fondo_url}')` : ''}">
+            <div class="perfil-preview-content">
+              <img class="perfil-preview-logo" id="perfil-preview-logo" src="${data.logo_url || ''}" alt="">
+              <div class="perfil-preview-title" id="perfil-preview-nombre">${data.nombre || 'Nombre del comercio'}</div>
+              <div class="perfil-preview-slogan" id="perfil-preview-slogan">${data.slogan || 'Tu frase principal va a aparecer acá.'}</div>
+              <span class="perfil-preview-btn" id="perfil-preview-btn">Reservar turno</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    ['pf-nom', 'pf-slo', 'pf-tema'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', actualizarPreviewPerfil);
+      document.getElementById(id)?.addEventListener('change', actualizarPreviewPerfil);
+    });
+    actualizarPreviewPerfil();
+  } catch (e) {
+    el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`;
+  }
+}
+
+function actualizarPreviewPerfil() {
+  const nombre = document.getElementById('pf-nom')?.value || 'Nombre del comercio';
+  const slogan = document.getElementById('pf-slo')?.value || 'Tu frase principal va a aparecer acá.';
+  const temaClaro = String(document.getElementById('pf-tema')?.value || '').toLowerCase() === '#ffffff';
+  const logoPreview = document.getElementById('pf-logo-preview');
+  const fondoPreview = document.getElementById('pf-fondo-preview');
+  const previewNombre = document.getElementById('perfil-preview-nombre');
+  const previewSlogan = document.getElementById('perfil-preview-slogan');
+  const previewLogo = document.getElementById('perfil-preview-logo');
+  const previewHero = document.getElementById('perfil-preview-hero');
+  const previewBtn = document.getElementById('perfil-preview-btn');
+
+  if (previewNombre) previewNombre.textContent = nombre;
+  if (previewSlogan) previewSlogan.textContent = slogan;
+
+  if (previewBtn) {
+    previewBtn.style.background = 'rgba(255,255,255,0.08)';
+    previewBtn.style.color = '#fff';
+    previewBtn.style.border = '1px solid rgba(255,255,255,0.55)';
+    previewBtn.style.backdropFilter = 'blur(4px)';
+  }
+
+  if (previewLogo) {
+    const src = logoPreview?.classList.contains('visible') ? logoPreview.src : document.getElementById('pf-logo')?.value;
+    previewLogo.src = src || '';
+    previewLogo.style.display = src ? 'block' : 'none';
+  }
+
+  if (previewHero) {
+    const fondoSrc = fondoPreview?.classList.contains('visible') ? fondoPreview.src : document.getElementById('pf-fondo')?.value;
+    previewHero.style.backgroundImage = fondoSrc ? `url('${fondoSrc}')` : '';
+    previewHero.style.backgroundColor = temaClaro ? '#F7F4EE' : '#111';
+  }
+}
+
+async function guardarPerfil() {
+  try {
+    let imagen_fondo_url = document.getElementById('pf-fondo')?.value || null;
+    let logo_url = document.getElementById('pf-logo')?.value || null;
+    const archivoLogo = document.getElementById('pf-logo-file')?.files?.[0];
+
+    if (archivoLogo) {
+      const subidaLogo = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoLogo, { tipo: 'logo' });
+      logo_url = subidaLogo.url;
+    }
+
+    const archivoFondo = document.getElementById('pf-fondo-file')?.files?.[0];
+
+    if (archivoFondo) {
+      const subida = await apiUpload(`/comercio/${S.slug}/upload-imagen`, archivoFondo, { tipo: 'fondo' });
+      imagen_fondo_url = subida.url;
+    }
+
+    await api('PUT', `/comercio/${S.slug}/perfil`, {
+      nombre: document.getElementById('pf-nom').value,
+      slogan: document.getElementById('pf-slo').value,
+      telefono: document.getElementById('pf-tel').value,
+      whatsapp: document.getElementById('pf-wa').value,
+      direccion: document.getElementById('pf-dir').value,
+      instagram_url: document.getElementById('pf-ig').value,
+      color_fondo: document.getElementById('pf-tema').value,
+      moneda: document.getElementById('pf-mon').value,
+      imagen_fondo_url,
+      logo_url,
+    });
+
+    toast('Perfil actualizado');
+    cargarComPerfil();
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
 // ============================================================
 // PÁGINA PÚBLICA DE CADA COMERCIO
 // ============================================================
@@ -4653,6 +5411,7 @@ async function confirmarCancelacionPublica(uuid) {
 }
 
 async function cargarComercioPublico(slug) {
+  document.body.classList.remove('panel-theme-light');
   const el = document.getElementById('pagina-comercio');
   el.classList.add('activa');
   el.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><span class="loader-inline claro" style="width:32px;height:32px"></span></div>`;
