@@ -379,9 +379,10 @@ const validarServicioComercio = [
     .toInt(),
 
   body('trabajador_id')
-    .isInt({ min: 1 })
-    .withMessage('Elegí un profesional para este servicio')
-    .toInt(),
+  .optional({ nullable: true, checkFalsy: true })
+  .isInt({ min: 1 })
+  .withMessage('El profesional seleccionado no es válido')
+  .toInt(),
 
   body('descripcion')
     .optional({ nullable: true, checkFalsy: true })
@@ -983,14 +984,17 @@ router.post('/:slug/servicios', authAdminOrComercio, validarServicioComercio, re
       sena_tipo,
       sena_valor
     } = req.body;
-    const trabajador = await pool.query(
-      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
-      [trabajador_id, c.rows[0].id]
-    );
-    if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+   const trabajadorId = trabajador_id ? Number(trabajador_id) : null;
 
+if (trabajadorId) {
+  const trabajador = await pool.query(
+    'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+    [trabajadorId, c.rows[0].id]
+  );
+  if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+}
     const r = await pool.query(
-      `INSERT INTO servicios (comercio_id,trabajador_id,nombre,descripcion,precio,duracion_min,orden,imagen_url,requiere_sena,sena_tipo,sena_valor)
+      `INSERT INTO servicios (comercio_id,trabajador_Id,nombre,descripcion,precio,duracion_min,orden,imagen_url,requiere_sena,sena_tipo,sena_valor)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
        RETURNING *`,
       [
@@ -1029,15 +1033,18 @@ router.put('/:slug/servicios/:id', authAdminOrComercio, validarServicioComercio,
       sena_tipo,
       sena_valor
     } = req.body;
-    const trabajador = await pool.query(
-      'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
-      [trabajador_id, comercio.rows[0].id]
-    );
-    if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+   const trabajadorId = trabajador_id ? Number(trabajador_id) : null;
 
+if (trabajadorId) {
+  const trabajador = await pool.query(
+    'SELECT id FROM trabajadores WHERE id=$1 AND comercio_id=$2 AND activo=true',
+    [trabajadorId, comercio.rows[0].id]
+  );
+  if (!trabajador.rows[0]) return res.status(400).json({ error: 'El profesional seleccionado no existe' });
+}
     const r = await pool.query(
       `UPDATE servicios
-       SET trabajador_id=$1,nombre=$2,descripcion=$3,precio=$4,duracion_min=$5,orden=$6,activo=$7,imagen_url=$8,
+       SET trabajador_Id=$1,nombre=$2,descripcion=$3,precio=$4,duracion_min=$5,orden=$6,activo=$7,imagen_url=$8,
            requiere_sena=$9,sena_tipo=$10,sena_valor=$11
        WHERE id=$12 AND comercio_id=$13
        RETURNING *`,

@@ -4186,22 +4186,13 @@ async function cargarComServicios() {
     ]);
     window._serviciosTrabajadores = trabajadores || [];
     const lista = document.getElementById('servicios-lista');
-    if (!window._serviciosTrabajadores.length) {
-      lista.innerHTML = `
-        <div class="card">
-          <p style="color:var(--texto2);margin-bottom:1rem">
-            Primero carga al menos un profesional para poder crear servicios.
-          </p>
-          <button class="btn btn-oro btn-sm" onclick="comSec('trabajadores')">Ir a Profesionales</button>
-        </div>`;
-      return;
-    }
+    
     lista.innerHTML = `<div class="table-wrap"><table class="tabla">
       <thead><tr><th>Imagen</th><th>Servicio</th><th>Profesional</th><th>Precio</th><th>Seña / pago</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(s => `<tr>
         <td style="width:56px">${s.imagen_url ? `<img src="${s.imagen_url}" style="width:48px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--borde2)" alt="">` : '<span style="color:var(--texto2);font-size:0.72rem">—</span>'}</td>
         <td><strong>${s.nombre}</strong>${s.descripcion ? `<br><small style="color:var(--texto2)">${s.descripcion.slice(0,60)}${s.descripcion.length>60?'...':''}</small>` : ''}</td>
-        <td>${s.trabajador_nombre || 'Sin profesional'}</td>
+        <td>${s.trabajador_nombre || 'Disponible para todos'}</td>
         <td>${s.precio}</td>
         <td>${s.requiere_sena ? `<span class="badge badge-oro">${s.sena_tipo === 'porcentaje' ? `${s.sena_valor}%` : `${S.comercio?.moneda || '$'} ${Number(s.sena_valor || 0).toLocaleString()}`}</span>` : '<span class="badge badge-gris">No</span>'}</td>
         <td>${s.duracion_min} min</td>
@@ -4232,11 +4223,12 @@ function abrirModalServicio(s = null) {
     </div>
 
     <div class="form-group">
-      <label class="label">Profesional *</label>
-      <select class="input" id="sv-trabajador">
-        <option value="">Elegir profesional</option>
-        ${trabajadoresHTML}
-      </select>
+      <label class="label">Profesional</label>
+<select class="input" id="sv-trabajador">
+  <option value="">Disponible para todos</option>
+  ${trabajadoresHTML}
+</select>
+<small class="perfil-ayuda">Si no elegís profesional, este servicio estará disponible para todos.</small>
     </div>
     <div class="input-grid-2">
       <div class="form-group">
@@ -4307,10 +4299,10 @@ function abrirModalServicio(s = null) {
     const duracion_min = document.getElementById('sv-dur').value;
     const trabajador_id = document.getElementById('sv-trabajador').value;
 
-    if (!nombre || !precio || !duracion_min || !trabajador_id) {
-      toast('Completá todos los campos obligatorios', 'error');
-      return false;
-    }
+    if (!nombre || !precio || !duracion_min) {
+  toast('Completá los campos obligatorios', 'error');
+  return false;
+}
 
     let imagen_url = document.getElementById('sv-img-url').value || null;
 
@@ -4325,7 +4317,7 @@ function abrirModalServicio(s = null) {
       nombre,
       precio: parseFloat(precio),
       duracion_min: parseInt(duracion_min),
-      trabajador_id: parseInt(trabajador_id),
+      trabajador_id: trabajador_id ? parseInt(trabajador_id) : null,
       descripcion: document.getElementById('sv-desc').value,
       requiere_sena: document.getElementById('sv-requiere-sena').checked,
       sena_tipo: document.getElementById('sv-sena-tipo')?.value || 'monto',
