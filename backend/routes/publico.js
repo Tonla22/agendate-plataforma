@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const { body, param, validationResult } = require('express-validator');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
 const { crearPreferenciaReserva } = require('../services/mercadopago');
+const { sincronizarReservaConfirmada, cancelarEventoReserva } = require('../services/googleCalendar');
 
 const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
 
@@ -671,6 +672,12 @@ if (requierePagoOnline) {
 
     await client.query('COMMIT');
 
+    if (!requierePagoOnline) {
+      sincronizarReservaConfirmada(pool, r.rows[0].id).catch(err => {
+        console.error('No se pudo sincronizar Google Calendar reserva publica:', err.message);
+      });
+    }
+
            if (!requierePagoOnline && comercio.auto_confirmacion_activa !== false) {
       enviarConfirmacionReserva({
         reserva: r.rows[0],
@@ -803,6 +810,10 @@ router.post('/reservas/:uuid/cancelar', async (req, res) => {
        RETURNING uuid, estado`,
       [actual.rows[0].id]
     );
+
+    cancelarEventoReserva(pool, actual.rows[0].id).catch(err => {
+      console.error('No se pudo cancelar Google Calendar desde cancelacion publica:', err.message);
+    });
 
     res.json({ ok: true, reserva: r.rows[0] });
   } catch (e) {

@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { obtenerPagoMercadoPago, getBaseUrl } = require('../services/mercadopago');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
+const { sincronizarReservaConfirmada } = require('../services/googleCalendar');
 
 function obtenerPaymentId(req) {
   return (
@@ -165,6 +166,10 @@ router.post('/mercadopago/webhook', async (req, res) => {
     const comercio = comercioRes.rows[0];
     const servicio = servicioRes.rows[0];
     const trabajador = trabajadorRes.rows[0] || null;
+
+    sincronizarReservaConfirmada(pool, reserva.id).catch(err => {
+      console.error('No se pudo sincronizar Google Calendar tras pago:', err.message);
+    });
 
     if (comercio?.auto_confirmacion_activa !== false) {
       enviarConfirmacionReserva({

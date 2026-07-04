@@ -10,6 +10,13 @@ const jwt = require('jsonwebtoken');
 const { v2: cloudinary } = require('cloudinary');
 const { v4: uuidv4 } = require('uuid');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
+const {
+  getGoogleRedirectUri,
+  generarUrlAutorizacionGoogle,
+  intercambiarCodigoGoogle,
+  sincronizarReservaConfirmada,
+  cancelarEventoReserva
+} = require('../services/googleCalendar');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -565,11 +572,15 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
     const ubicaciones = await pool.query('SELECT * FROM ubicaciones WHERE comercio_id=$1 AND activo=true ORDER BY principal DESC, orden, id', [c.rows[0].id]);
     const comercioSeguro = {
   ...c.rows[0],
-  mercadopago_conectado: Boolean(c.rows[0].mercadopago_access_token)
+  mercadopago_conectado: Boolean(c.rows[0].mercadopago_access_token),
+  google_calendar_conectado: Boolean(c.rows[0].google_calendar_refresh_token)
 };
 
 delete comercioSeguro.mercadopago_access_token;
 delete comercioSeguro.mercadopago_refresh_token;
+delete comercioSeguro.google_calendar_access_token;
+delete comercioSeguro.google_calendar_refresh_token;
+delete comercioSeguro.google_calendar_expiry_date;
 
 res.json({
   ...comercioSeguro,
@@ -579,6 +590,48 @@ res.json({
   ubicaciones: ubicaciones.rows
 });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/google-calendar/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+
+    if (error || !code || !state) {
+      return res.redirect(`${(process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '')}/panel?google=error`);
+    }
+
+    const dataState = jwt.verify(state, process.env.JWT_SECRET);
+
+    if (dataState.tipo !== 'google_calendar_oauth' || !dataState.slug) {
+      return res.redirect(`${(process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '')}/panel?google=error`);
+    }
+
+    const { tokens, email } = await intercambiarCodigoGoogle(code);
+
+    await pool.query(
+      `UPDATE comercios
+       SET google_calendar_access_token=$1,
+           google_calendar_refresh_token=COALESCE($2, google_calendar_refresh_token),
+           google_calendar_expiry_date=$3,
+           google_calendar_id=COALESCE(google_calendar_id, 'primary'),
+           google_calendar_email=$4,
+           google_calendar_conectado_en=NOW(),
+           actualizado_en=NOW()
+       WHERE slug=$5`,
+      [
+        tokens.access_token || null,
+        tokens.refresh_token || null,
+        tokens.expiry_date || null,
+        email,
+        dataState.slug
+      ]
+    );
+
+    res.redirect(`${(process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '')}/panel?google=conectado`);
+  } catch (e) {
+    console.error('Error callback Google Calendar:', e.message);
+    res.redirect(`${(process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '')}/panel?google=error`);
+  }
 });
 
 // GET /api/comercio/:slug/cuenta - datos del usuario del panel
@@ -653,6 +706,57 @@ router.post('/:slug/mercadopago/desconectar', authAdminOrComercio, async (req, r
            mercadopago_refresh_token=NULL,
            mercadopago_expires_at=NULL,
            pago_mercadopago_activo=false,
+           actualizado_en=NOW()
+       WHERE slug=$1`,
+      [req.params.slug]
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/:slug/google-calendar/conectar', authAdminOrComercio, async (req, res) => {
+  try {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Faltan las credenciales OAuth de Google Calendar' });
+    }
+
+    const comercio = await pool.query(
+      'SELECT id,slug FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercio.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const state = jwt.sign(
+      { tipo: 'google_calendar_oauth', slug: req.params.slug },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
+    res.json({
+      url: generarUrlAutorizacionGoogle(state),
+      redirect_uri: getGoogleRedirectUri()
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/:slug/google-calendar/desconectar', authAdminOrComercio, async (req, res) => {
+  try {
+    await pool.query(
+      `UPDATE comercios
+       SET google_calendar_access_token=NULL,
+           google_calendar_refresh_token=NULL,
+           google_calendar_expiry_date=NULL,
+           google_calendar_id='primary',
+           google_calendar_email=NULL,
+           google_calendar_conectado_en=NULL,
            actualizado_en=NOW()
        WHERE slug=$1`,
       [req.params.slug]
@@ -1870,6 +1974,12 @@ router.post('/:slug/reservas/manual', authAdminOrComercio, async (req, res) => {
 
     const reserva = reservaRes.rows[0];
 
+    if (reserva.estado === 'confirmada') {
+      sincronizarReservaConfirmada(pool, reserva.id).catch(err => {
+        console.error('No se pudo sincronizar Google Calendar reserva manual:', err.message);
+      });
+    }
+
     if (enviar_confirmacion === true && comercio.auto_confirmacion_activa !== false) {
       enviarConfirmacionReserva({
         reserva,
@@ -2060,6 +2170,13 @@ router.put('/:slug/reservas/:id/reprogramar', authAdminOrComercio, async (req, r
     );
 
     await client.query('COMMIT');
+
+    if (r.rows[0].estado === 'confirmada') {
+      sincronizarReservaConfirmada(pool, r.rows[0].id).catch(err => {
+        console.error('No se pudo actualizar Google Calendar al reprogramar:', err.message);
+      });
+    }
+
     res.json(r.rows[0]);
   } catch (e) {
     await client.query('ROLLBACK');
@@ -2097,6 +2214,18 @@ router.put('/:slug/reservas/:id/estado', authAdminOrComercio, async (req, res) =
 
     if (!r.rows[0]) {
       return res.status(404).json({ error: 'Reserva no encontrada para este comercio' });
+    }
+
+    if (estado === 'confirmada') {
+      sincronizarReservaConfirmada(pool, r.rows[0].id).catch(err => {
+        console.error('No se pudo sincronizar Google Calendar al confirmar:', err.message);
+      });
+    }
+
+    if (estado === 'cancelada') {
+      cancelarEventoReserva(pool, r.rows[0].id).catch(err => {
+        console.error('No se pudo cancelar Google Calendar:', err.message);
+      });
     }
 
     res.json(r.rows[0]);

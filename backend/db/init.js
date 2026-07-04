@@ -48,9 +48,15 @@ CREATE TABLE IF NOT EXISTS comercios (
   imagen_fondo_url VARCHAR(500),
   pago_mercadopago_link VARCHAR(500),
   mercadopago_user_id VARCHAR(120),
-mercadopago_access_token TEXT,
-mercadopago_refresh_token TEXT,
-mercadopago_expires_at TIMESTAMP,
+  mercadopago_access_token TEXT,
+  mercadopago_refresh_token TEXT,
+  mercadopago_expires_at TIMESTAMP,
+  google_calendar_access_token TEXT,
+  google_calendar_refresh_token TEXT,
+  google_calendar_expiry_date BIGINT,
+  google_calendar_id VARCHAR(255) DEFAULT 'primary',
+  google_calendar_email VARCHAR(255),
+  google_calendar_conectado_en TIMESTAMP,
   creado_en TIMESTAMP DEFAULT NOW(),
   actualizado_en TIMESTAMP DEFAULT NOW()
 );
@@ -180,10 +186,13 @@ CREATE TABLE IF NOT EXISTS reservas (
   estado_pago VARCHAR(30) DEFAULT 'pendiente',
   sena_monto NUMERIC(10,2) DEFAULT 0,
   mercadopago_preference_id VARCHAR(120),
-mercadopago_payment_id VARCHAR(120),
-mercadopago_status VARCHAR(80),
-pagada_en TIMESTAMP,
- estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
+  mercadopago_payment_id VARCHAR(120),
+  mercadopago_status VARCHAR(80),
+  pagada_en TIMESTAMP,
+  google_calendar_event_id VARCHAR(255),
+  google_calendar_event_link VARCHAR(500),
+  google_calendar_sync_error TEXT,
+  estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
   confirmacion_enviada BOOLEAN DEFAULT false,
   confirmacion_enviada_en TIMESTAMP,
   recordatorio_enviado BOOLEAN DEFAULT false,
@@ -242,9 +251,15 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_instrucciones TEXT;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_mercadopago_link VARCHAR(500);
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_user_id VARCHAR(120);
-ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_access_token TEXT;
-ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_refresh_token TEXT;
-ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_expires_at TIMESTAMP;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_access_token TEXT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_refresh_token TEXT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_expires_at TIMESTAMP;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_access_token TEXT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_refresh_token TEXT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_expiry_date BIGINT;
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_id VARCHAR(255) DEFAULT 'primary';
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_email VARCHAR(255);
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS google_calendar_conectado_en TIMESTAMP;
   ALTER TABLE usuarios_comercio ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
     ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_confirmacion_activa BOOLEAN DEFAULT true;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_activo BOOLEAN DEFAULT true;
@@ -289,10 +304,13 @@ ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_expires_at TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) DEFAULT 'pendiente';
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS sena_monto NUMERIC(10,2) DEFAULT 0;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_preference_id VARCHAR(120);
-ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_payment_id VARCHAR(120);
-ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_status VARCHAR(80);
-ALTER TABLE reservas ADD COLUMN IF NOT EXISTS pagada_en TIMESTAMP;
-   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada BOOLEAN DEFAULT false;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_payment_id VARCHAR(120);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_status VARCHAR(80);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS pagada_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS google_calendar_event_id VARCHAR(255);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS google_calendar_event_link VARCHAR(500);
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS google_calendar_sync_error TEXT;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado_en TIMESTAMP;

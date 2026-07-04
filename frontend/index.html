@@ -4989,9 +4989,27 @@ async function cargarComAutomatizaciones() {
       </div>
 
       <div class="card" style="background:var(--bg3);margin:1.2rem 0;padding:1rem">
-        <h3 style="margin-bottom:0.45rem">Calendario externo</h3>
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap">
+          <div>
+            <h3 style="margin-bottom:0.45rem">Google Calendar directo</h3>
+            <p style="color:var(--texto2);font-size:0.86rem;line-height:1.6;margin:0">
+              ${data.google_calendar_conectado
+                ? `Conectado${data.google_calendar_email ? ` con ${data.google_calendar_email}` : ''}. Las reservas confirmadas se crean automaticamente en Google Calendar.`
+                : 'Conecta Google Calendar para que cada reserva confirmada aparezca al instante en el calendario del celular.'}
+            </p>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            ${data.google_calendar_conectado
+              ? `<button class="btn btn-ghost btn-sm" onclick="desconectarGoogleCalendar()">Desconectar</button>`
+              : `<button class="btn btn-oro btn-sm" onclick="conectarGoogleCalendar()">Conectar Google Calendar</button>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--bg3);margin:1.2rem 0;padding:1rem">
+        <h3 style="margin-bottom:0.45rem">Calendario externo de respaldo</h3>
         <p style="color:var(--texto2);font-size:0.86rem;line-height:1.6;margin-bottom:0.8rem">
-          Copia este link para suscribir las reservas en Google Calendar, Apple Calendar u Outlook.
+          Este link sigue disponible como respaldo, pero puede demorar en actualizarse porque depende de cada app de calendario.
         </p>
         <div style="display:flex;gap:0.55rem;flex-wrap:wrap">
           <input class="input" value="${calendarUrl}" readonly style="flex:1;min-width:240px">
@@ -5031,6 +5049,28 @@ async function guardarAutomatizaciones() {
     });
 
     toast('Automatizaciones guardadas');
+    cargarComAutomatizaciones();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function conectarGoogleCalendar() {
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/google-calendar/conectar`);
+    window.location.href = data.url;
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function desconectarGoogleCalendar() {
+  if (!confirm('Seguro que queres desconectar Google Calendar de este comercio?')) return;
+
+  try {
+    await api('POST', `/comercio/${S.slug}/google-calendar/desconectar`);
+    S.comercio = null;
+    toast('Google Calendar desconectado');
     cargarComAutomatizaciones();
   } catch (e) {
     toast(e.message, 'error');
