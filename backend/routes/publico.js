@@ -4,6 +4,7 @@ const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
 const { body, param, validationResult } = require('express-validator');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
+const { crearPreferenciaReserva } = require('../services/mercadopago');
 
 const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
 
@@ -602,19 +603,25 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
       email
     });
 
-    const formaPagoFinal = FORMAS_PAGO.has(forma_pago) ? forma_pago : 'local';
     const senaMonto = calcularSena(servicio.rows[0]);
-    const estadoPagoFinal = formaPagoFinal === 'online'
-      ? 'pagado'
-      : (formaPagoFinal === 'sena' && senaMonto > 0 ? 'parcial' : 'pendiente');
+const requierePagoOnline = senaMonto > 0;
+const formaPagoFinal = requierePagoOnline
+  ? 'sena'
+  : (FORMAS_PAGO.has(forma_pago) ? forma_pago : 'local');
+
+const estadoPagoFinal = requierePagoOnline
+  ? 'pendiente'
+  : (formaPagoFinal === 'online' ? 'pagado' : 'pendiente');
+
+const estadoReservaFinal = requierePagoOnline ? 'pendiente' : 'confirmada';
 
     const r = await client.query(
       `INSERT INTO reservas (
          uuid,comercio_id,cliente_id,ubicacion_id,servicio_id,trabajador_id,fecha,hora,duracion_min,
          cliente_nombre,cliente_apellido,cliente_whatsapp,cliente_email,comentarios,
-         forma_pago,estado_pago,sena_monto
+         forma_pago,estado_pago,sena_monto,estado
        )
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
        RETURNING *`,
       [
         uuid,
@@ -633,13 +640,32 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
         comentarios || null,
         formaPagoFinal,
         estadoPagoFinal,
-        senaMonto
+        senaMonto,
+        estadoReservaFinal
       ]
     );
 
+let pagoMercadoPago = null;
+
+if (requierePagoOnline) {
+  pagoMercadoPago = await crearPreferenciaReserva({
+    reserva: r.rows[0],
+    comercio,
+    servicio: servicio.rows[0],
+    monto: senaMonto
+  });
+
+  await client.query(
+    `UPDATE reservas
+     SET mercadopago_preference_id=$1
+     WHERE id=$2`,
+    [pagoMercadoPago.preference_id, r.rows[0].id]
+  );
+}
+
     await client.query('COMMIT');
 
-           if (comercio.auto_confirmacion_activa !== false) {
+           if (!requierePagoOnline && comercio.auto_confirmacion_activa !== false) {
       enviarConfirmacionReserva({
         reserva: r.rows[0],
         comercio,
@@ -663,6 +689,8 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
     res.status(201).json({
       ok: true,
       uuid,
+      requiere_pago: requierePagoOnline,
+  payment_url: pagoMercadoPago?.payment_url || null,
       reserva: {
 
         fecha,

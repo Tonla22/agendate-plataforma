@@ -6090,18 +6090,15 @@ function pcRenderResumen() {
     <div class="res-fila"><span class="res-k">Nombre</span><span class="res-v">${r.nombre} ${r.apellido}</span></div>
     <div class="res-fila"><span class="res-k">WhatsApp</span><span class="res-v">${r.wa}</span></div>
     ${sena > 0 ? `<div class="res-fila"><span class="res-k">Seña requerida</span><span class="res-v">${S.comercio.moneda} ${sena.toLocaleString()}</span></div>` : ''}
-    ${sena > 0 && linkPago ? `<div class="res-fila"><span class="res-k">Pago online</span><span class="res-v"><a href="${linkPago}" target="_blank" rel="noopener" style="color:var(--oro)">Abrir link de pago</a></span></div>` : ''}
     <div class="res-fila res-total"><span class="res-k">Total a pagar</span><span class="res-v">${S.comercio.moneda} ${parseFloat(r.servicio.precio).toLocaleString()}</span></div>`;
 
   const pagoInfo = document.getElementById('pc-pago-info');
   if (pagoInfo) {
-    if (sena > 0 && linkPago) {
-      pagoInfo.innerHTML = 'Este servicio requiere seña. Podés abrir el link de pago desde el resumen y finalizar la reserva.';
-    } else if (sena > 0) {
-      pagoInfo.innerHTML = 'Este servicio requiere seña. El comercio te indicará cómo completar el pago.';
-    } else {
-      pagoInfo.innerHTML = 'El pago se realiza en el local el día del turno.';
-    }
+   if (sena > 0) {
+  pagoInfo.innerHTML = 'Este servicio requiere seña. Al confirmar tus datos te vamos a llevar a MercadoPago para completar el pago y confirmar la reserva.';
+} else {
+  pagoInfo.innerHTML = 'El pago se realiza en el local el día del turno.';
+}
   }
 }
 
@@ -6133,6 +6130,16 @@ async function pcConfirmar() {
       comentarios:  r.comentarios,
       forma_pago:   calcularSenaServicioPublico(r.servicio) > 0 ? 'sena' : 'local',
     });
+
+if (data.requiere_pago) {
+  if (!data.payment_url) {
+    throw new Error('No se pudo generar el link de pago. Intentá nuevamente.');
+  }
+
+  btn.innerHTML = '<span class="loader-inline"></span> Redirigiendo al pago...';
+  window.location.href = data.payment_url;
+  return;
+}
 
     // Mostrar confirmación
     document.getElementById('pc-paso6').classList.remove('v');

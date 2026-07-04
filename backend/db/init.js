@@ -175,7 +175,11 @@ CREATE TABLE IF NOT EXISTS reservas (
   forma_pago VARCHAR(30) DEFAULT 'local',
   estado_pago VARCHAR(30) DEFAULT 'pendiente',
   sena_monto NUMERIC(10,2) DEFAULT 0,
-    estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
+  mercadopago_preference_id VARCHAR(120),
+mercadopago_payment_id VARCHAR(120),
+mercadopago_status VARCHAR(80),
+pagada_en TIMESTAMP,
+ estado VARCHAR(50) DEFAULT 'confirmada', -- pendiente, confirmada, cancelada, completada, no_asistio
   confirmacion_enviada BOOLEAN DEFAULT false,
   confirmacion_enviada_en TIMESTAMP,
   recordatorio_enviado BOOLEAN DEFAULT false,
@@ -276,6 +280,10 @@ DO $$ BEGIN
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS forma_pago VARCHAR(30) DEFAULT 'local';
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) DEFAULT 'pendiente';
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS sena_monto NUMERIC(10,2) DEFAULT 0;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_preference_id VARCHAR(120);
+ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_payment_id VARCHAR(120);
+ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_status VARCHAR(80);
+ALTER TABLE reservas ADD COLUMN IF NOT EXISTS pagada_en TIMESTAMP;
    ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado BOOLEAN DEFAULT false;
