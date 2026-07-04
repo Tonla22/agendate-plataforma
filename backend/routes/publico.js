@@ -139,16 +139,27 @@ function escapeICS(valor) {
     .replace(/\r?\n/g, '\\n');
 }
 
+function formatearFechaICSLocal(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  const hh = String(dt.getHours()).padStart(2, '0');
+  const mm = String(dt.getMinutes()).padStart(2, '0');
+  return `${y}${m}${d}T${hh}${mm}00`;
+}
+
 function fechaHoraICS(fecha, hora) {
-  return `${String(fecha).slice(0, 10).replace(/-/g, '')}T${String(hora || '00:00').slice(0, 5).replace(':', '')}00`;
+  const [y, m, d] = String(fecha).slice(0, 10).split('-').map(Number);
+  const [hh, mm] = String(hora || '00:00').slice(0, 5).split(':').map(Number);
+  return formatearFechaICSLocal(new Date(y, m - 1, d, hh, mm));
 }
 
 function sumarMinutosHoraICS(fecha, hora, minutos) {
   const [y, m, d] = String(fecha).slice(0, 10).split('-').map(Number);
   const [hh, mm] = String(hora || '00:00').slice(0, 5).split(':').map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d, hh, mm));
-  dt.setUTCMinutes(dt.getUTCMinutes() + Number(minutos || 30));
-  return dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, '');
+  const dt = new Date(y, m - 1, d, hh, mm);
+  dt.setMinutes(dt.getMinutes() + Number(minutos || 30));
+  return formatearFechaICSLocal(dt);
 }
 
 router.get('/:slug/calendario.ics', async (req, res) => {
@@ -201,13 +212,18 @@ router.get('/:slug/calendario.ics', async (req, res) => {
     }).join('\r\n');
 
     const ics = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Agendate//Reservas//ES',
-      `X-WR-CALNAME:${escapeICS(comercio.nombre)} - Reservas`,
-      eventos,
-      'END:VCALENDAR'
-    ].filter(Boolean).join('\r\n');
+  'BEGIN:VCALENDAR',
+  'VERSION:2.0',
+  'CALSCALE:GREGORIAN',
+  'METHOD:PUBLISH',
+  'PRODID:-//Agendate//Reservas//ES',
+  'X-WR-TIMEZONE:America/Montevideo',
+  'REFRESH-INTERVAL;VALUE=DURATION:PT30M',
+  'X-PUBLISHED-TTL:PT30M',
+  `X-WR-CALNAME:${escapeICS(comercio.nombre)} - Reservas`,
+  eventos,
+  'END:VCALENDAR'
+].filter(Boolean).join('\r\n');
 
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
     res.setHeader('Content-Disposition', `inline; filename="${req.params.slug}-reservas.ics"`);

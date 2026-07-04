@@ -866,9 +866,42 @@ input,select,textarea { font-family: inherit; }
 .com-mobile-bar { display:none; }
 .com-menu-backdrop { display:none; }
 .com-sidebar { background:var(--bg2); border-right:1px solid var(--borde2); padding:0; display:flex; flex-direction:column; }
-.com-sidebar-logo { padding:1.2rem 1rem; border-bottom:1px solid var(--borde2); }
-.com-sidebar-logo .nombre { font-size:0.95rem; font-weight:700; color:var(--oro); }
-.com-sidebar-logo .slug { font-size:0.7rem; color:var(--texto2); }
+.com-sidebar-logo {
+  min-height:86px;
+  padding:1rem;
+  border-bottom:1px solid var(--borde2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.com-sidebar-logo-img {
+  max-width:140px;
+  max-height:54px;
+  object-fit:contain;
+  display:none;
+}
+.com-sidebar-logo-placeholder {
+  width:52px;
+  height:52px;
+  border:1px dashed var(--borde2);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--texto2);
+  font-size:0.72rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.com-business-mini {
+  margin-bottom:0.75rem;
+  padding:0.75rem;
+  border:1px solid var(--borde2);
+  border-radius:6px;
+  background:rgba(255,255,255,0.03);
+}
+.com-business-mini .nombre { font-size:0.95rem; font-weight:700; color:var(--oro); }
+.com-business-mini .slug { font-size:0.72rem; color:var(--texto2); margin-top:0.15rem; }
 .com-user-mini { margin:1rem; padding:0.75rem; border:1px solid var(--borde2); border-radius:6px; background:rgba(255,255,255,0.03); display:flex; align-items:center; gap:0.65rem; cursor:pointer; transition:all 0.15s; }
 .com-user-mini:hover { border-color:var(--oro); background:rgba(255,255,255,0.05); }
 .com-user-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--oro); color:#111; font-weight:800; font-size:0.78rem; flex:0 0 auto; }
@@ -1874,9 +1907,9 @@ async function mostrarPanelComercio() {
     <div class="com-menu-backdrop" id="com-menu-backdrop" onclick="cerrarMenuComercio()"></div>
     <aside class="com-sidebar">
       <div class="com-sidebar-logo">
-        <div class="nombre" id="cs-nombre">Cargando...</div>
-        <div class="slug" id="cs-slug"></div>
-      </div>
+  <img class="com-sidebar-logo-img" id="cs-logo-img" alt="Logo del comercio">
+  <div class="com-sidebar-logo-placeholder" id="cs-logo-placeholder">Logo</div>
+</div>
       <div class="com-user-mini" onclick="comSec('cuenta')" title="Abrir perfil">
         <div class="com-user-avatar" id="cs-avatar">U</div>
         <div class="com-user-info">
@@ -1902,9 +1935,12 @@ async function mostrarPanelComercio() {
         <a href="#" onclick="comSec('cuenta');return false" id="cn-cuenta">${navIconoComercio('perfil')}Perfil</a>
       </nav>
       <div style="padding:1rem;border-top:1px solid var(--borde2)">
-        <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="window.open('/${S.slug}','_blank')">Ver mi pagina</button>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
-      </div>
+  <div class="com-business-mini">
+    <div class="nombre" id="cs-nombre">Cargando...</div>
+    <div class="slug" id="cs-slug"></div>
+  </div>
+  <button class="btn btn-ghost btn-sm btn-full" onclick="logout()">Cerrar sesión</button>
+</div>
     </aside>
     <main class="com-main">
       <div class="com-secciones">
@@ -1933,7 +1969,19 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-slug').textContent = '/' + data.slug;
     document.getElementById('cs-avatar').textContent = inicialesPanel(S.nombre || data.nombre);
     document.getElementById('cs-user-name').textContent = S.nombre || data.nombre;
-  } catch(e) {}
+ const logoImg = document.getElementById('cs-logo-img');
+const logoPlaceholder = document.getElementById('cs-logo-placeholder');
+if (data.logo_url) {
+  logoImg.src = data.logo_url;
+  logoImg.style.display = 'block';
+  logoPlaceholder.style.display = 'none';
+} else {
+  logoImg.removeAttribute('src');
+  logoImg.style.display = 'none';
+  logoPlaceholder.style.display = 'flex';
+}
+  } 
+  catch(e) {}
   const secInicial = (location.hash || '#dashboard').replace('#', '');
 
   if (secInicial && secInicial !== 'dashboard' && document.getElementById('com-' + secInicial)) {
@@ -2598,7 +2646,7 @@ async function cargarComCuenta() {
             ? `<img id="cu-avatar-preview" class="img-preview visible" src="${cuenta.avatar_url}" alt="preview avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%">`
             : `<img id="cu-avatar-preview" class="img-preview" alt="preview avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%">`
           }
-          <small style="color:var(--texto2)">Opcional. Sirve para identificar mejor quiÃ©n estÃ¡ usando el panel.</small>
+          <small style="color:var(--texto2)">Opcional. Sirve para identificar mejor quien está usando el panel.</small>
         </div>
         <div class="input-grid-2">
           <div class="form-group">
@@ -5159,21 +5207,19 @@ async function cargarComPerfil() {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
     const temaPanel = localStorage.getItem('panelTema') || 'oscuro';
     document.getElementById('perfil-form').innerHTML = `
-      <div class="perfil-toolbar">
-        <div>
-          <strong>Configuración visual</strong>
-          <div style="color:var(--texto2);font-size:0.8rem;margin-top:0.2rem">Los cambios se reflejan en la vista previa antes de guardar.</div>
-        </div>
-        <div class="tema-switch" aria-label="Tema del panel">
-          <button type="button" data-panel-theme="oscuro" class="${temaPanel !== 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('oscuro')">Oscuro</button>
-          <button type="button" data-panel-theme="claro" class="${temaPanel === 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('claro')">Claro</button>
-        </div>
-      </div>
-
+     
       <div class="perfil-layout">
         <div>
           <div class="perfil-panel-card">
             <h3>Identidad del comercio</h3>
+            <div class="form-group">
+  <label class="label">Tema del panel</label>
+  <div class="tema-switch" aria-label="Tema del panel">
+    <button type="button" data-panel-theme="oscuro" class="${temaPanel !== 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('oscuro')">Oscuro</button>
+    <button type="button" data-panel-theme="claro" class="${temaPanel === 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('claro')">Claro</button>
+  </div>
+  <small class="perfil-ayuda">Cambia entre modo claro y oscuro para trabajar más cómodo en el panel.</small>
+</div>
             <div class="form-group">
               <label class="label">Logo del comercio</label>
               <input class="input" type="file" id="pf-logo-file" accept="image/png,image/webp,image/jpeg,image/gif" onchange="previewArchivoImagen(this,'pf-logo-preview');actualizarPreviewPerfil()">
