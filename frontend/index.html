@@ -15,21 +15,61 @@ body.panel-theme-light {
   --bg: #F4F1EA;
   --bg2: #FFFFFF;
   --bg3: #F8F6F1;
+  --oro: #9B7A22;
   --texto: #181511;
   --texto2: #6C6259;
+  --texto-acento: #FFFFFF;
   --borde: rgba(20,18,16,0.12);
   --borde2: rgba(20,18,16,0.10);
 }
+
 body.panel-theme-light .com-sidebar,
 body.panel-theme-light .admin-sidebar,
 body.panel-theme-light .com-mobile-bar {
-  background: rgba(255,255,255,0.96);
+  background: rgba(255,255,255,0.97);
+  border-color: rgba(20,18,16,0.10);
 }
+
+body.panel-theme-light .com-main,
+body.panel-theme-light #panel-comercio,
+body.panel-theme-light #panel-admin {
+  background: #F4F1EA;
+  color: #181511;
+}
+
 body.panel-theme-light .com-user-mini,
 body.panel-theme-light .panel-soft-card,
 body.panel-theme-light .card,
-body.panel-theme-light .modal {
+body.panel-theme-light .modal,
+body.panel-theme-light .table-wrap,
+body.panel-theme-light .perfil-panel-card {
+  background: #FFFFFF;
+  border-color: rgba(20,18,16,0.10);
   box-shadow: 0 12px 30px rgba(24,21,17,0.04);
+}
+
+body.panel-theme-light .input {
+  background: #FFFFFF;
+  color: #181511;
+  border-color: rgba(20,18,16,0.16);
+}
+
+body.panel-theme-light .input:focus {
+  border-color: var(--oro);
+}
+
+body.panel-theme-light .tabla tr:hover td {
+  background: rgba(20,18,16,0.035);
+}
+
+body.panel-theme-light .btn-ghost {
+  color: #5F554C;
+  border-color: rgba(20,18,16,0.16);
+}
+
+body.panel-theme-light .btn-ghost:hover {
+  color: var(--oro);
+  border-color: var(--oro);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -623,10 +663,38 @@ input,select,textarea { font-family: inherit; }
   --texto-acento: #111111;
 }
 
+#pagina-comercio.pc-tema-claro {
+  --oro: #111111;
+  --texto-acento: #FFFFFF;
+}
+
 
 .pc-tema-claro #pc-nav {
   background: rgba(255,255,255,0.92);
   border-bottom-color: rgba(0,0,0,0.10);
+}
+
+.pc-tema-claro .pc-logo,
+.pc-tema-claro .pc-nav-links a,
+.pc-tema-claro .pc-sec-label,
+.pc-tema-claro .pc-ornamento {
+  color: #171717;
+}
+
+.pc-tema-claro .pc-linea {
+  background: #171717;
+}
+
+.pc-tema-claro .pc-serv-precio,
+.pc-tema-claro .pc-hor-hora,
+.pc-tema-claro .pc-hor-bloque {
+  color: #171717;
+}
+
+.pc-tema-claro .pc-serv-btn:hover {
+  background: #171717;
+  color: #FFFFFF;
+  border-color: #171717;
 }
 
 .pc-tema-claro #pc-hero:not(.con-imagen) {
