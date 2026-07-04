@@ -47,6 +47,10 @@ CREATE TABLE IF NOT EXISTS comercios (
   webhook_url VARCHAR(500),
   imagen_fondo_url VARCHAR(500),
   pago_mercadopago_link VARCHAR(500),
+  mercadopago_user_id VARCHAR(120),
+mercadopago_access_token TEXT,
+mercadopago_refresh_token TEXT,
+mercadopago_expires_at TIMESTAMP,
   creado_en TIMESTAMP DEFAULT NOW(),
   actualizado_en TIMESTAMP DEFAULT NOW()
 );
@@ -237,6 +241,10 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_cuenta VARCHAR(120);
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_instrucciones TEXT;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS pago_mercadopago_link VARCHAR(500);
+  ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_user_id VARCHAR(120);
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_access_token TEXT;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_refresh_token TEXT;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS mercadopago_expires_at TIMESTAMP;
   ALTER TABLE usuarios_comercio ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
     ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_confirmacion_activa BOOLEAN DEFAULT true;
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS auto_recordatorio_activo BOOLEAN DEFAULT true;

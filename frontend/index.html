@@ -2397,11 +2397,23 @@ async function cargarComPagos() {
     </div>
 
     <div class="card" style="max-width:760px">
-      <label style="display:flex;align-items:center;gap:0.55rem;margin-bottom:1rem">
-        <input type="checkbox" id="pg-local" ${data.pago_local_activo !== false ? 'checked' : ''}>
-        Aceptar pago en el local
-      </label>
-
+      <div class="card" style="background:var(--bg3);padding:1rem;margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap">
+    <div>
+      <strong>Mercado Pago</strong>
+      <div style="color:var(--texto2);font-size:0.84rem;margin-top:0.25rem">
+        ${data.mercadopago_conectado ? 'Cuenta conectada. Las señas entran directo a este comercio.' : 'Conectá la cuenta del comercio para cobrar señas automáticamente.'}
+      </div>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      ${data.mercadopago_conectado
+        ? `<button class="btn btn-ghost btn-sm" onclick="desconectarMercadoPago()">Desconectar</button>`
+        : `<button class="btn btn-oro btn-sm" onclick="conectarMercadoPago()">Conectar Mercado Pago</button>`
+      }
+    </div>
+  </div>
+  <input type="hidden" id="pg-mp" value="${data.mercadopago_conectado ? '1' : ''}">
+</div>
       <label style="display:flex;align-items:center;gap:0.55rem;margin-bottom:1rem">
         <input type="checkbox" id="pg-transferencia" ${data.pago_transferencia_activa ? 'checked' : ''}>
         Aceptar transferencia
@@ -2445,7 +2457,7 @@ async function guardarComPagos() {
     const actualizado = await api('PUT', `/comercio/${S.slug}/perfil`, {
       pago_local_activo: document.getElementById('pg-local').checked,
       pago_transferencia_activa: document.getElementById('pg-transferencia').checked,
-      pago_mercadopago_activo: document.getElementById('pg-mp').checked,
+pago_mercadopago_activo: document.getElementById('pg-mp').value === '1',
       pago_alias: document.getElementById('pg-alias').value.trim(),
       pago_cuenta: document.getElementById('pg-cuenta').value.trim(),
       pago_mercadopago_link: document.getElementById('pg-mp-link').value.trim(),
@@ -2454,6 +2466,28 @@ async function guardarComPagos() {
 
     S.comercio = actualizado;
     toast('Pagos actualizados');
+    cargarComPagos();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function conectarMercadoPago() {
+  try {
+    const data = await api('GET', `/comercio/${S.slug}/mercadopago/conectar`);
+    window.location.href = data.url;
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function desconectarMercadoPago() {
+  if (!confirm('¿Seguro que querés desconectar Mercado Pago de este comercio?')) return;
+
+  try {
+    await api('POST', `/comercio/${S.slug}/mercadopago/desconectar`);
+    S.comercio = null;
+    toast('Mercado Pago desconectado');
     cargarComPagos();
   } catch (e) {
     toast(e.message, 'error');

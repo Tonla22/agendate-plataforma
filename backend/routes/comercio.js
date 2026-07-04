@@ -6,6 +6,7 @@ const { body, param, validationResult } = require('express-validator');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const { v2: cloudinary } = require('cloudinary');
 const { v4: uuidv4 } = require('uuid');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
@@ -562,7 +563,21 @@ router.get('/:slug/perfil', authAdminOrComercio, async (req, res) => {
     const horarios = await pool.query('SELECT * FROM horarios WHERE comercio_id=$1 ORDER BY dia_semana', [c.rows[0].id]);
     const bloques = await pool.query('SELECT * FROM horario_bloques WHERE comercio_id=$1 ORDER BY dia_semana,orden', [c.rows[0].id]);
     const ubicaciones = await pool.query('SELECT * FROM ubicaciones WHERE comercio_id=$1 AND activo=true ORDER BY principal DESC, orden, id', [c.rows[0].id]);
-    res.json({ ...c.rows[0], servicios: servicios.rows, horarios: horarios.rows, horario_bloques: bloques.rows, ubicaciones: ubicaciones.rows });
+    const comercioSeguro = {
+  ...c.rows[0],
+  mercadopago_conectado: Boolean(c.rows[0].mercadopago_access_token)
+};
+
+delete comercioSeguro.mercadopago_access_token;
+delete comercioSeguro.mercadopago_refresh_token;
+
+res.json({
+  ...comercioSeguro,
+  servicios: servicios.rows,
+  horarios: horarios.rows,
+  horario_bloques: bloques.rows,
+  ubicaciones: ubicaciones.rows
+});
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -585,6 +600,65 @@ router.get('/:slug/cuenta', authAdminOrComercio, async (req, res) => {
     if (!r.rows[0]) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+function mercadoPagoRedirectUri() {
+  const baseUrl = (process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '');
+  return `${baseUrl}/api/pagos/mercadopago/oauth/callback`;
+}
+
+router.get('/:slug/mercadopago/conectar', authAdminOrComercio, async (req, res) => {
+  try {
+    if (!process.env.MERCADOPAGO_CLIENT_ID || !process.env.MERCADOPAGO_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Faltan las credenciales OAuth de Mercado Pago' });
+    }
+
+    const comercio = await pool.query(
+      'SELECT id,slug FROM comercios WHERE slug=$1',
+      [req.params.slug]
+    );
+
+    if (!comercio.rows[0]) {
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
+
+    const state = jwt.sign(
+      { tipo: 'mp_oauth', slug: req.params.slug },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
+    const url = new URL(process.env.MERCADOPAGO_AUTH_URL || 'https://auth.mercadopago.com/authorization');
+    url.searchParams.set('client_id', process.env.MERCADOPAGO_CLIENT_ID);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('platform_id', 'mp');
+    url.searchParams.set('redirect_uri', mercadoPagoRedirectUri());
+    url.searchParams.set('state', state);
+
+    res.json({ url: url.toString() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/:slug/mercadopago/desconectar', authAdminOrComercio, async (req, res) => {
+  try {
+    await pool.query(
+      `UPDATE comercios
+       SET mercadopago_user_id=NULL,
+           mercadopago_access_token=NULL,
+           mercadopago_refresh_token=NULL,
+           mercadopago_expires_at=NULL,
+           pago_mercadopago_activo=false,
+           actualizado_en=NOW()
+       WHERE slug=$1`,
+      [req.params.slug]
+    );
+
+    res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

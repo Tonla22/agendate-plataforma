@@ -1,7 +1,8 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const pool = require('../db/pool');
-const { obtenerPagoMercadoPago } = require('../services/mercadopago');
+const { obtenerPagoMercadoPago, getBaseUrl } = require('../services/mercadopago');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
 
 function obtenerPaymentId(req) {
@@ -14,21 +15,107 @@ function obtenerPaymentId(req) {
   );
 }
 
+function mercadopagoRedirectUri() {
+  return `${getBaseUrl()}/api/pagos/mercadopago/oauth/callback`;
+}
+
+router.get('/mercadopago/oauth/callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+
+    if (!code || !state) {
+      return res.redirect(`${getBaseUrl()}/panel?mp=error`);
+    }
+
+    const dataState = jwt.verify(state, process.env.JWT_SECRET);
+
+    if (dataState.tipo !== 'mp_oauth' || !dataState.slug) {
+      return res.redirect(`${getBaseUrl()}/panel?mp=error`);
+    }
+
+    const tokenRes = await fetch('https://api.mercadopago.com/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        client_id: process.env.MERCADOPAGO_CLIENT_ID,
+        client_secret: process.env.MERCADOPAGO_CLIENT_SECRET,
+        code,
+        redirect_uri: mercadopagoRedirectUri()
+      })
+    });
+
+    const tokenData = await tokenRes.json();
+
+    if (!tokenRes.ok) {
+      console.error('Error OAuth MercadoPago:', tokenData);
+      return res.redirect(`${getBaseUrl()}/panel?mp=error`);
+    }
+
+    const expiresAt = tokenData.expires_in
+      ? new Date(Date.now() + Number(tokenData.expires_in) * 1000)
+      : null;
+
+    await pool.query(
+      `UPDATE comercios
+       SET mercadopago_user_id=$1,
+           mercadopago_access_token=$2,
+           mercadopago_refresh_token=$3,
+           mercadopago_expires_at=$4,
+           pago_mercadopago_activo=true,
+           actualizado_en=NOW()
+       WHERE slug=$5`,
+      [
+        tokenData.user_id ? String(tokenData.user_id) : null,
+        tokenData.access_token,
+        tokenData.refresh_token || null,
+        expiresAt,
+        dataState.slug
+      ]
+    );
+
+    res.redirect(`${getBaseUrl()}/panel?mp=conectado`);
+  } catch (e) {
+    console.error('Error callback MercadoPago:', e.message);
+    res.redirect(`${getBaseUrl()}/panel?mp=error`);
+  }
+});
+
 router.post('/mercadopago/webhook', async (req, res) => {
   try {
     const paymentId = obtenerPaymentId(req);
+    const reservaUuidDesdeUrl = req.query.reserva || null;
     const tipo = req.query.type || req.query.topic || req.body?.type || '';
 
     if (!paymentId || (tipo && !String(tipo).includes('payment'))) {
       return res.sendStatus(200);
     }
 
-    const pago = await obtenerPagoMercadoPago(paymentId);
-    const reservaUuid = pago.external_reference || pago.metadata?.reserva_uuid;
-
-    if (!reservaUuid) {
+    if (!reservaUuidDesdeUrl) {
       return res.sendStatus(200);
     }
+
+    const reservaToken = await pool.query(
+      `SELECT r.uuid, c.mercadopago_access_token
+       FROM reservas r
+       JOIN comercios c ON c.id=r.comercio_id
+       WHERE r.uuid=$1`,
+      [reservaUuidDesdeUrl]
+    );
+
+    if (!reservaToken.rows[0]?.mercadopago_access_token) {
+      return res.sendStatus(200);
+    }
+
+    const pago = await obtenerPagoMercadoPago(
+      paymentId,
+      reservaToken.rows[0].mercadopago_access_token
+    );
+
+    const reservaUuid = pago.external_reference || reservaUuidDesdeUrl;
 
     if (pago.status !== 'approved') {
       await pool.query(

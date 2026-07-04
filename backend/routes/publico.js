@@ -605,6 +605,12 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
 
     const senaMonto = calcularSena(servicio.rows[0]);
 const requierePagoOnline = senaMonto > 0;
+if (requierePagoOnline && (!comercio.pago_mercadopago_activo || !comercio.mercadopago_access_token)) {
+  await client.query('ROLLBACK');
+  return res.status(400).json({
+    error: 'Este comercio todavía no conectó Mercado Pago para cobrar señas.'
+  });
+}
 const formaPagoFinal = requierePagoOnline
   ? 'sena'
   : (FORMAS_PAGO.has(forma_pago) ? forma_pago : 'local');

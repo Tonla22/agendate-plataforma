@@ -4,18 +4,18 @@ function getBaseUrl() {
   return (process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '');
 }
 
-function getClient() {
-  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
-    throw new Error('Falta configurar MERCADOPAGO_ACCESS_TOKEN');
+function getClient(accessToken) {
+  const token = accessToken || process.env.MERCADOPAGO_ACCESS_TOKEN;
+
+  if (!token) {
+    throw new Error('Falta configurar MercadoPago para este comercio');
   }
 
-  return new MercadoPagoConfig({
-    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
-  });
+  return new MercadoPagoConfig({ accessToken: token });
 }
 
 async function crearPreferenciaReserva({ reserva, comercio, servicio, monto }) {
-  const client = getClient();
+  const client = getClient(comercio.mercadopago_access_token);
   const preference = new Preference(client);
   const baseUrl = getBaseUrl();
   const moneda = process.env.MERCADOPAGO_CURRENCY || 'UYU';
@@ -48,7 +48,7 @@ async function crearPreferenciaReserva({ reserva, comercio, servicio, monto }) {
         failure: `${baseUrl}/${comercio.slug}?pago=error&reserva=${reserva.uuid}`,
         pending: `${baseUrl}/${comercio.slug}?pago=pendiente&reserva=${reserva.uuid}`
       },
-      notification_url: `${baseUrl}/api/pagos/mercadopago/webhook`,
+      notification_url: `${baseUrl}/api/pagos/mercadopago/webhook?reserva=${encodeURIComponent(reserva.uuid)}`,
       auto_return: 'approved'
     }
   });
@@ -59,13 +59,14 @@ async function crearPreferenciaReserva({ reserva, comercio, servicio, monto }) {
   };
 }
 
-async function obtenerPagoMercadoPago(paymentId) {
-  const client = getClient();
+async function obtenerPagoMercadoPago(paymentId, accessToken) {
+  const client = getClient(accessToken);
   const payment = new Payment(client);
   return payment.get({ id: paymentId });
 }
 
 module.exports = {
   crearPreferenciaReserva,
-  obtenerPagoMercadoPago
+  obtenerPagoMercadoPago,
+  getBaseUrl
 };
