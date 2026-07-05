@@ -781,6 +781,198 @@ input,select,textarea { font-family: inherit; }
 }
 
 /* ==================================================================
+   PAGINAS PUBLICAS DE AGENDATE
+   ================================================================== */
+.legal-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(201,168,76,0.10), transparent 34%),
+    linear-gradient(180deg, #111 0%, #080808 100%);
+  color: var(--texto);
+}
+.legal-nav {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--borde2);
+  background: rgba(8,8,8,0.86);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.legal-brand {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--oro);
+  letter-spacing: 0.04em;
+}
+.legal-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+.legal-links a {
+  color: var(--texto2);
+}
+.legal-links a:hover {
+  color: var(--oro);
+}
+.legal-hero {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 5rem 2rem 3rem;
+}
+.legal-eyebrow {
+  color: var(--oro);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  margin-bottom: 0.85rem;
+}
+.legal-hero h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(2.5rem, 7vw, 5.4rem);
+  line-height: 0.96;
+  max-width: 880px;
+  margin-bottom: 1rem;
+}
+.legal-hero p {
+  color: var(--texto2);
+  max-width: 740px;
+  line-height: 1.75;
+  font-size: 1rem;
+}
+.legal-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.8rem;
+}
+.legal-wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+.legal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.legal-card {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.legal-card h2,
+.legal-card h3 {
+  color: var(--texto);
+  margin-bottom: 0.65rem;
+}
+.legal-card p,
+.legal-card li {
+  color: var(--texto2);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+.legal-card ul {
+  padding-left: 1.1rem;
+}
+.legal-doc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.2rem;
+  align-items: start;
+}
+.legal-doc-main {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 1.6rem;
+}
+.legal-doc-main h2 {
+  color: var(--oro);
+  margin: 1.6rem 0 0.6rem;
+  font-size: 1.05rem;
+}
+.legal-doc-main h2:first-child {
+  margin-top: 0;
+}
+.legal-doc-main p,
+.legal-doc-main li {
+  color: var(--texto2);
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+.legal-doc-main ul {
+  padding-left: 1.2rem;
+}
+.legal-aside {
+  position: sticky;
+  top: 88px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.legal-aside strong {
+  display: block;
+  color: var(--texto);
+  margin-bottom: 0.4rem;
+}
+.legal-aside p {
+  color: var(--texto2);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.legal-footer {
+  border-top: 1px solid var(--borde2);
+  padding: 2rem;
+  text-align: center;
+  color: var(--texto2);
+  font-size: 0.78rem;
+}
+.login-legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  font-size: 0.76rem;
+}
+.login-legal-links a {
+  color: var(--texto2);
+}
+.login-legal-links a:hover {
+  color: var(--oro);
+}
+@media (max-width: 760px) {
+  .legal-nav {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .legal-hero {
+    padding: 3.5rem 1rem 2rem;
+  }
+  .legal-wrap {
+    padding: 0 1rem 3rem;
+  }
+  .legal-doc {
+    grid-template-columns: 1fr;
+  }
+  .legal-aside {
+    position: static;
+  }
+}
+
+/* ==================================================================
    PANEL ADMIN (super-admin)
    ================================================================== */
 #panel-admin { min-height:100vh; display:grid; grid-template-columns:220px 1fr; }
@@ -1298,6 +1490,11 @@ if (parts[0] === 'cancelar' && parts[1]) {
   return;
 }
 
+if (['sobre', 'privacidad', 'terminos'].includes(parts[0])) {
+  mostrarPaginaLegal(parts[0]);
+  return;
+}
+
   const tokenGuardado = localStorage.getItem('token');
 const tipoGuardado = localStorage.getItem('tipo');
 
@@ -1486,6 +1683,216 @@ function irPanel() {
 }
 
 // ============================================================
+// PAGINAS PUBLICAS DE AGENDATE
+// ============================================================
+function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre' }) {
+  return `
+    <div class="legal-page">
+      <nav class="legal-nav">
+        <a class="legal-brand" href="/sobre" onclick="event.preventDefault();navegar('/sobre')">Agendate</a>
+        <div class="legal-links">
+          <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="${activo === 'sobre' ? 'color:var(--oro)' : ''}">Sobre la plataforma</a>
+          <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="${activo === 'privacidad' ? 'color:var(--oro)' : ''}">Privacidad</a>
+          <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="${activo === 'terminos' ? 'color:var(--oro)' : ''}">Terminos</a>
+          <a href="/login" onclick="event.preventDefault();navegar('/login')">Ingresar</a>
+        </div>
+      </nav>
+      <header class="legal-hero">
+        <div class="legal-eyebrow">${etiqueta}</div>
+        <h1>${titulo}</h1>
+        <p>${subtitulo}</p>
+      </header>
+      ${contenido}
+      <footer class="legal-footer">
+        Agendate &copy; 2026. Plataforma de gestion de reservas para comercios.
+      </footer>
+    </div>
+  `;
+}
+
+function mostrarPaginaLegal(tipo = 'sobre') {
+  document.body.classList.remove('panel-theme-light');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('activa'));
+  const el = document.getElementById('pagina-comercio');
+  el.classList.add('activa');
+
+  if (tipo === 'privacidad') {
+    document.title = 'Politica de privacidad - Agendate';
+    el.innerHTML = legalLayout({
+      activo: 'privacidad',
+      etiqueta: 'Privacidad',
+      titulo: 'Politica de privacidad',
+      subtitulo: 'Esta politica explica que datos trata Agendate, para que los usa y como funcionan integraciones como Google Calendar, MercadoPago, WhatsApp y almacenamiento de imagenes.',
+      contenido: `
+        <main class="legal-wrap">
+          <div class="legal-doc">
+            <article class="legal-doc-main">
+              <h2>1. Responsable y alcance</h2>
+              <p>Agendate es una plataforma para que comercios gestionen servicios, reservas, clientes, pagos, profesionales, horarios y automatizaciones. Esta politica aplica al uso de la plataforma por parte de comercios, administradores y clientes que realizan reservas.</p>
+
+              <h2>2. Datos que podemos tratar</h2>
+              <ul>
+                <li>Datos del comercio: nombre, direccion, telefono, WhatsApp, logo, imagenes, horarios, servicios, profesionales, configuraciones de reserva y datos de acceso al panel.</li>
+                <li>Datos de clientes: nombre, apellido, WhatsApp, email opcional, comentarios de la reserva, historial de turnos y estado de cada reserva.</li>
+                <li>Datos operativos: fechas, horas, servicios, precios, senas, pagos, ubicaciones, metricas, registros tecnicos y configuracion de automatizaciones.</li>
+                <li>Datos de integraciones: identificadores, estados de conexion y tokens tecnicos necesarios para conectar servicios externos autorizados por el comercio.</li>
+              </ul>
+
+              <h2>3. Para que usamos los datos</h2>
+              <ul>
+                <li>Crear, confirmar, cancelar y administrar reservas.</li>
+                <li>Mostrar la pagina publica de cada comercio.</li>
+                <li>Enviar avisos o recordatorios cuando el comercio active automatizaciones.</li>
+                <li>Gestionar pagos o senas mediante proveedores externos.</li>
+                <li>Sincronizar reservas confirmadas con el calendario conectado por el comercio.</li>
+                <li>Mejorar la seguridad, prevenir abuso y mantener el funcionamiento de la plataforma.</li>
+              </ul>
+
+              <h2>4. Uso de Google Calendar</h2>
+              <p>Cuando un comercio conecta Google Calendar, Agendate solicita acceso para crear, actualizar y cancelar eventos relacionados con reservas confirmadas. Tambien puede usar el email de la cuenta conectada para mostrar al comercio que cuenta quedo vinculada.</p>
+              <p>Agendate no usa Google Calendar para leer eventos personales ajenos a la gestion de reservas ni para fines publicitarios. Los permisos se usan solo para sincronizar turnos del comercio con el calendario autorizado.</p>
+
+              <h2>5. Tokens y desconexion de Google</h2>
+              <p>Para mantener la sincronizacion, Agendate guarda tokens tecnicos entregados por Google en la base de datos del servidor. Estos tokens no se muestran al publico ni a otros comercios. El comercio puede desconectar Google Calendar desde su panel; al hacerlo, Agendate elimina la conexion guardada y deja de sincronizar eventos nuevos.</p>
+
+              <h2>6. Pagos y MercadoPago</h2>
+              <p>Cuando un comercio conecta MercadoPago, los pagos se procesan en el entorno de MercadoPago. Agendate puede recibir identificadores de pago, estados de pago e informacion minima necesaria para confirmar una reserva asociada a una sena o pago anticipado. Agendate no almacena datos completos de tarjetas.</p>
+
+              <h2>7. Imagenes y archivos</h2>
+              <p>Los logos, fotos de servicios, profesionales o portadas pueden almacenarse en servicios de terceros de imagenes para permitir su visualizacion en la pagina publica del comercio.</p>
+
+              <h2>8. Comparticion de datos</h2>
+              <p>No vendemos datos personales. Podemos compartir datos solo cuando sea necesario para operar la plataforma, cumplir obligaciones legales, prevenir fraude o ejecutar integraciones activadas por el comercio.</p>
+
+              <h2>9. Seguridad</h2>
+              <p>Aplicamos controles razonables para proteger la informacion, como acceso autenticado al panel, separacion de datos por comercio, uso de HTTPS y limites de solicitudes. Ningun sistema es perfecto, por lo que recomendamos usar contrasenas fuertes y cuidar los accesos administrativos.</p>
+
+              <h2>10. Derechos y contacto</h2>
+              <p>Los comercios y clientes pueden solicitar acceso, correccion o eliminacion de sus datos cuando corresponda. Para consultas de privacidad, escribinos al correo de soporte configurado para Agendate.</p>
+
+              <h2>11. Cambios</h2>
+              <p>Podemos actualizar esta politica para reflejar mejoras del producto, cambios legales o nuevas integraciones. La version vigente sera la publicada en esta pagina.</p>
+            </article>
+            <aside class="legal-aside">
+              <strong>Uso limitado de Google</strong>
+              <p>Los datos obtenidos desde Google se usan solo para sincronizar reservas con Calendar y no se venden ni se usan para publicidad.</p>
+              <br>
+              <strong>URL para Google</strong>
+              <p>Usa esta pagina como URL de politica de privacidad en la pantalla de consentimiento OAuth.</p>
+            </aside>
+          </div>
+        </main>
+      `
+    });
+    return;
+  }
+
+  if (tipo === 'terminos') {
+    document.title = 'Terminos y condiciones - Agendate';
+    el.innerHTML = legalLayout({
+      activo: 'terminos',
+      etiqueta: 'Condiciones de uso',
+      titulo: 'Terminos y condiciones',
+      subtitulo: 'Estas condiciones ordenan el uso de Agendate como herramienta para comercios que administran reservas, pagos, clientes y agendas.',
+      contenido: `
+        <main class="legal-wrap">
+          <div class="legal-doc">
+            <article class="legal-doc-main">
+              <h2>1. Que es Agendate</h2>
+              <p>Agendate es una plataforma de gestion de reservas para comercios. Permite crear una pagina publica, cargar servicios, profesionales, horarios, reservas, clientes, metricas, pagos e integraciones externas.</p>
+
+              <h2>2. Rol de Agendate</h2>
+              <p>Agendate provee tecnologia para administrar reservas. Los servicios ofrecidos, precios, horarios, politicas comerciales, atencion al cliente y cumplimiento de las reservas son responsabilidad de cada comercio.</p>
+
+              <h2>3. Cuentas y acceso</h2>
+              <p>Cada comercio debe cuidar las credenciales de acceso a su panel. Las acciones realizadas desde una cuenta autenticada se consideran realizadas por el comercio titular de esa cuenta.</p>
+
+              <h2>4. Reservas</h2>
+              <p>Los clientes pueden solicitar reservas desde la pagina publica del comercio. El estado de la reserva, su confirmacion, cancelacion, reprogramacion o asistencia se administra desde el panel del comercio o mediante reglas configuradas en la plataforma.</p>
+
+              <h2>5. Pagos, senas y reembolsos</h2>
+              <p>Cuando un servicio requiere sena o pago anticipado, Agendate puede redirigir al cliente a un proveedor de pago externo. Los pagos se procesan fuera de Agendate. Las politicas de devolucion, cancelacion y reembolso deben ser definidas y comunicadas por cada comercio.</p>
+
+              <h2>6. Integraciones externas</h2>
+              <p>Agendate puede integrarse con servicios como Google Calendar, MercadoPago, WhatsApp u otros proveedores. El comercio decide activar o desactivar estas integraciones y acepta las condiciones de cada proveedor externo.</p>
+
+              <h2>7. Uso aceptable</h2>
+              <p>No se permite usar Agendate para actividades ilegales, fraudulentas, abusivas, discriminatorias o que afecten la seguridad de la plataforma, otros comercios o clientes.</p>
+
+              <h2>8. Disponibilidad</h2>
+              <p>Trabajamos para mantener la plataforma disponible y estable. Sin embargo, pueden existir interrupciones por mantenimiento, proveedores externos, errores tecnicos o causas fuera de nuestro control.</p>
+
+              <h2>9. Contenido del comercio</h2>
+              <p>El comercio es responsable por textos, imagenes, logos, precios, descripciones y datos publicados en su pagina. Agendate puede retirar contenido que incumpla estas condiciones o afecte a terceros.</p>
+
+              <h2>10. Cambios en el servicio</h2>
+              <p>Podemos agregar, modificar o retirar funciones para mejorar el producto, corregir errores, cumplir requisitos legales o mantener la seguridad de la plataforma.</p>
+
+              <h2>11. Contacto</h2>
+              <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos terminos, el usuario puede comunicarse con el equipo de Agendate mediante los canales oficiales publicados.</p>
+            </article>
+            <aside class="legal-aside">
+              <strong>Para comercios</strong>
+              <p>Estas condiciones explican que Agendate es la herramienta y que cada comercio sigue siendo responsable de su operativa.</p>
+              <br>
+              <strong>Para clientes</strong>
+              <p>Las politicas de servicio, cancelacion o devolucion dependen del comercio donde se reserva.</p>
+            </aside>
+          </div>
+        </main>
+      `
+    });
+    return;
+  }
+
+  document.title = 'Agendate - Reservas online para comercios';
+  el.innerHTML = legalLayout({
+    activo: 'sobre',
+    etiqueta: 'Reservas online',
+    titulo: 'Una plataforma simple para vender, ordenar y controlar turnos.',
+    subtitulo: 'Agendate ayuda a comercios de servicios a tener una pagina publica, recibir reservas, organizar profesionales, cobrar senas, medir resultados y conectar herramientas como Google Calendar y MercadoPago.',
+    contenido: `
+      <main class="legal-wrap">
+        <section class="legal-grid">
+          <div class="legal-card">
+            <h2>Pagina publica</h2>
+            <p>Cada comercio puede mostrar su marca, servicios, horarios, ubicacion, profesionales y boton de WhatsApp en una pagina lista para compartir.</p>
+          </div>
+          <div class="legal-card">
+            <h2>Reservas ordenadas</h2>
+            <p>Los clientes eligen profesional, servicio, fecha y hora. El comercio ve todo desde su panel y puede confirmar, cancelar o modificar estados.</p>
+          </div>
+          <div class="legal-card">
+            <h2>Pagos y senas</h2>
+            <p>Los servicios pueden requerir sena o pago anticipado para reducir ausencias y confirmar turnos de forma mas segura.</p>
+          </div>
+          <div class="legal-card">
+            <h2>Calendario conectado</h2>
+            <p>Cuando el comercio conecta Google Calendar, las reservas confirmadas se sincronizan automaticamente con su calendario.</p>
+          </div>
+          <div class="legal-card">
+            <h2>Metricas y clientes</h2>
+            <p>El panel permite ver reservas, ingresos, clientes y seguimiento comercial para tomar mejores decisiones.</p>
+          </div>
+          <div class="legal-card">
+            <h2>Hecho para crecer</h2>
+            <p>Agendate esta pensado para comercios chicos y medianos que necesitan presencia online y control operativo sin complicarse.</p>
+          </div>
+        </section>
+        <section class="legal-card" style="margin-top:1rem">
+          <h2>Informacion legal</h2>
+          <p>Para usar integraciones externas y operar con transparencia, Agendate publica sus documentos principales:</p>
+          <div class="legal-actions">
+            <a class="btn btn-oro" href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Ver privacidad</a>
+            <a class="btn btn-ghost" href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Ver terminos</a>
+          </div>
+        </section>
+      </main>
+    `
+  });
+}
+
+// ============================================================
 // LOGIN
 // ============================================================
 function mostrarLogin(tipo = 'comercio') {
@@ -1515,6 +1922,11 @@ function mostrarLogin(tipo = 'comercio') {
           <div id="l-error" class="form-error" style="margin-bottom:0.8rem"></div>
           <button class="btn btn-oro btn-full" onclick="doLogin()" id="btn-login">Ingresar</button>
         </div>
+      </div>
+      <div class="login-legal-links">
+        <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')">Sobre Agendate</a>
+        <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Privacidad</a>
+        <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Terminos</a>
       </div>
     </div>`;
 }
@@ -5920,7 +6332,13 @@ function renderComercioPublico(d) {
   </div>
 
   <div style="text-align:center;color:#b8b8b8;font-size:0.8rem;margin-top:2rem">
-    © 2026 ${d.nombre}
+    &copy; 2026 ${d.nombre}
+    <span style="opacity:0.45;margin:0 0.45rem">|</span>
+    <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="color:#b8b8b8">Hecho con Agendate</a>
+    <span style="opacity:0.45;margin:0 0.45rem">|</span>
+    <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="color:#b8b8b8">Privacidad</a>
+    <span style="opacity:0.45;margin:0 0.45rem">|</span>
+    <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="color:#b8b8b8">Terminos</a>
   </div>
 </footer>
 ${waNumero ? `
