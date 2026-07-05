@@ -1986,6 +1986,276 @@ input,select,textarea { font-family: inherit; }
   }
 }
 
+/* Landing Agendate: identidad propia */
+.legal-page {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(72, 231, 190, 0.16), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(80, 116, 255, 0.14), transparent 28%),
+    linear-gradient(180deg, #071218 0%, #0b0f16 44%, #08090c 100%);
+}
+.legal-page::before {
+  background:
+    linear-gradient(135deg, transparent 0 30%, rgba(72, 231, 190, 0.08) 30.2%, transparent 31% 100%),
+    linear-gradient(42deg, transparent 0 70%, rgba(80, 116, 255, 0.08) 70.2%, transparent 71% 100%);
+  opacity: 0.65;
+}
+.legal-page::after {
+  background: radial-gradient(circle, rgba(72, 231, 190, 0.16), transparent 68%);
+}
+.legal-nav {
+  border-radius: 18px;
+  background: rgba(6, 18, 24, 0.78);
+  border-color: rgba(122, 234, 207, 0.15);
+  backdrop-filter: blur(18px);
+}
+.legal-brand::before {
+  border-radius: 10px 10px 3px 10px;
+  background: conic-gradient(from 210deg, #48e7be, #d7bf64, #4f74ff, #48e7be);
+}
+.legal-links {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.045);
+}
+.landing-hero-title {
+  max-width: 780px;
+  display: inline-block;
+}
+.landing-hero-title mark {
+  color: #80ead2;
+  text-shadow: 0 0 34px rgba(128, 234, 210, 0.22);
+}
+.legal-btn-primary {
+  color: #071218;
+  background: linear-gradient(135deg, #80ead2, #d8c26a);
+  box-shadow: 0 16px 44px rgba(72, 231, 190, 0.18);
+}
+.legal-btn-secondary {
+  border-color: rgba(128, 234, 210, 0.22);
+}
+.ag-ops-board {
+  border: 1px solid rgba(128, 234, 210, 0.18);
+  border-radius: 28px;
+  background:
+    linear-gradient(160deg, rgba(14, 35, 46, 0.95), rgba(10, 15, 24, 0.92)),
+    radial-gradient(circle at 80% 16%, rgba(80, 116, 255, 0.18), transparent 32%);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.34);
+  padding: 1rem;
+  min-height: 430px;
+  position: relative;
+  overflow: hidden;
+}
+.ag-ops-board::after {
+  content: "";
+  position: absolute;
+  inset: 15% -20% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(128, 234, 210, 0.55), transparent);
+  transform: rotate(-12deg);
+}
+.ag-ops-head,
+.ag-route,
+.ag-panel-preview,
+.ag-flow-card {
+  position: relative;
+  z-index: 1;
+}
+.ag-ops-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.ag-ops-title {
+  display: grid;
+  gap: 0.16rem;
+}
+.ag-ops-title strong {
+  color: var(--texto);
+}
+.ag-ops-title span,
+.ag-chip,
+.ag-flow-card span,
+.ag-route span,
+.ag-panel-preview p {
+  color: var(--texto2);
+  font-size: 0.78rem;
+}
+.ag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(128, 234, 210, 0.18);
+  border-radius: 999px;
+  padding: 0.38rem 0.65rem;
+  background: rgba(128, 234, 210, 0.08);
+}
+.ag-chip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #48e7be;
+  box-shadow: 0 0 16px rgba(72, 231, 190, 0.7);
+}
+.ag-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.ag-flow-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.055);
+  padding: 0.9rem;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+}
+.ag-flow-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(128, 234, 210, 0.28);
+  background: rgba(128, 234, 210, 0.07);
+}
+.ag-flow-card small {
+  display: block;
+  color: #80ead2;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 900;
+  margin-bottom: 0.35rem;
+}
+.ag-flow-card strong {
+  display: block;
+  color: var(--texto);
+  margin-bottom: 0.2rem;
+}
+.ag-route {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.ag-route span {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 0.65rem;
+  background: rgba(0,0,0,0.18);
+  text-align: center;
+}
+.ag-panel-preview {
+  border-radius: 20px;
+  background: rgba(5, 10, 16, 0.72);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 0.95rem;
+}
+.ag-panel-preview h3 {
+  color: var(--texto);
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+.ag-mini-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 0.6rem 0;
+}
+.ag-mini-row:first-of-type {
+  border-top: 0;
+}
+.ag-mini-row b {
+  color: var(--texto);
+}
+.ag-mini-row em {
+  color: #80ead2;
+  font-style: normal;
+  font-size: 0.78rem;
+}
+.ag-flow-rail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.9rem;
+  max-width: 1040px;
+  margin: -1.2rem auto 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+.ag-flow-rail > div {
+  border: 1px solid rgba(128, 234, 210, 0.14);
+  border-radius: 20px;
+  padding: 1rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
+  min-height: 132px;
+}
+.ag-flow-rail span {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(128, 234, 210, 0.12);
+  color: #80ead2;
+  font-weight: 950;
+  margin-bottom: 0.75rem;
+}
+.ag-flow-rail strong {
+  display: block;
+  color: var(--texto);
+  margin-bottom: 0.35rem;
+}
+.ag-flow-rail p {
+  color: var(--texto2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.ag-section-panel {
+  border: 1px solid rgba(128, 234, 210, 0.14);
+  border-radius: 26px;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  background: linear-gradient(135deg, rgba(128, 234, 210, 0.055), rgba(80, 116, 255, 0.045));
+}
+.compare-list.good li::before,
+.pricing-card li::before {
+  content: "OK ";
+  color: #48e7be;
+  font-weight: 900;
+}
+.compare-list.bad li::before {
+  content: "NO ";
+  color: #ff6f6a;
+  font-weight: 900;
+}
+.payment-tag,
+.story-card h3,
+.landing-wide-stat strong,
+.loss-row label span {
+  color: #80ead2;
+}
+.story-card,
+.pricing-card.destacado {
+  border-color: rgba(128, 234, 210, 0.26);
+  box-shadow: 0 22px 70px rgba(72, 231, 190, 0.10);
+}
+@media (max-width: 900px) {
+  .ag-flow-rail,
+  .ag-route {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .ag-ops-head,
+  .ag-flow-grid,
+  .ag-flow-rail,
+  .ag-route {
+    grid-template-columns: 1fr;
+  }
+  .ag-ops-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 /* ==================================================================
    PANEL ADMIN (super-admin)
    ================================================================== */
@@ -2707,7 +2977,7 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
         <div class="legal-links">
           <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="${activo === 'sobre' ? 'color:var(--oro)' : ''}">Sobre la plataforma</a>
           <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="${activo === 'privacidad' ? 'color:var(--oro)' : ''}">Privacidad</a>
-          <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="${activo === 'terminos' ? 'color:var(--oro)' : ''}">Terminos</a>
+          <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="${activo === 'terminos' ? 'color:var(--oro)' : ''}">Términos</a>
           <a href="/login" onclick="event.preventDefault();navegar('/login')">Ingresar</a>
         </div>
       </nav>
@@ -2719,7 +2989,7 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
           ${heroVisual ? `
             <div class="legal-actions">
               <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
-              <a class="legal-btn-secondary" href="#legal-como-funciona">Conocer mas</a>
+              <a class="legal-btn-secondary" href="#legal-como-funciona">Conocer más</a>
             </div>
             <div class="legal-stats">
               <div class="legal-stat"><strong>24/7</strong><span>Reservas disponibles para tus clientes</span></div>
@@ -2732,7 +3002,7 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
       </header>
       ${contenido}
       <footer class="legal-footer">
-        Agendate &copy; 2026. Plataforma de gestion de reservas para comercios.
+        Agendate &copy; 2026. Plataforma de gestión de reservas para comercios.
       </footer>
     </div>
   `;
@@ -2760,7 +3030,7 @@ function actualizarLandingPerdidas() {
     'lp-semana': landingMoneda(semana),
     'lp-mes': landingMoneda(mes),
     'lp-anio': landingMoneda(anio),
-    'lp-cuenta': `${turnos} turnos/semana x ${caidas}% = aprox. ${perdidos} turnos perdidos. Con un promedio de ${landingMoneda(precio)}, son ${landingMoneda(semana)} por semana.`
+    'lp-cuenta': `${turnos} turnos/semana x ${caidas}% = aprox. ${perdidos} turnos en riesgo. Con un promedio de ${landingMoneda(precio)}, son ${landingMoneda(semana)} por semana.`
   };
 
   Object.entries(valores).forEach(([id, value]) => {
@@ -2790,13 +3060,13 @@ function generarDemoLinkAgendate() {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'mi-negocio';
   preview.textContent = `agendate.com/${slug}`;
-  toast('Asi podria verse tu link publico', 'ok');
+  toast('Así podría verse tu link público', 'ok');
 }
 
 function inicializarLandingAgendate() {
   actualizarLandingPerdidas();
   const input = document.getElementById('lp-negocio');
-  if (input && !input.value) input.value = 'Barberia Ejemplo';
+  if (input && !input.value) input.value = 'Barbería Ejemplo';
 }
 
 function mostrarPaginaLegal(tipo = 'sobre') {
@@ -2806,68 +3076,68 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   el.classList.add('activa');
 
   if (tipo === 'privacidad') {
-    document.title = 'Politica de privacidad - Agendate';
+    document.title = 'Política de privacidad - Agendate';
     el.innerHTML = legalLayout({
       activo: 'privacidad',
       etiqueta: 'Privacidad',
-      titulo: 'Politica de privacidad',
-      subtitulo: 'Esta politica explica que datos trata Agendate, para que los usa y como funcionan integraciones como Google Calendar, MercadoPago, WhatsApp y almacenamiento de imagenes.',
+      titulo: 'Política de privacidad',
+      subtitulo: 'Esta política explica qué datos trata Agendate, para qué los usa y cómo funcionan integraciones como Google Calendar, MercadoPago, WhatsApp y almacenamiento de imágenes.',
       contenido: `
         <main class="legal-wrap">
           <div class="legal-doc">
             <article class="legal-doc-main">
               <h2>1. Responsable y alcance</h2>
-              <p>Agendate es una plataforma para que comercios gestionen servicios, reservas, clientes, pagos, profesionales, horarios y automatizaciones. Esta politica aplica al uso de la plataforma por parte de comercios, administradores y clientes que realizan reservas.</p>
+              <p>Agendate es una plataforma para que comercios gestionen servicios, reservas, clientes, pagos, profesionales, horarios y automatizaciones. Esta política aplica al uso de la plataforma por parte de comercios, administradores y clientes que realizan reservas.</p>
 
               <h2>2. Datos que podemos tratar</h2>
               <ul>
-                <li>Datos del comercio: nombre, direccion, telefono, WhatsApp, logo, imagenes, horarios, servicios, profesionales, configuraciones de reserva y datos de acceso al panel.</li>
+                <li>Datos del comercio: nombre, dirección, teléfono, WhatsApp, logo, imágenes, horarios, servicios, profesionales, configuraciones de reserva y datos de acceso al panel.</li>
                 <li>Datos de clientes: nombre, apellido, WhatsApp, email opcional, comentarios de la reserva, historial de turnos y estado de cada reserva.</li>
-                <li>Datos operativos: fechas, horas, servicios, precios, senas, pagos, ubicaciones, metricas, registros tecnicos y configuracion de automatizaciones.</li>
-                <li>Datos de integraciones: identificadores, estados de conexion y tokens tecnicos necesarios para conectar servicios externos autorizados por el comercio.</li>
+                <li>Datos operativos: fechas, horas, servicios, precios, señas, pagos, ubicaciones, métricas, registros técnicos y configuración de automatizaciones.</li>
+                <li>Datos de integraciones: identificadores, estados de conexión y tokens técnicos necesarios para conectar servicios externos autorizados por el comercio.</li>
               </ul>
 
-              <h2>3. Para que usamos los datos</h2>
+              <h2>3. Para qué usamos los datos</h2>
               <ul>
                 <li>Crear, confirmar, cancelar y administrar reservas.</li>
-                <li>Mostrar la pagina publica de cada comercio.</li>
+                <li>Mostrar la página pública de cada comercio.</li>
                 <li>Enviar avisos o recordatorios cuando el comercio active automatizaciones.</li>
-                <li>Gestionar pagos o senas mediante proveedores externos.</li>
+                <li>Gestionar pagos o señas mediante proveedores externos.</li>
                 <li>Sincronizar reservas confirmadas con el calendario conectado por el comercio.</li>
                 <li>Mejorar la seguridad, prevenir abuso y mantener el funcionamiento de la plataforma.</li>
               </ul>
 
               <h2>4. Uso de Google Calendar</h2>
-              <p>Cuando un comercio conecta Google Calendar, Agendate solicita acceso para crear, actualizar y cancelar eventos relacionados con reservas confirmadas. Tambien puede usar el email de la cuenta conectada para mostrar al comercio que cuenta quedo vinculada.</p>
-              <p>Agendate no usa Google Calendar para leer eventos personales ajenos a la gestion de reservas ni para fines publicitarios. Los permisos se usan solo para sincronizar turnos del comercio con el calendario autorizado.</p>
+              <p>Cuando un comercio conecta Google Calendar, Agendate solicita acceso para crear, actualizar y cancelar eventos relacionados con reservas confirmadas. También puede usar el email de la cuenta conectada para mostrar al comercio qué cuenta quedó vinculada.</p>
+              <p>Agendate no usa Google Calendar para leer eventos personales ajenos a la gestión de reservas ni para fines publicitarios. Los permisos se usan solo para sincronizar turnos del comercio con el calendario autorizado.</p>
 
-              <h2>5. Tokens y desconexion de Google</h2>
-              <p>Para mantener la sincronizacion, Agendate guarda tokens tecnicos entregados por Google en la base de datos del servidor. Estos tokens no se muestran al publico ni a otros comercios. El comercio puede desconectar Google Calendar desde su panel; al hacerlo, Agendate elimina la conexion guardada y deja de sincronizar eventos nuevos.</p>
+              <h2>5. Tokens y desconexión de Google</h2>
+              <p>Para mantener la sincronización, Agendate guarda tokens técnicos entregados por Google en la base de datos del servidor. Estos tokens no se muestran al público ni a otros comercios. El comercio puede desconectar Google Calendar desde su panel; al hacerlo, Agendate elimina la conexión guardada y deja de sincronizar eventos nuevos.</p>
 
               <h2>6. Pagos y MercadoPago</h2>
-              <p>Cuando un comercio conecta MercadoPago, los pagos se procesan en el entorno de MercadoPago. Agendate puede recibir identificadores de pago, estados de pago e informacion minima necesaria para confirmar una reserva asociada a una sena o pago anticipado. Agendate no almacena datos completos de tarjetas.</p>
+              <p>Cuando un comercio conecta MercadoPago, los pagos se procesan en el entorno de MercadoPago. Agendate puede recibir identificadores de pago, estados de pago e información mínima necesaria para confirmar una reserva asociada a una seña o pago anticipado. Agendate no almacena datos completos de tarjetas.</p>
 
-              <h2>7. Imagenes y archivos</h2>
-              <p>Los logos, fotos de servicios, profesionales o portadas pueden almacenarse en servicios de terceros de imagenes para permitir su visualizacion en la pagina publica del comercio.</p>
+              <h2>7. Imágenes y archivos</h2>
+              <p>Los logos, fotos de servicios, profesionales o portadas pueden almacenarse en servicios de terceros de imágenes para permitir su visualización en la página pública del comercio.</p>
 
-              <h2>8. Comparticion de datos</h2>
+              <h2>8. Compartición de datos</h2>
               <p>No vendemos datos personales. Podemos compartir datos solo cuando sea necesario para operar la plataforma, cumplir obligaciones legales, prevenir fraude o ejecutar integraciones activadas por el comercio.</p>
 
               <h2>9. Seguridad</h2>
-              <p>Aplicamos controles razonables para proteger la informacion, como acceso autenticado al panel, separacion de datos por comercio, uso de HTTPS y limites de solicitudes. Ningun sistema es perfecto, por lo que recomendamos usar contrasenas fuertes y cuidar los accesos administrativos.</p>
+              <p>Aplicamos controles razonables para proteger la información, como acceso autenticado al panel, separación de datos por comercio, uso de HTTPS y límites de solicitudes. Ningún sistema es perfecto, por lo que recomendamos usar contraseñas fuertes y cuidar los accesos administrativos.</p>
 
               <h2>10. Derechos y contacto</h2>
-              <p>Los comercios y clientes pueden solicitar acceso, correccion o eliminacion de sus datos cuando corresponda. Para consultas de privacidad, escribinos al correo de soporte configurado para Agendate.</p>
+              <p>Los comercios y clientes pueden solicitar acceso, corrección o eliminación de sus datos cuando corresponda. Para consultas de privacidad, escribinos al correo de soporte configurado para Agendate.</p>
 
               <h2>11. Cambios</h2>
-              <p>Podemos actualizar esta politica para reflejar mejoras del producto, cambios legales o nuevas integraciones. La version vigente sera la publicada en esta pagina.</p>
+              <p>Podemos actualizar esta política para reflejar mejoras del producto, cambios legales o nuevas integraciones. La versión vigente será la publicada en esta página.</p>
             </article>
             <aside class="legal-aside">
               <strong>Uso limitado de Google</strong>
               <p>Los datos obtenidos desde Google se usan solo para sincronizar reservas con Calendar y no se venden ni se usan para publicidad.</p>
               <br>
               <strong>URL para Google</strong>
-              <p>Usa esta pagina como URL de politica de privacidad en la pantalla de consentimiento OAuth.</p>
+              <p>Usá esta página como URL de política de privacidad en la pantalla de consentimiento OAuth.</p>
             </aside>
           </div>
         </main>
@@ -2877,30 +3147,30 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   }
 
   if (tipo === 'terminos') {
-    document.title = 'Terminos y condiciones - Agendate';
+    document.title = 'Términos y condiciones - Agendate';
     el.innerHTML = legalLayout({
       activo: 'terminos',
       etiqueta: 'Condiciones de uso',
-      titulo: 'Terminos y condiciones',
+      titulo: 'Términos y condiciones',
       subtitulo: 'Estas condiciones ordenan el uso de Agendate como herramienta para comercios que administran reservas, pagos, clientes y agendas.',
       contenido: `
         <main class="legal-wrap">
           <div class="legal-doc">
             <article class="legal-doc-main">
-              <h2>1. Que es Agendate</h2>
-              <p>Agendate es una plataforma de gestion de reservas para comercios. Permite crear una pagina publica, cargar servicios, profesionales, horarios, reservas, clientes, metricas, pagos e integraciones externas.</p>
+              <h2>1. Qué es Agendate</h2>
+              <p>Agendate es una plataforma de gestión de reservas para comercios. Permite crear una página pública, cargar servicios, profesionales, horarios, reservas, clientes, métricas, pagos e integraciones externas.</p>
 
               <h2>2. Rol de Agendate</h2>
-              <p>Agendate provee tecnologia para administrar reservas. Los servicios ofrecidos, precios, horarios, politicas comerciales, atencion al cliente y cumplimiento de las reservas son responsabilidad de cada comercio.</p>
+              <p>Agendate provee tecnología para administrar reservas. Los servicios ofrecidos, precios, horarios, políticas comerciales, atención al cliente y cumplimiento de las reservas son responsabilidad de cada comercio.</p>
 
               <h2>3. Cuentas y acceso</h2>
               <p>Cada comercio debe cuidar las credenciales de acceso a su panel. Las acciones realizadas desde una cuenta autenticada se consideran realizadas por el comercio titular de esa cuenta.</p>
 
               <h2>4. Reservas</h2>
-              <p>Los clientes pueden solicitar reservas desde la pagina publica del comercio. El estado de la reserva, su confirmacion, cancelacion, reprogramacion o asistencia se administra desde el panel del comercio o mediante reglas configuradas en la plataforma.</p>
+              <p>Los clientes pueden solicitar reservas desde la página pública del comercio. El estado de la reserva, su confirmación, cancelación, reprogramación o asistencia se administra desde el panel del comercio o mediante reglas configuradas en la plataforma.</p>
 
-              <h2>5. Pagos, senas y reembolsos</h2>
-              <p>Cuando un servicio requiere sena o pago anticipado, Agendate puede redirigir al cliente a un proveedor de pago externo. Los pagos se procesan fuera de Agendate. Las politicas de devolucion, cancelacion y reembolso deben ser definidas y comunicadas por cada comercio.</p>
+              <h2>5. Pagos, señas y reembolsos</h2>
+              <p>Cuando un servicio requiere seña o pago anticipado, Agendate puede redirigir al cliente a un proveedor de pago externo. Los pagos se procesan fuera de Agendate. Las políticas de devolución, cancelación y reembolso deben ser definidas y comunicadas por cada comercio.</p>
 
               <h2>6. Integraciones externas</h2>
               <p>Agendate puede integrarse con servicios como Google Calendar, MercadoPago, WhatsApp u otros proveedores. El comercio decide activar o desactivar estas integraciones y acepta las condiciones de cada proveedor externo.</p>
@@ -2909,23 +3179,23 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <p>No se permite usar Agendate para actividades ilegales, fraudulentas, abusivas, discriminatorias o que afecten la seguridad de la plataforma, otros comercios o clientes.</p>
 
               <h2>8. Disponibilidad</h2>
-              <p>Trabajamos para mantener la plataforma disponible y estable. Sin embargo, pueden existir interrupciones por mantenimiento, proveedores externos, errores tecnicos o causas fuera de nuestro control.</p>
+              <p>Trabajamos para mantener la plataforma disponible y estable. Sin embargo, pueden existir interrupciones por mantenimiento, proveedores externos, errores técnicos o causas fuera de nuestro control.</p>
 
               <h2>9. Contenido del comercio</h2>
-              <p>El comercio es responsable por textos, imagenes, logos, precios, descripciones y datos publicados en su pagina. Agendate puede retirar contenido que incumpla estas condiciones o afecte a terceros.</p>
+              <p>El comercio es responsable por textos, imágenes, logos, precios, descripciones y datos publicados en su página. Agendate puede retirar contenido que incumpla estas condiciones o afecte a terceros.</p>
 
               <h2>10. Cambios en el servicio</h2>
               <p>Podemos agregar, modificar o retirar funciones para mejorar el producto, corregir errores, cumplir requisitos legales o mantener la seguridad de la plataforma.</p>
 
               <h2>11. Contacto</h2>
-              <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos terminos, el usuario puede comunicarse con el equipo de Agendate mediante los canales oficiales publicados.</p>
+              <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos términos, el usuario puede comunicarse con el equipo de Agendate mediante los canales oficiales publicados.</p>
             </article>
             <aside class="legal-aside">
               <strong>Para comercios</strong>
               <p>Estas condiciones explican que Agendate es la herramienta y que cada comercio sigue siendo responsable de su operativa.</p>
               <br>
               <strong>Para clientes</strong>
-              <p>Las politicas de servicio, cancelacion o devolucion dependen del comercio donde se reserva.</p>
+              <p>Las políticas de servicio, cancelación o devolución dependen del comercio donde se reserva.</p>
             </aside>
           </div>
         </main>
@@ -2937,98 +3207,93 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   document.title = 'Agendate - Reservas, pagos y agenda online';
   el.innerHTML = legalLayout({
     activo: 'sobre',
-    etiqueta: 'Asistente de reservas 24 horas',
-    titulo: '<span class="landing-hero-title">Tus clientes reservan. <mark>Tu agenda trabaja sola.</mark></span>',
-    subtitulo: '<span class="landing-subtitle">Agendate ayuda a comercios de turnos a vender online: pagina publica, reservas por profesional, senas, pagos, recordatorios, clientes, metricas y calendario conectado.</span>',
+    etiqueta: 'Centro operativo para comercios con agenda',
+    titulo: '<span class="landing-hero-title">Reservas, pagos y calendario <mark>sin perseguir mensajes.</mark></span>',
+    subtitulo: '<span class="landing-subtitle">Agendate convierte tu link de reservas en un sistema de trabajo: el cliente elige, paga si corresponde, queda registrado y tu calendario se actualiza.</span>',
     heroVisual: `
-      <div class="legal-mockup float-soft" aria-label="Vista previa del panel de Agendate">
-        <div class="mock-window">
-          <div class="mock-top">
-            <span class="mock-dot"></span>
-            <span class="mock-dot"></span>
-            <span class="mock-dot"></span>
+      <div class="ag-ops-board float-soft" aria-label="Vista operativa de Agendate">
+        <div class="ag-ops-head">
+          <div class="ag-ops-title">
+            <strong>Agenda de hoy</strong>
+            <span>Reservas, pagos y equipo en una misma vista</span>
           </div>
-          <div class="mock-body">
-            <aside class="mock-side">
-              <div class="mock-brand"></div>
-              <div class="mock-nav-line on"></div>
-              <div class="mock-nav-line"></div>
-              <div class="mock-nav-line"></div>
-              <div class="mock-nav-line"></div>
-            </aside>
-            <main class="mock-main">
-              <div class="mock-grid">
-                <div class="mock-metric"><strong>18</strong><span>reservas hoy</span></div>
-                <div class="mock-metric"><strong>$ 8.400</strong><span>ingresos</span></div>
-                <div class="mock-metric"><strong>92%</strong><span>confirmadas</span></div>
-              </div>
-              <div class="mock-calendar">
-                ${Array.from({ length: 28 }).map((_, i) => `<div class="mock-day ${[2,3,7,10,11,16,17,21,24].includes(i) ? 'busy' : ''}"></div>`).join('')}
-              </div>
-            </main>
-          </div>
+          <span class="ag-chip">Operando ahora</span>
         </div>
-        <div class="mock-floating">
-          <strong>Turno confirmado</strong>
-          <span>Pago recibido, cliente registrado y Google Calendar actualizado.</span>
+        <div class="ag-flow-grid">
+          <div class="ag-flow-card"><small>Nuevo turno</small><strong>Valentina R.</strong><span>Corte clásico · 16:30</span></div>
+          <div class="ag-flow-card"><small>Pago recibido</small><strong>Seña acreditada</strong><span>MercadoPago · $ 300</span></div>
+          <div class="ag-flow-card"><small>Profesional</small><strong>Agenda de Mati</strong><span>3 lugares libres esta tarde</span></div>
+          <div class="ag-flow-card"><small>Calendario</small><strong>Evento creado</strong><span>Google Calendar sincronizado</span></div>
+        </div>
+        <div class="ag-route">
+          <span>Link público</span>
+          <span>Datos del cliente</span>
+          <span>Pago o seña</span>
+          <span>Turno confirmado</span>
+        </div>
+        <div class="ag-panel-preview">
+          <h3>Lo que ve el comercio</h3>
+          <div class="ag-mini-row"><b>Ingresos de hoy</b><em>$ 8.400</em></div>
+          <div class="ag-mini-row"><b>Reservas confirmadas</b><em>12 de 14</em></div>
+          <div class="ag-mini-row"><b>Próximo recordatorio</b><em>18:00</em></div>
         </div>
       </div>
     `,
     contenido: `
       <main class="legal-wrap">
-        <div class="landing-alerts reveal">
-          <div class="landing-alert-card"><div class="landing-alert-icon">OK</div><div><strong>Turno confirmado</strong><span>Ana Morales - hoy 18:30</span></div><span class="landing-dot"></span></div>
-          <div class="landing-alert-card"><div class="landing-alert-icon">$</div><div><strong>Pago recibido</strong><span>Sena registrada por MercadoPago</span></div><span class="landing-dot"></span></div>
-          <div class="landing-alert-card"><div class="landing-alert-icon">WA</div><div><strong>Recordatorio enviado</strong><span>WhatsApp - 24h antes</span></div><span class="landing-dot"></span></div>
-          <div class="landing-alert-card"><div class="landing-alert-icon">+</div><div><strong>Nueva reserva</strong><span>Sofia L. - manana 10:00</span></div><span class="landing-dot"></span></div>
+        <div class="ag-flow-rail reveal">
+          <div><span>01</span><strong>Compartís tu link</strong><p>El cliente entra desde Instagram, WhatsApp o la página del comercio.</p></div>
+          <div><span>02</span><strong>Elige profesional</strong><p>Puede reservar con una persona concreta o con cualquier profesional disponible.</p></div>
+          <div><span>03</span><strong>Paga si corresponde</strong><p>Si el servicio pide seña o anticipo, el turno avanza después del pago.</p></div>
+          <div><span>04</span><strong>Todo queda ordenado</strong><p>Panel, cliente, estado de pago y Google Calendar quedan alineados.</p></div>
         </div>
 
         <section class="legal-section reveal">
           <div class="landing-wide-stats">
             <div class="landing-wide-stat"><strong>24h</strong><span>reservas online</span><small>aunque no contestes mensajes</small></div>
-            <div class="landing-wide-stat"><strong>80%</strong><span>menos ausencias</span><small>cuando hay sena y recordatorio</small></div>
-            <div class="landing-wide-stat"><strong>1</strong><span>panel unico</span><small>servicios, pagos, clientes y agenda</small></div>
-            <div class="landing-wide-stat"><strong>5min</strong><span>para compartir</span><small>tu pagina publica lista</small></div>
+            <div class="landing-wide-stat"><strong>80%</strong><span>menos ausencias</span><small>cuando hay seña y recordatorio</small></div>
+            <div class="landing-wide-stat"><strong>1</strong><span>panel único</span><small>servicios, pagos, clientes y agenda</small></div>
+            <div class="landing-wide-stat"><strong>5min</strong><span>para compartir</span><small>tu página pública lista</small></div>
           </div>
         </section>
 
-        <section class="legal-section reveal" id="legal-como-funciona">
+        <section class="legal-section reveal ag-section-panel" id="legal-como-funciona">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Sin senas, perdes plata</div>
-              <h2>Cuanto te cuesta hoy una agenda desordenada?</h2>
+              <div class="legal-eyebrow">Diagnóstico de agenda</div>
+              <h2>¿Cuánto margen se escapa cuando todo depende del chat?</h2>
             </div>
-            <p>Movi los controles y mira una estimacion simple de lo que se puede perder cuando los turnos se caen, se olvidan o quedan sin confirmar.</p>
+            <p>Mové los controles y mirá una estimación simple de lo que puede quedar en riesgo cuando los turnos se caen, se olvidan o quedan sin confirmar.</p>
           </div>
           <div class="loss-calculator">
             <div class="loss-controls">
               <div class="loss-row">
                 <label>Turnos por semana <span id="lp-turnos-v">18</span></label>
-                <p>Cuantos turnos o citas recibe tu negocio normalmente.</p>
+                <p>Cuántos turnos o citas recibe tu negocio normalmente.</p>
                 <input id="lp-turnos" type="range" min="4" max="80" value="18" oninput="actualizarLandingPerdidas()">
               </div>
               <div class="loss-row">
-                <label>Cobras por turno <span id="lp-precio-v">$ 1.200</span></label>
+                <label>Valor promedio <span id="lp-precio-v">$ 1.200</span></label>
                 <p>Precio promedio de cada servicio.</p>
                 <input id="lp-precio" type="range" min="200" max="6000" step="100" value="1200" oninput="actualizarLandingPerdidas()">
               </div>
               <div class="loss-row">
-                <label>Turnos que se caen <span id="lp-caidas-v">22%</span></label>
+                <label>Ausencias estimadas <span id="lp-caidas-v">22%</span></label>
                 <p>Clientes que cancelan tarde, no vienen o nunca terminan de confirmar.</p>
                 <input id="lp-caidas" type="range" min="5" max="60" value="22" oninput="actualizarLandingPerdidas()">
               </div>
             </div>
             <div class="loss-results">
-              <div class="loss-note">Con recordatorios, senas y pagos antes del turno, Agendate ayuda a recuperar gran parte de esos huecos vacios.</div>
+              <div class="loss-note">Con recordatorios, señas y pagos antes del turno, Agendate ayuda a reducir huecos vacíos y a ordenar mejor la operación.</div>
               <div class="loss-kpis">
-                <div class="loss-kpi"><strong id="lp-perdidos">4</strong><span>turnos perdidos al mes</span></div>
+                <div class="loss-kpi"><strong id="lp-perdidos">4</strong><span>turnos en riesgo al mes</span></div>
                 <div class="loss-kpi"><strong id="lp-caidas-kpi">22%</strong><span>se caen o no vienen</span></div>
               </div>
               <p id="lp-cuenta" style="color:var(--texto2);line-height:1.6;margin-bottom:0.9rem"></p>
               <div class="loss-money">
                 <div><span>por semana</span><strong id="lp-semana">$ 4.800</strong></div>
                 <div><span>por mes</span><strong id="lp-mes">$ 19.200</strong></div>
-                <div><span>por anio</span><strong id="lp-anio">$ 230.400</strong></div>
+                <div><span>por año</span><strong id="lp-anio">$ 230.400</strong></div>
               </div>
             </div>
           </div>
@@ -3037,10 +3302,10 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Cobros automaticos</div>
-              <h2>Cobra antes. Confirma mejor.</h2>
+              <div class="legal-eyebrow">Cobros integrados</div>
+              <h2>La reserva avanza cuando el pago acompaña.</h2>
             </div>
-            <p>Si un servicio requiere sena o pago anticipado, el cliente paga antes de que el turno quede confirmado.</p>
+            <p>Si un servicio requiere seña o pago anticipado, el cliente paga antes de que el turno quede confirmado.</p>
           </div>
           <div class="payment-showcase">
             <div class="payment-card">
@@ -3052,7 +3317,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             <div class="payment-card">
               <span class="payment-tag">MERCADOPAGO</span>
               <h3>Pago online</h3>
-              <p>El cliente paga la sena y la reserva queda lista para confirmarse cuando el pago se aprueba.</p>
+              <p>El cliente paga la seña y la reserva queda lista para confirmarse cuando el pago se aprueba.</p>
               <div class="mini-payment"><div><div class="mini-check">OK</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
             </div>
           </div>
@@ -3062,27 +3327,27 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Funciones</div>
-              <h2>Todo lo que marca la diferencia en el dia a dia.</h2>
+              <h2>Todo lo que marca la diferencia en el día a día.</h2>
             </div>
             <p>No es solo un calendario. Es la parte operativa del negocio puesta en orden.</p>
           </div>
           <div class="feature-strip">
-            <div class="legal-card"><div class="legal-icon">IG</div><div><h3>Link para Instagram</h3><p>Tu bio lleva directo a una pagina de reservas clara y lista para vender.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">MP</div><div><h3>Senas y pagos</h3><p>Servicios con pago anticipado para evitar huecos y cancelaciones de ultimo momento.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">WA</div><div><h3>WhatsApp</h3><p>Confirmaciones y recordatorios preparados para automatizar cuando el numero final este activo.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">IG</div><div><h3>Link para Instagram</h3><p>Tu bio lleva directo a una página de reservas clara y lista para vender.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">MP</div><div><h3>Señas y pagos</h3><p>Servicios con pago anticipado para evitar huecos y cancelaciones de último momento.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">WA</div><div><h3>WhatsApp</h3><p>Confirmaciones y recordatorios preparados para automatizar cuando el número final esté activo.</p></div></div>
             <div class="legal-card"><div class="legal-icon">GC</div><div><h3>Google Calendar</h3><p>Reservas confirmadas sincronizadas al calendario del comercio.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">CL</div><div><h3>Clientes</h3><p>Historial, datos y reservas para entender quien vuelve y que consume.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">MT</div><div><h3>Metricas</h3><p>Ingresos, movimiento diario, servicios vendidos y seguimiento mensual.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">CL</div><div><h3>Clientes</h3><p>Historial, datos y reservas para entender quién vuelve y qué consume.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">MT</div><div><h3>Métricas</h3><p>Ingresos, movimiento diario, servicios vendidos y seguimiento mensual.</p></div></div>
           </div>
         </section>
 
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Antes y despues</div>
-              <h2>Lo que cambia cuando dejas de coordinar todo a mano.</h2>
+              <div class="legal-eyebrow">Antes y después</div>
+              <h2>Lo que cambia cuando dejás de coordinar todo a mano.</h2>
             </div>
-            <p>Mueve el interruptor y compara una agenda por mensajes contra una agenda con flujo ordenado.</p>
+            <p>Mové el interruptor y compará una agenda por mensajes contra una agenda con flujo ordenado.</p>
           </div>
           <div style="display:flex;justify-content:center">
             <div class="compare-toggle">
@@ -3095,8 +3360,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             <div class="compare-card" id="lp-antes" style="opacity:.42">
               <h3>Sin Agendate</h3>
               <ul class="compare-list bad">
-                <li>Mensajes todo el dia</li>
-                <li>No sabes quien confirmo hasta que preguntas</li>
+                <li>Mensajes todo el día</li>
+                <li>No sabés quién confirmó hasta que preguntás</li>
                 <li>Los pagos quedan repartidos</li>
                 <li>Cancelaciones sin control</li>
               </ul>
@@ -3106,9 +3371,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <h3>Con Agendate</h3>
               <ul class="compare-list good">
                 <li>Link de reserva disponible 24 horas</li>
-                <li>Sena o pago antes del turno</li>
+                <li>Seña o pago antes del turno</li>
                 <li>Calendario y panel sincronizados</li>
-                <li>Clientes, metricas y reservas en un lugar</li>
+                <li>Clientes, métricas y reservas en un lugar</li>
               </ul>
             </div>
           </div>
@@ -3146,14 +3411,14 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Resultados reales</div>
-              <h2>Negocios como el tuyo necesitan claridad, no mas ruido.</h2>
+              <h2>Negocios como el tuyo necesitan claridad, no más ruido.</h2>
             </div>
-            <p>Estos ejemplos muestran situaciones tipicas de comercios con agenda. Se pueden ajustar con casos reales cuando empecemos a tener clientes activos.</p>
+            <p>Estos ejemplos muestran situaciones típicas de comercios con agenda. Se pueden ajustar con casos reales cuando empecemos a tener clientes activos.</p>
           </div>
           <div class="story-card">
             <h3>Dos profesionales en un solo sistema</h3>
             <blockquote>"Antes cada trabajador manejaba su agenda por separado. Ahora los clientes eligen profesional, servicio y horario sin cruzar mensajes."</blockquote>
-            <div class="story-person"><span>RF</span><div><strong>Rubro: barberia o salon</strong><p style="color:var(--texto2);margin:0">Panel unico, reservas por trabajador y servicios compartidos.</p></div></div>
+            <div class="story-person"><span>RF</span><div><strong>Rubro: barbería o salón</strong><p style="color:var(--texto2);margin:0">Panel único, reservas por trabajador y servicios compartidos.</p></div></div>
           </div>
         </section>
 
@@ -3167,21 +3432,21 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           </div>
           <div class="pricing-grid">
             <div class="pricing-card">
-              <h3>Basico</h3>
+              <h3>Básico</h3>
               <div class="pricing-price">UYU $599 <small>/mes</small></div>
-              <ul><li>1 profesional</li><li>Pagina publica</li><li>Reservas ilimitadas</li><li>Servicios y horarios</li></ul>
-              <a class="legal-btn-secondary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Basico</a>
+              <ul><li>1 profesional</li><li>Página pública</li><li>Reservas ilimitadas</li><li>Servicios y horarios</li></ul>
+              <a class="legal-btn-secondary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Básico</a>
             </div>
             <div class="pricing-card destacado">
               <h3>Pro</h3>
               <div class="pricing-price">UYU $999 <small>/mes</small></div>
-              <ul><li>2 profesionales</li><li>Metricas y clientes</li><li>Senas con MercadoPago</li><li>Google Calendar</li></ul>
+              <ul><li>2 profesionales</li><li>Métricas y clientes</li><li>Señas con MercadoPago</li><li>Google Calendar</li></ul>
               <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Pro</a>
             </div>
             <div class="pricing-card">
               <h3>Ultra</h3>
               <div class="pricing-price">UYU $1.990 <small>/mes</small></div>
-              <ul><li>Mas profesionales</li><li>Soporte prioritario</li><li>Automatizaciones avanzadas</li><li>Todo lo de Pro</li></ul>
+              <ul><li>Más profesionales</li><li>Soporte prioritario</li><li>Automatizaciones avanzadas</li><li>Todo lo de Pro</li></ul>
               <a class="legal-btn-secondary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Ultra</a>
             </div>
           </div>
@@ -3189,9 +3454,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
 
         <section class="legal-section reveal">
           <div class="quick-link-card">
-            <div class="legal-eyebrow">Empeza hoy</div>
-            <h2>Proba como se veria tu link de reservas.</h2>
-            <p style="color:var(--texto2)">Escribi el nombre de tu negocio y mira una idea rapida del link que podrias compartir.</p>
+            <div class="legal-eyebrow">Empezá hoy</div>
+            <h2>Probá cómo se vería tu link de reservas.</h2>
+            <p style="color:var(--texto2)">Escribí el nombre de tu negocio y mirá una idea rápida del link que podrías compartir.</p>
             <div class="quick-link-input">
               <input id="lp-negocio" placeholder="Nombre de tu negocio">
               <button class="legal-btn-primary" onclick="generarDemoLinkAgendate()">Generar link</button>
@@ -3203,8 +3468,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-final">
             <div>
-              <h2>Tu agenda puede verse mas profesional desde el primer contacto.</h2>
-              <p>Agendate esta pensado para que el comercio venda mejor, pierda menos turnos y tenga una operativa clara.</p>
+              <h2>Tu agenda puede verse más profesional desde el primer contacto.</h2>
+              <p>Agendate está pensado para que el comercio venda mejor, pierda menos turnos y tenga una operativa clara.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
               <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
@@ -3217,220 +3482,6 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   });
   setTimeout(inicializarLandingAgendate, 0);
   return;
-
-  document.title = 'Agendate - Reservas online para comercios';
-  el.innerHTML = legalLayout({
-    activo: 'sobre',
-    etiqueta: 'Reservas online para comercios',
-    titulo: 'Tu negocio con agenda, pagos y clientes en un solo lugar.',
-    subtitulo: 'Agendate transforma la forma en que un comercio recibe turnos: pagina publica lista para compartir, reservas ordenadas, profesionales, pagos anticipados, metricas y calendario conectado sin depender de mensajes sueltos.',
-    heroVisual: `
-      <div class="legal-mockup" aria-label="Vista previa del panel de Agendate">
-        <div class="mock-window">
-          <div class="mock-top">
-            <span class="mock-dot"></span>
-            <span class="mock-dot"></span>
-            <span class="mock-dot"></span>
-          </div>
-          <div class="mock-body">
-            <aside class="mock-side">
-              <div class="mock-brand"></div>
-              <div class="mock-nav-line on"></div>
-              <div class="mock-nav-line"></div>
-              <div class="mock-nav-line"></div>
-              <div class="mock-nav-line"></div>
-            </aside>
-            <main class="mock-main">
-              <div class="mock-grid">
-                <div class="mock-metric"><strong>18</strong><span>reservas hoy</span></div>
-                <div class="mock-metric"><strong>$ 8.400</strong><span>ingresos</span></div>
-                <div class="mock-metric"><strong>92%</strong><span>confirmadas</span></div>
-              </div>
-              <div class="mock-calendar">
-                ${Array.from({ length: 28 }).map((_, i) => `<div class="mock-day ${[2,3,7,10,11,16,17,21,24].includes(i) ? 'busy' : ''}"></div>`).join('')}
-              </div>
-            </main>
-          </div>
-        </div>
-        <div class="mock-floating">
-          <strong>Reserva confirmada</strong>
-          <span>Google Calendar actualizado y sena registrada automaticamente.</span>
-        </div>
-      </div>
-    `,
-    contenido: `
-      <main class="legal-wrap">
-        <section class="legal-section">
-          <div class="legal-section-head">
-            <div>
-              <div class="legal-eyebrow">Quienes somos</div>
-              <h2>Una herramienta pensada para comercios que viven de su agenda.</h2>
-            </div>
-            <p>Agendate nace para ordenar lo que normalmente queda repartido entre WhatsApp, libretas, mensajes, capturas y recordatorios manuales. Queremos que cada comercio pueda vender turnos online sin perder su identidad.</p>
-          </div>
-          <div class="legal-testimonial">
-            <div class="legal-quote">
-              <p>"No se trata solo de reservar. Se trata de que el comercio tenga control, presencia y una forma mas profesional de atender."</p>
-              <span>Vision de producto de Agendate</span>
-            </div>
-            <div class="legal-grid" style="grid-template-columns:1fr 1fr">
-              <div class="legal-card">
-                <div class="legal-icon">01</div>
-                <h3>Cercano</h3>
-                <p>Diseñado para negocios reales: barberias, salones, estudios, esteticas, profesionales y servicios con agenda.</p>
-              </div>
-              <div class="legal-card">
-                <div class="legal-icon">02</div>
-                <h3>Operativo</h3>
-                <p>El foco no es decorar una web, es ayudar a reservar, cobrar, confirmar y controlar mejor cada turno.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="legal-section" id="legal-beneficios">
-          <div class="legal-section-head">
-            <div>
-              <div class="legal-eyebrow">Beneficios</div>
-              <h2>Lo importante del negocio, ordenado en un panel.</h2>
-            </div>
-            <p>El cliente reserva facil. El comercio administra todo desde un solo lugar. Menos idas y vueltas, mas claridad.</p>
-          </div>
-          <div class="legal-grid">
-            <div class="legal-card">
-              <div class="legal-icon">A</div>
-              <h3>Pagina lista para vender</h3>
-              <p>Una pagina publica con servicios, horarios, ubicacion, imagenes, logo y boton de WhatsApp para compartir en redes.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">B</div>
-              <h3>Reservas por profesional</h3>
-              <p>Ideal para comercios con varios trabajadores: el cliente puede elegir con quien atenderse y ver disponibilidad real.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">C</div>
-              <h3>Senales y pagos anticipados</h3>
-              <p>Cuando el servicio lo requiere, el cliente paga antes de confirmar. Ayuda a reducir ausencias y turnos perdidos.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">D</div>
-              <h3>Metricas para decidir</h3>
-              <p>Reservas, ingresos, clientes y movimiento del mes en una vista clara para entender como viene el negocio.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">E</div>
-              <h3>Google Calendar directo</h3>
-              <p>Las reservas confirmadas pueden aparecer automaticamente en el calendario conectado del comercio.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">F</div>
-              <h3>Base preparada para crecer</h3>
-              <p>Clientes, ubicaciones, servicios, automatizaciones y configuraciones pensadas para que el producto pueda escalar.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="legal-section" id="legal-como-funciona">
-          <div class="legal-section-head">
-            <div>
-              <div class="legal-eyebrow">Como funciona</div>
-              <h2>De compartir un link a tener una agenda profesional.</h2>
-            </div>
-            <p>El flujo esta pensado para que el comercio configure una vez y despues trabaje con menos friccion.</p>
-          </div>
-          <div class="legal-steps">
-            <div class="legal-step">
-              <div class="legal-step-num">1</div>
-              <h3>Configura tu perfil</h3>
-              <p>Carga nombre, logo, portada, direccion, horarios, servicios y profesionales.</p>
-            </div>
-            <div class="legal-step">
-              <div class="legal-step-num">2</div>
-              <h3>Comparte tu pagina</h3>
-              <p>El link publico puede ir en Instagram, WhatsApp, Google Maps o donde esten tus clientes.</p>
-            </div>
-            <div class="legal-step">
-              <div class="legal-step-num">3</div>
-              <h3>Recibe reservas</h3>
-              <p>El cliente elige servicio, profesional, fecha, hora y completa sus datos.</p>
-            </div>
-            <div class="legal-step">
-              <div class="legal-step-num">4</div>
-              <h3>Controla todo</h3>
-              <p>El panel muestra reservas, pagos, estados, clientes, calendario y metricas.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="legal-section">
-          <div class="legal-section-head">
-            <div>
-              <div class="legal-eyebrow">Confianza</div>
-              <h2>Una experiencia seria para el comercio y clara para el cliente.</h2>
-            </div>
-            <p>Agendate publica documentos legales, usa integraciones oficiales y mantiene separada la informacion de cada comercio.</p>
-          </div>
-          <div class="legal-grid">
-            <div class="legal-card">
-              <div class="legal-icon">OK</div>
-              <h3>Datos por comercio</h3>
-              <p>Cada negocio administra su propia informacion, reservas, clientes, pagos y configuraciones.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">MP</div>
-              <h3>Pagos con proveedor externo</h3>
-              <p>Los cobros se procesan con MercadoPago; Agendate no guarda datos completos de tarjetas.</p>
-            </div>
-            <div class="legal-card">
-              <div class="legal-icon">GC</div>
-              <h3>Uso limitado de Google</h3>
-              <p>Google Calendar se usa solo para sincronizar eventos de reservas cuando el comercio lo autoriza.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="legal-section">
-          <div class="legal-section-head">
-            <div>
-              <div class="legal-eyebrow">Preguntas frecuentes</div>
-              <h2>Respuestas rapidas antes de empezar.</h2>
-            </div>
-          </div>
-          <div class="legal-faq">
-            <details>
-              <summary>Para que tipo de comercio sirve Agendate?</summary>
-              <p>Para negocios que trabajan con turnos: barberias, salones, esteticas, estudios, profesionales independientes, centros de atencion y servicios con agenda.</p>
-            </details>
-            <details>
-              <summary>El comercio puede cobrar una sena?</summary>
-              <p>Si. Un servicio puede configurarse para requerir sena o pago anticipado antes de confirmar el turno.</p>
-            </details>
-            <details>
-              <summary>Se puede usar con varios profesionales?</summary>
-              <p>Si. El comercio puede cargar profesionales y asignar servicios, horarios y reservas segun corresponda.</p>
-            </details>
-            <details>
-              <summary>Por que publicamos privacidad y terminos?</summary>
-              <p>Porque Agendate usa integraciones sensibles como Google Calendar y pagos. Queremos que el comercio y el cliente sepan que datos se usan y para que.</p>
-            </details>
-          </div>
-        </section>
-
-        <section class="legal-section">
-          <div class="legal-final">
-            <div>
-              <h2>Listo para darle una presencia mas profesional a tu agenda?</h2>
-              <p>Empeza con una pagina clara, reservas ordenadas y un panel preparado para vender mejor cada turno.</p>
-            </div>
-            <div class="legal-actions" style="margin-top:0">
-              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
-              <a class="legal-btn-secondary" href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Ver privacidad</a>
-            </div>
-          </div>
-        </section>
-      </main>
-    `
-  });
 }
 
 // ============================================================
@@ -3467,7 +3518,7 @@ function mostrarLogin(tipo = 'comercio') {
       <div class="login-legal-links">
         <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')">Sobre Agendate</a>
         <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Privacidad</a>
-        <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Terminos</a>
+        <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Términos</a>
       </div>
     </div>`;
 }
@@ -6947,7 +6998,7 @@ async function cargarComAutomatizaciones() {
             <h3 style="margin-bottom:0.45rem">Google Calendar directo</h3>
             <p style="color:var(--texto2);font-size:0.86rem;line-height:1.6;margin:0">
               ${data.google_calendar_conectado
-                ? `Conectado${data.google_calendar_email ? ` con ${data.google_calendar_email}` : ''}. Las reservas confirmadas se crean automaticamente en Google Calendar.`
+                ? `Conectado${data.google_calendar_email ? ` con ${data.google_calendar_email}` : ''}. Las reservas confirmadas se crean automáticamente en Google Calendar.`
                 : 'Conecta Google Calendar para que cada reserva confirmada aparezca al instante en el calendario del celular.'}
             </p>
           </div>
@@ -7058,7 +7109,7 @@ async function cargarComPerfil() {
           <div class="form-group">
             <label class="label">Frase principal</label>
             <textarea class="input" id="pf-slo" rows="4" maxlength="800" placeholder="Contale al cliente que hace especial a tu comercio">${data.slogan||''}</textarea>
-            <small class="perfil-ayuda">Se muestra en la portada. Puede ser un texto corto o una descripcion un poco mas completa.</small>
+            <small class="perfil-ayuda">Se muestra en la portada. Puede ser un texto corto o una descripción un poco más completa.</small>
           </div>
 
           <div class="input-grid-2">
@@ -7076,7 +7127,7 @@ async function cargarComPerfil() {
           <div class="form-group">
             <label class="label">Dirección del local</label>
             <input class="input" id="pf-dir" value="${data.direccion||''}" placeholder="Calle, número, ciudad">
-            <small class="perfil-ayuda">Se usa para mostrar la ubicacion y abrir el mapa.</small>
+            <small class="perfil-ayuda">Se usa para mostrar la ubicación y abrir el mapa.</small>
           </div>
 
           <div class="form-group">
@@ -7102,7 +7153,7 @@ async function cargarComPerfil() {
             <label class="label">Imagen principal de la página</label>
             <input class="input" type="file" id="pf-fondo-file" accept="image/*" onchange="previewArchivoImagen(this,'pf-fondo-preview');actualizarPreviewPerfil()">
             <input type="hidden" id="pf-fondo" value="${data.imagen_fondo_url||''}">
-            <small class="perfil-ayuda">Es la imagen grande de portada. En celular conviene que el centro de la foto sea lo mas importante.</small>
+            <small class="perfil-ayuda">Es la imagen grande de portada. En celular conviene que el centro de la foto sea lo más importante.</small>
 
             ${data.imagen_fondo_url 
               ? `<img id="pf-fondo-preview" class="img-preview img-preview-fondo visible" src="${data.imagen_fondo_url}" alt="preview fondo">` 
@@ -7879,7 +7930,7 @@ function renderComercioPublico(d) {
     <span style="opacity:0.45;margin:0 0.45rem">|</span>
     <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="color:#b8b8b8">Privacidad</a>
     <span style="opacity:0.45;margin:0 0.45rem">|</span>
-    <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="color:#b8b8b8">Terminos</a>
+    <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="color:#b8b8b8">Términos</a>
   </div>
 </footer>
 ${waNumero ? `
