@@ -786,9 +786,11 @@ input,select,textarea { font-family: inherit; }
 .legal-page {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 8%, rgba(201,168,76,0.10), transparent 34%),
-    linear-gradient(180deg, #111 0%, #080808 100%);
+    radial-gradient(circle at 12% 8%, rgba(201,168,76,0.16), transparent 32%),
+    radial-gradient(circle at 86% 18%, rgba(41,128,185,0.12), transparent 30%),
+    linear-gradient(180deg, #10100f 0%, #070707 52%, #0d0d0d 100%);
   color: var(--texto);
+  overflow: hidden;
 }
 .legal-nav {
   min-height: 64px;
@@ -798,17 +800,28 @@ input,select,textarea { font-family: inherit; }
   gap: 1rem;
   padding: 0 2rem;
   border-bottom: 1px solid var(--borde2);
-  background: rgba(8,8,8,0.86);
+  background: rgba(8,8,8,0.78);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 20;
 }
 .legal-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-size: 1.05rem;
   font-weight: 800;
   color: var(--oro);
   letter-spacing: 0.04em;
+}
+.legal-brand::before {
+  content: "";
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--oro), #f1dc87);
+  box-shadow: 0 12px 28px rgba(201,168,76,0.24);
 }
 .legal-links {
   display: flex;
@@ -824,9 +837,15 @@ input,select,textarea { font-family: inherit; }
   color: var(--oro);
 }
 .legal-hero {
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 5rem 2rem 3rem;
+  padding: 5.5rem 2rem 3.5rem;
+}
+.legal-hero--split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+  gap: 2.5rem;
+  align-items: center;
 }
 .legal-eyebrow {
   color: var(--oro);
@@ -837,7 +856,7 @@ input,select,textarea { font-family: inherit; }
 }
 .legal-hero h1 {
   font-family: Georgia, serif;
-  font-size: clamp(2.5rem, 7vw, 5.4rem);
+  font-size: clamp(2.8rem, 7vw, 5.8rem);
   line-height: 0.96;
   max-width: 880px;
   margin-bottom: 1rem;
@@ -848,16 +867,73 @@ input,select,textarea { font-family: inherit; }
   line-height: 1.75;
   font-size: 1rem;
 }
+.legal-hero strong {
+  color: var(--texto);
+}
 .legal-actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
   margin-top: 1.8rem;
 }
+.legal-btn-primary,
+.legal-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.82rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+}
+.legal-btn-primary {
+  background: var(--oro);
+  color: #111;
+  box-shadow: 0 18px 40px rgba(201,168,76,0.22);
+}
+.legal-btn-secondary {
+  border: 1px solid var(--borde2);
+  color: var(--texto);
+  background: rgba(255,255,255,0.035);
+}
+.legal-btn-primary:hover,
+.legal-btn-secondary:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+.legal-btn-secondary:hover {
+  border-color: var(--oro);
+  color: var(--oro);
+}
 .legal-wrap {
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 2rem 4rem;
+}
+.legal-section {
+  padding: 2.8rem 0;
+}
+.legal-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+}
+.legal-section-head h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(1.9rem, 4vw, 3.1rem);
+  line-height: 1.05;
+}
+.legal-section-head p {
+  color: var(--texto2);
+  line-height: 1.6;
+  max-width: 520px;
+  font-size: 0.92rem;
 }
 .legal-grid {
   display: grid;
@@ -865,10 +941,16 @@ input,select,textarea { font-family: inherit; }
   gap: 1rem;
 }
 .legal-card {
-  background: rgba(255,255,255,0.035);
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
   border: 1px solid var(--borde2);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 1.25rem;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+}
+.legal-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201,168,76,0.34);
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.03));
 }
 .legal-card h2,
 .legal-card h3 {
@@ -883,6 +965,270 @@ input,select,textarea { font-family: inherit; }
 }
 .legal-card ul {
   padding-left: 1.1rem;
+}
+.legal-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.22);
+  color: var(--oro);
+  margin-bottom: 0.9rem;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+.legal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+  max-width: 620px;
+}
+.legal-stat {
+  border: 1px solid var(--borde2);
+  background: rgba(255,255,255,0.035);
+  border-radius: 14px;
+  padding: 0.85rem;
+}
+.legal-stat strong {
+  display: block;
+  font-size: 1.45rem;
+  color: var(--oro);
+}
+.legal-stat span {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  margin-top: 0.15rem;
+}
+.legal-mockup {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 28px;
+  padding: 1rem;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025)),
+    rgba(255,255,255,0.03);
+  box-shadow: 0 34px 90px rgba(0,0,0,0.36);
+}
+.legal-mockup::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 28px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(201,168,76,0.30), transparent 42%, rgba(41,128,185,0.22));
+  opacity: 0.65;
+  z-index: -1;
+}
+.mock-window {
+  overflow: hidden;
+  border-radius: 20px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.mock-top {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.045);
+}
+.mock-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d75b4f;
+}
+.mock-dot:nth-child(2) { background: #e0b64f; }
+.mock-dot:nth-child(3) { background: #41b76b; }
+.mock-body {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  min-height: 360px;
+}
+.mock-side {
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 1rem;
+}
+.mock-brand {
+  width: 82px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba(201,168,76,0.25);
+  margin-bottom: 1.2rem;
+}
+.mock-nav-line {
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  margin-bottom: 0.75rem;
+}
+.mock-nav-line.on {
+  background: rgba(201,168,76,0.58);
+}
+.mock-main {
+  padding: 1.1rem;
+}
+.mock-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+.mock-metric {
+  min-height: 76px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.045);
+  padding: 0.8rem;
+}
+.mock-metric strong {
+  display: block;
+  color: #fff;
+  font-size: 1.15rem;
+}
+.mock-metric span {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.72rem;
+}
+.mock-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.mock-day {
+  min-height: 46px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.mock-day.busy {
+  background: rgba(201,168,76,0.20);
+  border-color: rgba(201,168,76,0.34);
+}
+.mock-floating {
+  position: absolute;
+  right: -10px;
+  bottom: 42px;
+  width: min(230px, 46%);
+  border-radius: 16px;
+  padding: 0.9rem;
+  background: #f6f0df;
+  color: #17130d;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.32);
+}
+.mock-floating strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.mock-floating span {
+  color: #6b5f4c;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.legal-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.legal-step {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid var(--borde2);
+  background: rgba(255,255,255,0.035);
+}
+.legal-step-num {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--oro);
+  color: #111;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+.legal-testimonial {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.legal-quote {
+  border-radius: 18px;
+  border: 1px solid rgba(201,168,76,0.22);
+  background: rgba(201,168,76,0.07);
+  padding: 1.4rem;
+}
+.legal-quote p {
+  color: var(--texto);
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+.legal-quote span {
+  display: block;
+  color: var(--texto2);
+  margin-top: 1rem;
+  font-size: 0.82rem;
+}
+.legal-faq {
+  display: grid;
+  gap: 0.75rem;
+}
+.legal-faq details {
+  border: 1px solid var(--borde2);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.035);
+  overflow: hidden;
+}
+.legal-faq summary {
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  color: var(--texto);
+  font-weight: 800;
+}
+.legal-faq details[open] summary {
+  color: var(--oro);
+  border-bottom: 1px solid var(--borde2);
+}
+.legal-faq p {
+  padding: 1rem 1.1rem;
+  color: var(--texto2);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+.legal-final {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(201,168,76,0.24);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(201,168,76,0.16), rgba(255,255,255,0.035)),
+    rgba(255,255,255,0.03);
+  padding: clamp(1.4rem, 5vw, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.legal-final h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  line-height: 1.05;
+  margin-bottom: 0.6rem;
+}
+.legal-final p {
+  color: var(--texto2);
+  max-width: 620px;
+  line-height: 1.6;
 }
 .legal-doc {
   display: grid;
@@ -958,11 +1304,45 @@ input,select,textarea { font-family: inherit; }
     flex-direction: column;
     padding: 1rem;
   }
+  .legal-links {
+    gap: 0.75rem;
+    font-size: 0.78rem;
+  }
   .legal-hero {
     padding: 3.5rem 1rem 2rem;
   }
+  .legal-hero--split {
+    grid-template-columns: 1fr;
+  }
   .legal-wrap {
     padding: 0 1rem 3rem;
+  }
+  .legal-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .legal-stats,
+  .legal-steps,
+  .legal-testimonial {
+    grid-template-columns: 1fr;
+  }
+  .legal-mockup {
+    border-radius: 20px;
+    padding: 0.65rem;
+  }
+  .mock-body {
+    grid-template-columns: 1fr;
+  }
+  .mock-side {
+    display: none;
+  }
+  .mock-grid {
+    grid-template-columns: 1fr;
+  }
+  .mock-floating {
+    position: static;
+    width: auto;
+    margin: 0.8rem;
   }
   .legal-doc {
     grid-template-columns: 1fr;
@@ -1685,7 +2065,7 @@ function irPanel() {
 // ============================================================
 // PAGINAS PUBLICAS DE AGENDATE
 // ============================================================
-function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre' }) {
+function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre', heroVisual = '' }) {
   return `
     <div class="legal-page">
       <nav class="legal-nav">
@@ -1697,10 +2077,24 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre' 
           <a href="/login" onclick="event.preventDefault();navegar('/login')">Ingresar</a>
         </div>
       </nav>
-      <header class="legal-hero">
-        <div class="legal-eyebrow">${etiqueta}</div>
-        <h1>${titulo}</h1>
-        <p>${subtitulo}</p>
+      <header class="legal-hero ${heroVisual ? 'legal-hero--split' : ''}">
+        <div>
+          <div class="legal-eyebrow">${etiqueta}</div>
+          <h1>${titulo}</h1>
+          <p>${subtitulo}</p>
+          ${heroVisual ? `
+            <div class="legal-actions">
+              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
+              <a class="legal-btn-secondary" href="#legal-como-funciona">Conocer mas</a>
+            </div>
+            <div class="legal-stats">
+              <div class="legal-stat"><strong>24/7</strong><span>Reservas disponibles para tus clientes</span></div>
+              <div class="legal-stat"><strong>1 panel</strong><span>Servicios, agenda, pagos y clientes</span></div>
+              <div class="legal-stat"><strong>+ control</strong><span>Menos mensajes perdidos y menos ausencias</span></div>
+            </div>
+          ` : ''}
+        </div>
+        ${heroVisual}
       </header>
       ${contenido}
       <footer class="legal-footer">
@@ -1848,43 +2242,211 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   document.title = 'Agendate - Reservas online para comercios';
   el.innerHTML = legalLayout({
     activo: 'sobre',
-    etiqueta: 'Reservas online',
-    titulo: 'Una plataforma simple para vender, ordenar y controlar turnos.',
-    subtitulo: 'Agendate ayuda a comercios de servicios a tener una pagina publica, recibir reservas, organizar profesionales, cobrar senas, medir resultados y conectar herramientas como Google Calendar y MercadoPago.',
+    etiqueta: 'Reservas online para comercios',
+    titulo: 'Tu negocio con agenda, pagos y clientes en un solo lugar.',
+    subtitulo: 'Agendate transforma la forma en que un comercio recibe turnos: pagina publica lista para compartir, reservas ordenadas, profesionales, pagos anticipados, metricas y calendario conectado sin depender de mensajes sueltos.',
+    heroVisual: `
+      <div class="legal-mockup" aria-label="Vista previa del panel de Agendate">
+        <div class="mock-window">
+          <div class="mock-top">
+            <span class="mock-dot"></span>
+            <span class="mock-dot"></span>
+            <span class="mock-dot"></span>
+          </div>
+          <div class="mock-body">
+            <aside class="mock-side">
+              <div class="mock-brand"></div>
+              <div class="mock-nav-line on"></div>
+              <div class="mock-nav-line"></div>
+              <div class="mock-nav-line"></div>
+              <div class="mock-nav-line"></div>
+            </aside>
+            <main class="mock-main">
+              <div class="mock-grid">
+                <div class="mock-metric"><strong>18</strong><span>reservas hoy</span></div>
+                <div class="mock-metric"><strong>$ 8.400</strong><span>ingresos</span></div>
+                <div class="mock-metric"><strong>92%</strong><span>confirmadas</span></div>
+              </div>
+              <div class="mock-calendar">
+                ${Array.from({ length: 28 }).map((_, i) => `<div class="mock-day ${[2,3,7,10,11,16,17,21,24].includes(i) ? 'busy' : ''}"></div>`).join('')}
+              </div>
+            </main>
+          </div>
+        </div>
+        <div class="mock-floating">
+          <strong>Reserva confirmada</strong>
+          <span>Google Calendar actualizado y sena registrada automaticamente.</span>
+        </div>
+      </div>
+    `,
     contenido: `
       <main class="legal-wrap">
-        <section class="legal-grid">
-          <div class="legal-card">
-            <h2>Pagina publica</h2>
-            <p>Cada comercio puede mostrar su marca, servicios, horarios, ubicacion, profesionales y boton de WhatsApp en una pagina lista para compartir.</p>
+        <section class="legal-section">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Quienes somos</div>
+              <h2>Una herramienta pensada para comercios que viven de su agenda.</h2>
+            </div>
+            <p>Agendate nace para ordenar lo que normalmente queda repartido entre WhatsApp, libretas, mensajes, capturas y recordatorios manuales. Queremos que cada comercio pueda vender turnos online sin perder su identidad.</p>
           </div>
-          <div class="legal-card">
-            <h2>Reservas ordenadas</h2>
-            <p>Los clientes eligen profesional, servicio, fecha y hora. El comercio ve todo desde su panel y puede confirmar, cancelar o modificar estados.</p>
-          </div>
-          <div class="legal-card">
-            <h2>Pagos y senas</h2>
-            <p>Los servicios pueden requerir sena o pago anticipado para reducir ausencias y confirmar turnos de forma mas segura.</p>
-          </div>
-          <div class="legal-card">
-            <h2>Calendario conectado</h2>
-            <p>Cuando el comercio conecta Google Calendar, las reservas confirmadas se sincronizan automaticamente con su calendario.</p>
-          </div>
-          <div class="legal-card">
-            <h2>Metricas y clientes</h2>
-            <p>El panel permite ver reservas, ingresos, clientes y seguimiento comercial para tomar mejores decisiones.</p>
-          </div>
-          <div class="legal-card">
-            <h2>Hecho para crecer</h2>
-            <p>Agendate esta pensado para comercios chicos y medianos que necesitan presencia online y control operativo sin complicarse.</p>
+          <div class="legal-testimonial">
+            <div class="legal-quote">
+              <p>"No se trata solo de reservar. Se trata de que el comercio tenga control, presencia y una forma mas profesional de atender."</p>
+              <span>Vision de producto de Agendate</span>
+            </div>
+            <div class="legal-grid" style="grid-template-columns:1fr 1fr">
+              <div class="legal-card">
+                <div class="legal-icon">01</div>
+                <h3>Cercano</h3>
+                <p>Diseñado para negocios reales: barberias, salones, estudios, esteticas, profesionales y servicios con agenda.</p>
+              </div>
+              <div class="legal-card">
+                <div class="legal-icon">02</div>
+                <h3>Operativo</h3>
+                <p>El foco no es decorar una web, es ayudar a reservar, cobrar, confirmar y controlar mejor cada turno.</p>
+              </div>
+            </div>
           </div>
         </section>
-        <section class="legal-card" style="margin-top:1rem">
-          <h2>Informacion legal</h2>
-          <p>Para usar integraciones externas y operar con transparencia, Agendate publica sus documentos principales:</p>
-          <div class="legal-actions">
-            <a class="btn btn-oro" href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Ver privacidad</a>
-            <a class="btn btn-ghost" href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Ver terminos</a>
+
+        <section class="legal-section" id="legal-beneficios">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Beneficios</div>
+              <h2>Lo importante del negocio, ordenado en un panel.</h2>
+            </div>
+            <p>El cliente reserva facil. El comercio administra todo desde un solo lugar. Menos idas y vueltas, mas claridad.</p>
+          </div>
+          <div class="legal-grid">
+            <div class="legal-card">
+              <div class="legal-icon">A</div>
+              <h3>Pagina lista para vender</h3>
+              <p>Una pagina publica con servicios, horarios, ubicacion, imagenes, logo y boton de WhatsApp para compartir en redes.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">B</div>
+              <h3>Reservas por profesional</h3>
+              <p>Ideal para comercios con varios trabajadores: el cliente puede elegir con quien atenderse y ver disponibilidad real.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">C</div>
+              <h3>Senales y pagos anticipados</h3>
+              <p>Cuando el servicio lo requiere, el cliente paga antes de confirmar. Ayuda a reducir ausencias y turnos perdidos.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">D</div>
+              <h3>Metricas para decidir</h3>
+              <p>Reservas, ingresos, clientes y movimiento del mes en una vista clara para entender como viene el negocio.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">E</div>
+              <h3>Google Calendar directo</h3>
+              <p>Las reservas confirmadas pueden aparecer automaticamente en el calendario conectado del comercio.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">F</div>
+              <h3>Base preparada para crecer</h3>
+              <p>Clientes, ubicaciones, servicios, automatizaciones y configuraciones pensadas para que el producto pueda escalar.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="legal-section" id="legal-como-funciona">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Como funciona</div>
+              <h2>De compartir un link a tener una agenda profesional.</h2>
+            </div>
+            <p>El flujo esta pensado para que el comercio configure una vez y despues trabaje con menos friccion.</p>
+          </div>
+          <div class="legal-steps">
+            <div class="legal-step">
+              <div class="legal-step-num">1</div>
+              <h3>Configura tu perfil</h3>
+              <p>Carga nombre, logo, portada, direccion, horarios, servicios y profesionales.</p>
+            </div>
+            <div class="legal-step">
+              <div class="legal-step-num">2</div>
+              <h3>Comparte tu pagina</h3>
+              <p>El link publico puede ir en Instagram, WhatsApp, Google Maps o donde esten tus clientes.</p>
+            </div>
+            <div class="legal-step">
+              <div class="legal-step-num">3</div>
+              <h3>Recibe reservas</h3>
+              <p>El cliente elige servicio, profesional, fecha, hora y completa sus datos.</p>
+            </div>
+            <div class="legal-step">
+              <div class="legal-step-num">4</div>
+              <h3>Controla todo</h3>
+              <p>El panel muestra reservas, pagos, estados, clientes, calendario y metricas.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Confianza</div>
+              <h2>Una experiencia seria para el comercio y clara para el cliente.</h2>
+            </div>
+            <p>Agendate publica documentos legales, usa integraciones oficiales y mantiene separada la informacion de cada comercio.</p>
+          </div>
+          <div class="legal-grid">
+            <div class="legal-card">
+              <div class="legal-icon">OK</div>
+              <h3>Datos por comercio</h3>
+              <p>Cada negocio administra su propia informacion, reservas, clientes, pagos y configuraciones.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">MP</div>
+              <h3>Pagos con proveedor externo</h3>
+              <p>Los cobros se procesan con MercadoPago; Agendate no guarda datos completos de tarjetas.</p>
+            </div>
+            <div class="legal-card">
+              <div class="legal-icon">GC</div>
+              <h3>Uso limitado de Google</h3>
+              <p>Google Calendar se usa solo para sincronizar eventos de reservas cuando el comercio lo autoriza.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Preguntas frecuentes</div>
+              <h2>Respuestas rapidas antes de empezar.</h2>
+            </div>
+          </div>
+          <div class="legal-faq">
+            <details>
+              <summary>Para que tipo de comercio sirve Agendate?</summary>
+              <p>Para negocios que trabajan con turnos: barberias, salones, esteticas, estudios, profesionales independientes, centros de atencion y servicios con agenda.</p>
+            </details>
+            <details>
+              <summary>El comercio puede cobrar una sena?</summary>
+              <p>Si. Un servicio puede configurarse para requerir sena o pago anticipado antes de confirmar el turno.</p>
+            </details>
+            <details>
+              <summary>Se puede usar con varios profesionales?</summary>
+              <p>Si. El comercio puede cargar profesionales y asignar servicios, horarios y reservas segun corresponda.</p>
+            </details>
+            <details>
+              <summary>Por que publicamos privacidad y terminos?</summary>
+              <p>Porque Agendate usa integraciones sensibles como Google Calendar y pagos. Queremos que el comercio y el cliente sepan que datos se usan y para que.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <div class="legal-final">
+            <div>
+              <h2>Listo para darle una presencia mas profesional a tu agenda?</h2>
+              <p>Empeza con una pagina clara, reservas ordenadas y un panel preparado para vender mejor cada turno.</p>
+            </div>
+            <div class="legal-actions" style="margin-top:0">
+              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
+              <a class="legal-btn-secondary" href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Ver privacidad</a>
+            </div>
           </div>
         </section>
       </main>
