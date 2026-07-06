@@ -1756,15 +1756,36 @@ input,select,textarea { font-family: inherit; }
 .compare-list li {
   list-style: none;
   color: var(--texto2);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
 }
 .compare-list.good li::before {
-  content: "✓ ";
+  content: "✓";
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(38,211,108,0.16);
   color: #26d36c;
+  border: 1px solid rgba(38,211,108,0.32);
+  font-size: 0.8rem;
   font-weight: 900;
 }
 .compare-list.bad li::before {
-  content: "x ";
+  content: "×";
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,97,92,0.14);
   color: #ff615c;
+  border: 1px solid rgba(255,97,92,0.30);
+  font-size: 0.9rem;
   font-weight: 900;
 }
 .phone-flow {
@@ -1885,6 +1906,105 @@ input,select,textarea { font-family: inherit; }
   color: #26d36c;
   font-weight: 900;
 }
+.single-package-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.7fr);
+  gap: 1rem;
+  border: 1px solid rgba(128, 234, 210, 0.22);
+  border-radius: 28px;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(128, 234, 210, 0.13), transparent 32%),
+    radial-gradient(circle at 100% 20%, rgba(216, 194, 106, 0.12), transparent 34%),
+    linear-gradient(150deg, rgba(12, 28, 36, 0.96), rgba(8, 12, 20, 0.94));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.26);
+}
+.package-main,
+.package-side {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 22px;
+  background: rgba(255,255,255,0.045);
+  padding: clamp(1rem, 2vw, 1.35rem);
+}
+.package-main h3 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.02;
+  margin: 0.6rem 0 0.8rem;
+  color: var(--texto);
+}
+.package-main p,
+.package-side p {
+  color: var(--texto2);
+  line-height: 1.7;
+}
+.package-price {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 1.2rem 0;
+}
+.package-price strong {
+  color: #80ead2;
+  font-size: clamp(2.1rem, 5vw, 3.3rem);
+  line-height: 1;
+}
+.package-price span {
+  color: var(--texto2);
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+}
+.package-note {
+  border-left: 3px solid #80ead2;
+  padding-left: 0.85rem;
+  margin: 1rem 0 1.2rem;
+  color: var(--texto2);
+}
+.package-side h4 {
+  margin: 0.2rem 0 0.75rem;
+  color: var(--texto);
+}
+.package-list {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0;
+  margin: 0 0 1.1rem;
+}
+.package-list li {
+  list-style: none;
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  color: var(--texto2);
+  line-height: 1.45;
+}
+.package-list li::before {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 950;
+  font-size: 0.82rem;
+}
+.package-list.included li::before {
+  content: "✓";
+  color: #061218;
+  background: linear-gradient(135deg, #80ead2, #d8c26a);
+}
+.package-list.excluded li::before {
+  content: "×";
+  color: #fff;
+  background: #ff615c;
+}
+.package-actions {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
 .quick-link-card {
   max-width: 780px;
   margin: 0 auto;
@@ -1914,7 +2034,14 @@ input,select,textarea { font-family: inherit; }
   font-size: 0.82rem;
 }
 .reveal {
-  animation: landingReveal 0.6s ease both;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.58s ease, transform 0.58s ease;
+  will-change: opacity, transform;
+}
+.reveal.reveal-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 .float-soft {
   animation: floatSoft 5.5s ease-in-out infinite;
@@ -1926,6 +2053,16 @@ input,select,textarea { font-family: inherit; }
 @keyframes floatSoft {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .float-soft {
+    animation: none;
+  }
 }
 @media (max-width: 900px) {
   .legal-nav {
@@ -2215,16 +2352,17 @@ input,select,textarea { font-family: inherit; }
   padding: clamp(1rem, 3vw, 1.6rem);
   background: linear-gradient(135deg, rgba(128, 234, 210, 0.055), rgba(80, 116, 255, 0.045));
 }
-.compare-list.good li::before,
-.pricing-card li::before {
-  content: "OK ";
-  color: #48e7be;
-  font-weight: 900;
+.compare-list.good li::before {
+  content: "✓";
+  color: #061218;
+  background: linear-gradient(135deg, #80ead2, #d8c26a);
+  border-color: rgba(128, 234, 210, 0.34);
 }
 .compare-list.bad li::before {
-  content: "NO ";
-  color: #ff6f6a;
-  font-weight: 900;
+  content: "×";
+  color: #fff;
+  background: #ff615c;
+  border-color: rgba(255, 97, 92, 0.34);
 }
 .payment-tag,
 .story-card h3,
@@ -2233,7 +2371,8 @@ input,select,textarea { font-family: inherit; }
   color: #80ead2;
 }
 .story-card,
-.pricing-card.destacado {
+.pricing-card.destacado,
+.single-package-card {
   border-color: rgba(128, 234, 210, 0.26);
   box-shadow: 0 22px 70px rgba(72, 231, 190, 0.10);
 }
@@ -2242,12 +2381,16 @@ input,select,textarea { font-family: inherit; }
   .ag-route {
     grid-template-columns: 1fr 1fr;
   }
+  .single-package-card {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 560px) {
   .ag-ops-head,
   .ag-flow-grid,
   .ag-flow-rail,
-  .ag-route {
+  .ag-route,
+  .single-package-card {
     grid-template-columns: 1fr;
   }
   .ag-ops-head {
@@ -2988,7 +3131,7 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
           <p>${subtitulo}</p>
           ${heroVisual ? `
             <div class="legal-actions">
-              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
+              <a class="legal-btn-primary" href="#legal-paquete">Ver paquete</a>
               <a class="legal-btn-secondary" href="#legal-como-funciona">Conocer más</a>
             </div>
             <div class="legal-stats">
@@ -3063,10 +3206,34 @@ function generarDemoLinkAgendate() {
   toast('Así podría verse tu link público', 'ok');
 }
 
+function activarRevealsAgendate() {
+  const elementos = Array.from(document.querySelectorAll('.legal-page .reveal'));
+  if (!elementos.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    elementos.forEach(el => el.classList.add('reveal-in'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('reveal-in');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+  elementos.forEach((el, index) => {
+    el.style.transitionDelay = `${Math.min(index * 45, 180)}ms`;
+    observer.observe(el);
+  });
+}
+
 function inicializarLandingAgendate() {
   actualizarLandingPerdidas();
   const input = document.getElementById('lp-negocio');
   if (input && !input.value) input.value = 'Barbería Ejemplo';
+  activarRevealsAgendate();
 }
 
 function mostrarPaginaLegal(tipo = 'sobre') {
@@ -3152,50 +3319,56 @@ function mostrarPaginaLegal(tipo = 'sobre') {
       activo: 'terminos',
       etiqueta: 'Condiciones de uso',
       titulo: 'Términos y condiciones',
-      subtitulo: 'Estas condiciones ordenan el uso de Agendate como herramienta para comercios que administran reservas, pagos, clientes y agendas.',
+      subtitulo: 'Estas condiciones explican cómo se usa Agendate, qué responsabilidades asume cada parte y qué alcance tienen las funciones de reservas, pagos e integraciones.',
       contenido: `
         <main class="legal-wrap">
           <div class="legal-doc">
             <article class="legal-doc-main">
-              <h2>1. Qué es Agendate</h2>
-              <p>Agendate es una plataforma de gestión de reservas para comercios. Permite crear una página pública, cargar servicios, profesionales, horarios, reservas, clientes, métricas, pagos e integraciones externas.</p>
+              <h2>1. Objeto del servicio</h2>
+              <p>Agendate es una plataforma digital creada para ayudar a comercios a presentar sus servicios, recibir reservas online, ordenar clientes, administrar horarios, gestionar pagos o señas cuando corresponda y conectar herramientas externas que faciliten la operación diaria.</p>
 
-              <h2>2. Rol de Agendate</h2>
-              <p>Agendate provee tecnología para administrar reservas. Los servicios ofrecidos, precios, horarios, políticas comerciales, atención al cliente y cumplimiento de las reservas son responsabilidad de cada comercio.</p>
+              <h2>2. Alcance de Agendate</h2>
+              <p>Agendate actúa como herramienta tecnológica. No presta los servicios publicados por cada comercio, no define sus precios, no garantiza la asistencia de los clientes y no reemplaza la gestión comercial propia de cada negocio. Nuestra función es brindar una base clara, ordenada y profesional para que el comercio pueda trabajar mejor.</p>
 
-              <h2>3. Cuentas y acceso</h2>
-              <p>Cada comercio debe cuidar las credenciales de acceso a su panel. Las acciones realizadas desde una cuenta autenticada se consideran realizadas por el comercio titular de esa cuenta.</p>
+              <h2>3. Responsabilidad del comercio</h2>
+              <p>Cada comercio es responsable de mantener actualizada la información que publica: servicios, precios, horarios, profesionales, políticas de cancelación, condiciones de pago, ubicación, datos de contacto, imágenes y cualquier otro contenido visible para sus clientes.</p>
 
-              <h2>4. Reservas</h2>
-              <p>Los clientes pueden solicitar reservas desde la página pública del comercio. El estado de la reserva, su confirmación, cancelación, reprogramación o asistencia se administra desde el panel del comercio o mediante reglas configuradas en la plataforma.</p>
+              <h2>4. Reservas y disponibilidad</h2>
+              <p>Las reservas se generan según la configuración establecida por el comercio. El comercio debe revisar que sus horarios, servicios y profesionales estén correctamente cargados. Agendate puede ayudar a reducir errores operativos, pero la disponibilidad final depende de la información configurada por el propio negocio.</p>
 
-              <h2>5. Pagos, señas y reembolsos</h2>
-              <p>Cuando un servicio requiere seña o pago anticipado, Agendate puede redirigir al cliente a un proveedor de pago externo. Los pagos se procesan fuera de Agendate. Las políticas de devolución, cancelación y reembolso deben ser definidas y comunicadas por cada comercio.</p>
+              <h2>5. Pagos, señas y anticipos</h2>
+              <p>Cuando un servicio requiere seña o pago anticipado, Agendate puede redirigir al cliente a un proveedor de pago externo. El procesamiento del pago, las comisiones, aprobaciones, rechazos y acreditaciones dependen del proveedor correspondiente. Las políticas de devolución, reembolso o uso de señas deben ser definidas y comunicadas por cada comercio.</p>
 
-              <h2>6. Integraciones externas</h2>
-              <p>Agendate puede integrarse con servicios como Google Calendar, MercadoPago, WhatsApp u otros proveedores. El comercio decide activar o desactivar estas integraciones y acepta las condiciones de cada proveedor externo.</p>
+              <h2>6. Integraciones con terceros</h2>
+              <p>Agendate puede conectarse con servicios como Google Calendar, MercadoPago, WhatsApp, Cloudinary u otras herramientas. Estas integraciones funcionan bajo las reglas, permisos, disponibilidad y condiciones de cada proveedor. El comercio acepta que algunas funciones pueden verse afectadas por cambios o interrupciones de esos servicios externos.</p>
 
               <h2>7. Uso aceptable</h2>
-              <p>No se permite usar Agendate para actividades ilegales, fraudulentas, abusivas, discriminatorias o que afecten la seguridad de la plataforma, otros comercios o clientes.</p>
+              <p>No se permite utilizar Agendate para actividades ilegales, fraudulentas, engañosas, abusivas, discriminatorias o que afecten la seguridad de la plataforma, de otros comercios o de los clientes. También queda prohibido intentar acceder a datos, cuentas o recursos que no correspondan al comercio autenticado.</p>
 
-              <h2>8. Disponibilidad</h2>
-              <p>Trabajamos para mantener la plataforma disponible y estable. Sin embargo, pueden existir interrupciones por mantenimiento, proveedores externos, errores técnicos o causas fuera de nuestro control.</p>
+              <h2>8. Disponibilidad, mantenimiento y mejoras</h2>
+              <p>Trabajamos para mantener la plataforma estable y disponible. Aun así, pueden existir interrupciones por mantenimiento, actualizaciones, errores técnicos, proveedores externos, servicios de hosting o situaciones fuera de nuestro control. Agendate podrá incorporar mejoras, ajustes o cambios funcionales para mantener el producto actualizado y seguro.</p>
 
-              <h2>9. Contenido del comercio</h2>
-              <p>El comercio es responsable por textos, imágenes, logos, precios, descripciones y datos publicados en su página. Agendate puede retirar contenido que incumpla estas condiciones o afecte a terceros.</p>
+              <h2>9. Contenido, imágenes y marca</h2>
+              <p>El comercio declara contar con autorización para utilizar los logos, fotografías, textos, nombres comerciales y materiales que carga en la plataforma. Agendate podrá solicitar cambios o retirar contenido si detecta uso indebido, reclamos de terceros o incumplimiento de estas condiciones.</p>
 
-              <h2>10. Cambios en el servicio</h2>
-              <p>Podemos agregar, modificar o retirar funciones para mejorar el producto, corregir errores, cumplir requisitos legales o mantener la seguridad de la plataforma.</p>
+              <h2>10. Protección de datos</h2>
+              <p>El tratamiento de datos personales se rige por la Política de Privacidad de Agendate. El comercio se compromete a utilizar los datos de sus clientes de forma responsable, únicamente para la gestión de reservas, atención comercial y comunicaciones vinculadas a su servicio.</p>
 
-              <h2>11. Contacto</h2>
-              <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos términos, el usuario puede comunicarse con el equipo de Agendate mediante los canales oficiales publicados.</p>
+              <h2>11. Condiciones comerciales del paquete</h2>
+              <p>El paquete inicial de Agendate incluye configuración y puesta en marcha según el alcance informado en la página comercial. Costos externos, comisiones de proveedores, producción profesional de contenido, campañas publicitarias, desarrollos a medida o configuraciones fuera del alcance inicial pueden requerir presupuesto adicional.</p>
+
+              <h2>12. Contacto y actualizaciones</h2>
+              <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos términos, el usuario puede comunicarse con Agendate mediante los canales oficiales publicados. Estas condiciones pueden actualizarse para reflejar cambios del producto, mejoras operativas o requisitos legales.</p>
             </article>
             <aside class="legal-aside">
-              <strong>Para comercios</strong>
-              <p>Estas condiciones explican que Agendate es la herramienta y que cada comercio sigue siendo responsable de su operativa.</p>
+              <strong>Resumen práctico</strong>
+              <p>Agendate ordena la agenda y la presencia digital del comercio; el comercio define sus servicios, precios, políticas y atención al cliente.</p>
               <br>
-              <strong>Para clientes</strong>
-              <p>Las políticas de servicio, cancelación o devolución dependen del comercio donde se reserva.</p>
+              <strong>Pagos e integraciones</strong>
+              <p>MercadoPago, Google Calendar, WhatsApp y otros servicios externos funcionan bajo sus propias condiciones.</p>
+              <br>
+              <strong>Última actualización</strong>
+              <p>Julio de 2026.</p>
             </aside>
           </div>
         </main>
@@ -3318,7 +3491,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <span class="payment-tag">MERCADOPAGO</span>
               <h3>Pago online</h3>
               <p>El cliente paga la seña y la reserva queda lista para confirmarse cuando el pago se aprueba.</p>
-              <div class="mini-payment"><div><div class="mini-check">OK</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
+              <div class="mini-payment"><div><div class="mini-check">✓</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
             </div>
           </div>
         </section>
@@ -3422,32 +3595,47 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           </div>
         </section>
 
-        <section class="legal-section reveal">
+        <section class="legal-section reveal" id="legal-paquete">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Planes</div>
-              <h2>Una base simple para empezar y crecer.</h2>
+              <div class="legal-eyebrow">Paquete Agendate</div>
+              <h2>Una puesta en marcha clara para empezar a recibir reservas.</h2>
             </div>
-            <p>Los precios finales se pueden ajustar, pero la estructura ayuda a explicar el valor de cada etapa.</p>
+            <p>Un solo paquete, sin vueltas: dejamos preparada la presencia digital del comercio y la base operativa para que pueda mostrar servicios, recibir reservas y trabajar con más orden.</p>
           </div>
-          <div class="pricing-grid">
-            <div class="pricing-card">
-              <h3>Básico</h3>
-              <div class="pricing-price">UYU $599 <small>/mes</small></div>
-              <ul><li>1 profesional</li><li>Página pública</li><li>Reservas ilimitadas</li><li>Servicios y horarios</li></ul>
-              <a class="legal-btn-secondary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Básico</a>
+          <div class="single-package-card">
+            <div class="package-main">
+              <span class="payment-tag">CONFIGURACIÓN INICIAL</span>
+              <h3>Página profesional + sistema de reservas</h3>
+              <p>Ideal para barberías, salones, estudios, centros de estética y comercios que quieren dejar de coordinar todo por mensajes. Configuramos una página pública con identidad propia, servicios, horarios, profesionales y un panel para administrar el día a día.</p>
+              <div class="package-price">
+                <strong>UYU $1.600</strong>
+                <span>pago único por puesta en marcha</span>
+              </div>
+              <p class="package-note">La idea es que el comercio no solo tenga "una web", sino una herramienta lista para vender mejor: link para compartir, reservas ordenadas, datos claros y una base preparada para pagos, calendario y automatizaciones.</p>
+              <div class="package-actions">
+                <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
+                <a class="legal-btn-secondary" href="#legal-como-funciona">Ver cómo funciona</a>
+              </div>
             </div>
-            <div class="pricing-card destacado">
-              <h3>Pro</h3>
-              <div class="pricing-price">UYU $999 <small>/mes</small></div>
-              <ul><li>2 profesionales</li><li>Métricas y clientes</li><li>Señas con MercadoPago</li><li>Google Calendar</li></ul>
-              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Pro</a>
-            </div>
-            <div class="pricing-card">
-              <h3>Ultra</h3>
-              <div class="pricing-price">UYU $1.990 <small>/mes</small></div>
-              <ul><li>Más profesionales</li><li>Soporte prioritario</li><li>Automatizaciones avanzadas</li><li>Todo lo de Pro</li></ul>
-              <a class="legal-btn-secondary" href="/login" onclick="event.preventDefault();navegar('/login')">Elegir Ultra</a>
+            <div class="package-side">
+              <h4>Incluye</h4>
+              <ul class="package-list included">
+                <li>Página pública del comercio con diseño responsive.</li>
+                <li>Carga inicial de logo, portada, colores, texto y datos principales.</li>
+                <li>Servicios, precios, duración, horarios y profesionales.</li>
+                <li>Botón de WhatsApp, ubicación y acceso rápido para clientes.</li>
+                <li>Panel comercial para ver reservas, clientes, métricas y servicios.</li>
+                <li>Base preparada para señas o pagos anticipados con MercadoPago.</li>
+                <li>Conexión inicial a Google Calendar si el comercio entrega la cuenta lista.</li>
+              </ul>
+              <h4>No incluye por defecto</h4>
+              <ul class="package-list excluded">
+                <li>Comisiones o costos de MercadoPago, WhatsApp, Google, hosting u otros servicios externos.</li>
+                <li>Producción profesional de fotos, logo, branding o campañas publicitarias.</li>
+                <li>Desarrollos a medida fuera del alcance inicial del paquete.</li>
+                <li>Carga masiva de información o migraciones complejas desde otros sistemas.</li>
+              </ul>
             </div>
           </div>
         </section>
@@ -3472,8 +3660,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <p>Agendate está pensado para que el comercio venda mejor, pierda menos turnos y tenga una operativa clara.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
-              <a class="legal-btn-primary" href="/login" onclick="event.preventDefault();navegar('/login')">Comenzar ahora</a>
-              <a class="legal-btn-secondary" href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Ver privacidad</a>
+              <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+              <a class="legal-btn-secondary" href="#legal-paquete">Ver paquete</a>
             </div>
           </div>
         </section>
