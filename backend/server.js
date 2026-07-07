@@ -25,7 +25,13 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-store');
+    }
+  }
+}));
 
 // Rate limiting
 const authLimiter = rateLimit({
@@ -64,6 +70,7 @@ app.get('/api/health', (req, res) => res.json({ ok: true, ts: new Date() }));
 
 // SPA fallback — todas las rutas van al frontend
 app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
