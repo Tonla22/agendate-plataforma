@@ -1416,7 +1416,7 @@ input,select,textarea { font-family: inherit; }
 .landing-hero-title {
   font-family: inherit !important;
   font-weight: 950;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
 }
 .landing-hero-title mark {
   color: var(--oro);
@@ -2503,6 +2503,214 @@ input,select,textarea { font-family: inherit; }
   }
 }
 
+/* Sobre Agendate: polish propio, accesible y responsive */
+.legal-page a:focus-visible,
+.legal-page button:focus-visible,
+.legal-page input:focus-visible,
+.legal-page summary:focus-visible {
+  outline: 3px solid rgba(155,122,34,0.42);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+.legal-page .legal-hero {
+  padding-top: clamp(4rem, 8vw, 7rem);
+}
+.legal-btn-primary,
+.legal-btn-secondary {
+  border: 1px solid transparent;
+}
+.legal-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(155,122,34,0.26);
+  filter: saturate(1.04);
+}
+.legal-btn-secondary:hover {
+  background: rgba(255,255,255,0.86);
+  border-color: rgba(155,122,34,0.34);
+  color: #181511;
+}
+.legal-links a {
+  color: #5F554C;
+  font-weight: 800;
+}
+.legal-links a:hover {
+  color: #181511;
+  background: rgba(215,191,100,0.22);
+}
+.legal-stats {
+  gap: 0.85rem;
+}
+.legal-page .legal-stat {
+  background: rgba(255,255,255,0.72);
+  border-color: rgba(24,21,17,0.10);
+  box-shadow: 0 14px 32px rgba(24,21,17,0.05);
+}
+.ag-ops-board {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(244,241,234,0.86)),
+    repeating-linear-gradient(90deg, transparent 0 38px, rgba(155,122,34,0.035) 39px 40px);
+}
+.ag-ops-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 85% 14%, rgba(155,122,34,0.15), transparent 24%),
+    radial-gradient(circle at 18% 90%, rgba(24,21,17,0.06), transparent 28%);
+}
+.ag-flow-card,
+.ag-route span,
+.ag-panel-preview {
+  background: rgba(255,255,255,0.78);
+  border-color: rgba(24,21,17,0.10);
+}
+.ag-flow-card:hover {
+  background: rgba(255,255,255,0.96);
+  box-shadow: 0 16px 34px rgba(24,21,17,0.08);
+}
+.ag-route span {
+  color: #5F554C;
+  font-weight: 800;
+}
+.ag-panel-preview {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.46);
+}
+.ag-panel-preview h3,
+.ag-mini-row b {
+  color: #181511;
+}
+.ag-mini-row {
+  border-top-color: rgba(24,21,17,0.08);
+}
+.sobre-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.sobre-audience-card {
+  border: 1px solid rgba(24,21,17,0.10);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.76);
+  padding: 1.15rem;
+  box-shadow: 0 16px 36px rgba(24,21,17,0.06);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.sobre-audience-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(155,122,34,0.28);
+  box-shadow: 0 22px 48px rgba(24,21,17,0.09);
+}
+.sobre-audience-card span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(215,191,100,0.22);
+  color: #9B7A22;
+  font-weight: 950;
+  margin-bottom: 0.85rem;
+}
+.sobre-audience-card h3 {
+  color: #181511;
+  margin-bottom: 0.45rem;
+}
+.sobre-audience-card p {
+  color: #6C6259;
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+.sobre-proof-band {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.sobre-proof-item {
+  border: 1px solid rgba(155,122,34,0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(244,241,234,0.76));
+  padding: 1.15rem;
+}
+.sobre-proof-item strong {
+  display: block;
+  color: #181511;
+  margin-bottom: 0.35rem;
+}
+.sobre-proof-item p {
+  color: #6C6259;
+  line-height: 1.62;
+  font-size: 0.9rem;
+}
+.sobre-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.sobre-pill-list span {
+  border: 1px solid rgba(155,122,34,0.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.76);
+  color: #5F554C;
+  font-size: 0.76rem;
+  font-weight: 850;
+  padding: 0.42rem 0.65rem;
+}
+.legal-page .legal-faq details {
+  background: rgba(255,255,255,0.76);
+  border-color: rgba(24,21,17,0.10);
+  box-shadow: 0 12px 28px rgba(24,21,17,0.05);
+}
+.legal-page .legal-faq summary {
+  color: #181511;
+}
+.legal-page .legal-faq details[open] summary {
+  color: #9B7A22;
+  border-bottom-color: rgba(24,21,17,0.08);
+}
+.legal-page .legal-faq p {
+  color: #6C6259;
+}
+.quick-link-input:focus-within {
+  border-color: rgba(155,122,34,0.42);
+  box-shadow: 0 0 0 4px rgba(155,122,34,0.10);
+}
+.package-list li::before {
+  margin-top: 0.05rem;
+}
+@media (max-width: 900px) {
+  .sobre-audience-grid,
+  .sobre-proof-band {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .legal-page .legal-hero {
+    padding-top: 2.4rem;
+  }
+  .legal-links {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 0.45rem;
+  }
+  .legal-actions,
+  .package-actions {
+    width: 100%;
+  }
+  .legal-btn-primary,
+  .legal-btn-secondary,
+  .quick-link-input button {
+    width: 100%;
+  }
+  .legal-page .legal-stat {
+    padding: 0.95rem;
+  }
+  .single-package-card {
+    padding: 0.8rem;
+  }
+}
+
 /* ==================================================================
    PANEL ADMIN (super-admin)
    ================================================================== */
@@ -3301,18 +3509,27 @@ function generarDemoLinkAgendate() {
   const input = document.getElementById('lp-negocio');
   const preview = document.getElementById('lp-link-preview');
   if (!input || !preview) return;
-  const slug = (input.value || 'mi-negocio')
+  const slug = (input.value || 'tu-comercio')
     .toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'mi-negocio';
+    .replace(/^-+|-+$/g, '') || 'tu-comercio';
   preview.textContent = `agendate.com/${slug}`;
+  preview.setAttribute('aria-live', 'polite');
   toast('Así podría verse tu link público', 'ok');
 }
 
 function activarRevealsAgendate() {
   const elementos = Array.from(document.querySelectorAll('.legal-page .reveal'));
   if (!elementos.length) return;
+
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    elementos.forEach(el => {
+      el.classList.add('reveal-in');
+      el.style.transitionDelay = '0ms';
+    });
+    return;
+  }
 
   if (!('IntersectionObserver' in window)) {
     elementos.forEach(el => el.classList.add('reveal-in'));
@@ -3336,7 +3553,7 @@ function activarRevealsAgendate() {
 function inicializarLandingAgendate() {
   actualizarLandingPerdidas();
   const input = document.getElementById('lp-negocio');
-  if (input && !input.value) input.value = 'Barbería Ejemplo';
+  if (input && !input.value) input.value = 'Mi comercio';
   activarRevealsAgendate();
 }
 
@@ -3484,63 +3701,78 @@ function mostrarPaginaLegal(tipo = 'sobre') {
   document.title = 'Agendate - Reservas, pagos y agenda online';
   el.innerHTML = legalLayout({
     activo: 'sobre',
-    etiqueta: 'Centro operativo para comercios con agenda',
-    titulo: '<span class="landing-hero-title">Reservas, pagos y calendario <mark>sin perseguir mensajes.</mark></span>',
-    subtitulo: '<span class="landing-subtitle">Agendate convierte tu link de reservas en un sistema de trabajo: el cliente elige, paga si corresponde, queda registrado y tu calendario se actualiza.</span>',
+    etiqueta: 'Agenda online para comercios de servicios',
+    titulo: '<span class="landing-hero-title">Una forma más clara de tomar reservas, cobrar y ordenar tu día.</span>',
+    subtitulo: '<span class="landing-subtitle">Agendate te da una página pública, un panel de gestión y un flujo simple para que tus clientes reserven sin depender de mensajes sueltos.</span>',
     heroVisual: `
       <div class="ag-ops-board float-soft" aria-label="Vista operativa de Agendate">
         <div class="ag-ops-head">
           <div class="ag-ops-title">
-            <strong>Agenda de hoy</strong>
-            <span>Reservas, pagos y equipo en una misma vista</span>
+            <strong>Mesa de control</strong>
+            <span>Turnos, clientes, pagos y equipo en una misma vista</span>
           </div>
-          <span class="ag-chip">Operando ahora</span>
+          <span class="ag-chip">Listo para atender</span>
         </div>
         <div class="ag-flow-grid">
-          <div class="ag-flow-card"><small>Nuevo turno</small><strong>Valentina R.</strong><span>Corte clásico · 16:30</span></div>
-          <div class="ag-flow-card"><small>Pago recibido</small><strong>Seña acreditada</strong><span>MercadoPago · $ 300</span></div>
-          <div class="ag-flow-card"><small>Profesional</small><strong>Agenda de Mati</strong><span>3 lugares libres esta tarde</span></div>
-          <div class="ag-flow-card"><small>Calendario</small><strong>Evento creado</strong><span>Google Calendar sincronizado</span></div>
+          <div class="ag-flow-card"><small>Reserva nueva</small><strong>Cliente registrado</strong><span>Servicio, día y hora guardados</span></div>
+          <div class="ag-flow-card"><small>Pago</small><strong>Seña recibida</strong><span>El turno avanza con más compromiso</span></div>
+          <div class="ag-flow-card"><small>Equipo</small><strong>Profesional asignado</strong><span>Agenda individual sin cruces</span></div>
+          <div class="ag-flow-card"><small>Calendario</small><strong>Evento creado</strong><span>La reserva queda sincronizada</span></div>
         </div>
         <div class="ag-route">
-          <span>Link público</span>
+          <span>Página pública</span>
           <span>Datos del cliente</span>
-          <span>Pago o seña</span>
-          <span>Turno confirmado</span>
+          <span>Reglas de reserva</span>
+          <span>Agenda ordenada</span>
         </div>
         <div class="ag-panel-preview">
-          <h3>Lo que ve el comercio</h3>
-          <div class="ag-mini-row"><b>Ingresos de hoy</b><em>$ 8.400</em></div>
-          <div class="ag-mini-row"><b>Reservas confirmadas</b><em>12 de 14</em></div>
-          <div class="ag-mini-row"><b>Próximo recordatorio</b><em>18:00</em></div>
+          <h3>Resumen rápido</h3>
+          <div class="ag-mini-row"><b>Reservas confirmadas</b><em>12</em></div>
+          <div class="ag-mini-row"><b>Pagos completados</b><em>$ 8.400</em></div>
+          <div class="ag-mini-row"><b>Próximo turno</b><em>16:30</em></div>
         </div>
       </div>
     `,
     contenido: `
       <main class="legal-wrap">
         <div class="ag-flow-rail reveal">
-          <div><span>01</span><strong>Compartís tu link</strong><p>El cliente entra desde Instagram, WhatsApp o la página del comercio.</p></div>
-          <div><span>02</span><strong>Elige profesional</strong><p>Puede reservar con una persona concreta o con cualquier profesional disponible.</p></div>
-          <div><span>03</span><strong>Paga si corresponde</strong><p>Si el servicio pide seña o anticipo, el turno avanza después del pago.</p></div>
-          <div><span>04</span><strong>Todo queda ordenado</strong><p>Panel, cliente, estado de pago y Google Calendar quedan alineados.</p></div>
+          <div><span>01</span><strong>Publicás tu página</strong><p>Compartís un link claro con tus servicios, horarios, ubicación y botón de contacto.</p></div>
+          <div><span>02</span><strong>El cliente reserva</strong><p>Elige servicio, profesional si corresponde, día y horario disponible.</p></div>
+          <div><span>03</span><strong>Aplicás tus reglas</strong><p>Podés pedir seña, pago anticipado, políticas de cancelación y datos del cliente.</p></div>
+          <div><span>04</span><strong>Gestionás desde el panel</strong><p>Ves reservas, clientes, métricas, pagos y calendario desde un solo lugar.</p></div>
         </div>
 
         <section class="legal-section reveal">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Para quién es</div>
+              <h2>Hecho para comercios que trabajan con turnos.</h2>
+            </div>
+            <p>Agendate no está pensado para un solo rubro. Sirve para cualquier negocio donde reservar bien significa vender mejor y trabajar con menos desorden.</p>
+          </div>
+          <div class="sobre-audience-grid">
+            <div class="sobre-audience-card"><span>01</span><h3>Estética y cuidado personal</h3><p>Salones, uñas, cejas, masajes, depilación, barberías y peluquerías que necesitan organizar agenda y equipo.</p></div>
+            <div class="sobre-audience-card"><span>02</span><h3>Profesionales independientes</h3><p>Personas que atienden por horario y quieren recibir reservas sin responder el mismo mensaje veinte veces.</p></div>
+            <div class="sobre-audience-card"><span>03</span><h3>Locales con varios trabajadores</h3><p>Negocios donde cada profesional puede tener sus servicios, horarios y reservas sin mezclar agendas.</p></div>
+          </div>
+        </section>
+
+        <section class="legal-section reveal">
           <div class="landing-wide-stats">
-            <div class="landing-wide-stat"><strong>24h</strong><span>reservas online</span><small>aunque no contestes mensajes</small></div>
-            <div class="landing-wide-stat"><strong>80%</strong><span>menos ausencias</span><small>cuando hay seña y recordatorio</small></div>
-            <div class="landing-wide-stat"><strong>1</strong><span>panel único</span><small>servicios, pagos, clientes y agenda</small></div>
-            <div class="landing-wide-stat"><strong>5min</strong><span>para compartir</span><small>tu página pública lista</small></div>
+            <div class="landing-wide-stat"><strong>24h</strong><span>reservas abiertas</span><small>para que el cliente elija cuando pueda</small></div>
+            <div class="landing-wide-stat"><strong>1</strong><span>panel de trabajo</span><small>reservas, clientes, servicios y pagos</small></div>
+            <div class="landing-wide-stat"><strong>2+</strong><span>profesionales</span><small>agendas separadas dentro del mismo comercio</small></div>
+            <div class="landing-wide-stat"><strong>0</strong><span>planillas sueltas</span><small>menos datos perdidos entre chats</small></div>
           </div>
         </section>
 
         <section class="legal-section reveal ag-section-panel" id="legal-como-funciona">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Diagnóstico de agenda</div>
-              <h2>¿Cuánto margen se escapa cuando todo depende del chat?</h2>
+              <div class="legal-eyebrow">Orden operativo</div>
+              <h2>Cuando la agenda depende solo del chat, algo siempre se pierde.</h2>
             </div>
-            <p>Mové los controles y mirá una estimación simple de lo que puede quedar en riesgo cuando los turnos se caen, se olvidan o quedan sin confirmar.</p>
+            <p>Usá esta estimación para visualizar el impacto de reservas sin confirmar, cancelaciones tardías y huecos que quedan vacíos.</p>
           </div>
           <div class="loss-calculator">
             <div class="loss-controls">
@@ -3555,13 +3787,13 @@ function mostrarPaginaLegal(tipo = 'sobre') {
                 <input id="lp-precio" type="range" min="200" max="6000" step="100" value="1200" oninput="actualizarLandingPerdidas()">
               </div>
               <div class="loss-row">
-                <label>Ausencias estimadas <span id="lp-caidas-v">22%</span></label>
-                <p>Clientes que cancelan tarde, no vienen o nunca terminan de confirmar.</p>
+                <label>Turnos en riesgo <span id="lp-caidas-v">22%</span></label>
+                <p>Reservas que se olvidan, se cancelan tarde o quedan sin compromiso real.</p>
                 <input id="lp-caidas" type="range" min="5" max="60" value="22" oninput="actualizarLandingPerdidas()">
               </div>
             </div>
             <div class="loss-results">
-              <div class="loss-note">Con recordatorios, señas y pagos antes del turno, Agendate ayuda a reducir huecos vacíos y a ordenar mejor la operación.</div>
+              <div class="loss-note">Con reglas claras, señas cuando corresponde y un panel ordenado, el comercio puede trabajar con menos improvisación.</div>
               <div class="loss-kpis">
                 <div class="loss-kpi"><strong id="lp-perdidos">4</strong><span>turnos en riesgo al mes</span></div>
                 <div class="loss-kpi"><strong id="lp-caidas-kpi">22%</strong><span>se caen o no vienen</span></div>
@@ -3579,22 +3811,22 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Cobros integrados</div>
-              <h2>La reserva avanza cuando el pago acompaña.</h2>
+              <div class="legal-eyebrow">Cobros y compromiso</div>
+              <h2>Si el turno requiere seña, el flujo lo deja claro desde el inicio.</h2>
             </div>
-            <p>Si un servicio requiere seña o pago anticipado, el cliente paga antes de que el turno quede confirmado.</p>
+            <p>La idea es que el cliente entienda qué está reservando, cuánto debe abonar y cuándo el turno queda realmente confirmado.</p>
           </div>
           <div class="payment-showcase">
             <div class="payment-card">
-              <span class="payment-tag">TRANSFERENCIA</span>
-              <h3>Comprobante validado</h3>
-              <p>El comercio puede usar comprobantes o reglas internas para ordenar reservas con pago previo.</p>
+              <span class="payment-tag">REGLAS CLARAS</span>
+              <h3>Servicios con seña</h3>
+              <p>Marcás qué servicios necesitan anticipo y el cliente lo ve antes de completar la reserva.</p>
               <div class="mini-terminal"><div class="mini-progress"></div></div>
             </div>
             <div class="payment-card">
               <span class="payment-tag">MERCADOPAGO</span>
-              <h3>Pago online</h3>
-              <p>El cliente paga la seña y la reserva queda lista para confirmarse cuando el pago se aprueba.</p>
+              <h3>Pago online preparado</h3>
+              <p>Cuando el comercio conecta su cuenta, el anticipo puede cobrarse dentro del flujo de reserva.</p>
               <div class="mini-payment"><div><div class="mini-check">✓</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
             </div>
           </div>
@@ -3603,18 +3835,18 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Funciones</div>
-              <h2>Todo lo que marca la diferencia en el día a día.</h2>
+              <div class="legal-eyebrow">Herramientas incluidas</div>
+              <h2>Lo importante del comercio, ordenado sin vueltas.</h2>
             </div>
-            <p>No es solo un calendario. Es la parte operativa del negocio puesta en orden.</p>
+            <p>Cada módulo está pensado para resolver tareas concretas: vender, reservar, cobrar, atender y medir.</p>
           </div>
           <div class="feature-strip">
-            <div class="legal-card"><div class="legal-icon">IG</div><div><h3>Link para Instagram</h3><p>Tu bio lleva directo a una página de reservas clara y lista para vender.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">MP</div><div><h3>Señas y pagos</h3><p>Servicios con pago anticipado para evitar huecos y cancelaciones de último momento.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">WA</div><div><h3>WhatsApp</h3><p>Confirmaciones y recordatorios preparados para automatizar cuando el número final esté activo.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">GC</div><div><h3>Google Calendar</h3><p>Reservas confirmadas sincronizadas al calendario del comercio.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">CL</div><div><h3>Clientes</h3><p>Historial, datos y reservas para entender quién vuelve y qué consume.</p></div></div>
-            <div class="legal-card"><div class="legal-icon">MT</div><div><h3>Métricas</h3><p>Ingresos, movimiento diario, servicios vendidos y seguimiento mensual.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">LK</div><div><h3>Página pública</h3><p>Un link para compartir en Instagram, WhatsApp o donde el comercio consiga clientes.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">$</div><div><h3>Señas y pagos</h3><p>Servicios con pago anticipado cuando necesitás reducir ausencias o asegurar el horario.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">WA</div><div><h3>Automatizaciones</h3><p>Base lista para confirmaciones, recordatorios y mensajes útiles cuando el canal esté conectado.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">CA</div><div><h3>Calendario</h3><p>Reservas confirmadas que pueden sincronizarse con Google Calendar del comercio.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">ID</div><div><h3>Clientes</h3><p>Datos, historial e identificadores para entender quién reserva y cómo vuelve.</p></div></div>
+            <div class="legal-card"><div class="legal-icon">MT</div><div><h3>Métricas</h3><p>Ingresos, servicios vendidos, reservas próximas y seguimiento mensual para decidir mejor.</p></div></div>
           </div>
         </section>
 
@@ -3622,9 +3854,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Antes y después</div>
-              <h2>Lo que cambia cuando dejás de coordinar todo a mano.</h2>
+              <h2>El cambio no es tener más pantallas: es tener menos desorden.</h2>
             </div>
-            <p>Mové el interruptor y compará una agenda por mensajes contra una agenda con flujo ordenado.</p>
+            <p>Compará cómo se siente una agenda manejada por mensajes contra una operación con reglas, panel y registro.</p>
           </div>
           <div style="display:flex;justify-content:center">
             <div class="compare-toggle">
@@ -3637,20 +3869,20 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             <div class="compare-card" id="lp-antes" style="opacity:.42">
               <h3>Sin Agendate</h3>
               <ul class="compare-list bad">
-                <li>Mensajes todo el día</li>
-                <li>No sabés quién confirmó hasta que preguntás</li>
-                <li>Los pagos quedan repartidos</li>
-                <li>Cancelaciones sin control</li>
+                <li>Reservas mezcladas entre chats y notas</li>
+                <li>Confirmaciones que dependen de acordarse</li>
+                <li>Pagos y señas difíciles de seguir</li>
+                <li>Horarios libres que no siempre se ven a tiempo</li>
               </ul>
             </div>
             <div class="compare-arrow">-></div>
             <div class="compare-card" id="lp-despues">
               <h3>Con Agendate</h3>
               <ul class="compare-list good">
-                <li>Link de reserva disponible 24 horas</li>
-                <li>Seña o pago antes del turno</li>
-                <li>Calendario y panel sincronizados</li>
-                <li>Clientes, métricas y reservas en un lugar</li>
+                <li>Link de reserva disponible todo el día</li>
+                <li>Servicios, profesionales y horarios ordenados</li>
+                <li>Seña o pago cuando el comercio lo necesita</li>
+                <li>Clientes, métricas y calendario en un lugar</li>
               </ul>
             </div>
           </div>
@@ -3678,8 +3910,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             </div>
             <div class="phone-card">
               <div class="legal-eyebrow">Flujo completo</div>
-              <h2>Desde el link hasta el calendario del comercio.</h2>
-              <p>El cliente reserva, completa sus datos, paga si el servicio lo pide y el comercio ve la reserva en el panel. La idea es que nada importante dependa de acordarse de responder un chat.</p>
+              <h2>Desde el primer clic hasta la agenda del comercio.</h2>
+              <p>El cliente reserva, completa sus datos, paga si corresponde y el comercio recibe una reserva más clara. La experiencia se mantiene simple para el cliente y ordenada para quien trabaja.</p>
             </div>
           </div>
         </section>
@@ -3687,15 +3919,22 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
-              <div class="legal-eyebrow">Resultados reales</div>
-              <h2>Negocios como el tuyo necesitan claridad, no más ruido.</h2>
+              <div class="legal-eyebrow">Confianza</div>
+              <h2>Una herramienta chica por fuera, seria por dentro.</h2>
             </div>
-            <p>Estos ejemplos muestran situaciones típicas de comercios con agenda. Se pueden ajustar con casos reales cuando empecemos a tener clientes activos.</p>
+            <p>Agendate prioriza claridad, control y una experiencia que cualquier comercio pueda entender sin depender de configuraciones raras.</p>
           </div>
-          <div class="story-card">
-            <h3>Dos profesionales en un solo sistema</h3>
-            <blockquote>"Antes cada trabajador manejaba su agenda por separado. Ahora los clientes eligen profesional, servicio y horario sin cruzar mensajes."</blockquote>
-            <div class="story-person"><span>RF</span><div><strong>Rubro: barbería o salón</strong><p style="color:var(--texto2);margin:0">Panel único, reservas por trabajador y servicios compartidos.</p></div></div>
+          <div class="sobre-proof-band">
+            <div class="sobre-proof-item">
+              <strong>Diseñado para vender, no solo para mostrar información.</strong>
+              <p>La página pública lleva al cliente hacia una acción concreta: reservar, consultar, ubicarse o conocer los servicios.</p>
+              <div class="sobre-pill-list"><span>CTA claros</span><span>Mobile primero</span><span>Servicios visibles</span></div>
+            </div>
+            <div class="sobre-proof-item">
+              <strong>Preparado para crecer con el comercio.</strong>
+              <p>Podés empezar con una agenda simple y sumar profesionales, pagos, métricas y calendario cuando el negocio lo necesite.</p>
+              <div class="sobre-pill-list"><span>Multi-profesional</span><span>Pagos</span><span>Google Calendar</span></div>
+            </div>
           </div>
         </section>
 
@@ -3703,24 +3942,24 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Paquete Agendate</div>
-              <h2>Todo lo necesario para que tu negocio empiece a reservar online.</h2>
+              <h2>Una puesta en marcha clara, con lo esencial bien configurado.</h2>
             </div>
-            <p>Un paquete único, claro y pensado para comercios que quieren una presencia más profesional sin complicarse con configuraciones técnicas.</p>
+            <p>Un único paquete de configuración inicial para que el comercio salga con una base profesional y lista para compartir.</p>
           </div>
           <div class="single-package-card">
             <div class="package-main">
               <span class="payment-tag">PUESTA EN MARCHA</span>
-              <h3>Página comercial + reservas online</h3>
-              <p>Armamos una página pública para tu comercio y dejamos configurado el sistema de reservas para que tus clientes puedan elegir servicio, profesional, día y horario desde un link fácil de compartir.</p>
+              <h3>Página comercial + sistema de reservas</h3>
+              <p>Dejamos armado el espacio público del comercio y configuramos la base operativa: servicios, profesionales, horarios, datos principales y flujo de reserva.</p>
               <div class="package-price">
                 <strong>UYU $1.600</strong>
                 <span>pago único por configuración inicial</span>
               </div>
-              <p class="package-note">No es solo una página linda: es una base de trabajo para ordenar servicios, reservas, clientes y pagos. Ideal para probar Agendate con una configuración profesional desde el primer día.</p>
+              <p class="package-note">La idea es que el comercio no arranque desde cero ni con una página vacía. Sale con una presencia lista para compartir y un panel preparado para trabajar.</p>
               <div class="package-highlights">
-                <span>Configuración inicial guiada</span>
-                <span>Link listo para compartir</span>
-                <span>Panel comercial incluido</span>
+                <span>Implementación inicial</span>
+                <span>Link público listo</span>
+                <span>Panel comercial ordenado</span>
               </div>
               <div class="package-actions">
                 <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
@@ -3730,19 +3969,19 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             <div class="package-side">
               <h4>Incluye</h4>
               <ul class="package-list included">
-                <li>Página pública responsive con nombre, logo, portada, frase principal y datos del comercio.</li>
-                <li>Carga inicial de servicios con precio, duración, imagen y reglas básicas de reserva.</li>
-                <li>Configuración de profesionales, horarios de atención y servicios compartidos o por trabajador.</li>
-                <li>Botón de WhatsApp, ubicación visible y accesos claros para que el cliente pueda consultar o llegar al local.</li>
-                <li>Panel comercial para administrar reservas, clientes, servicios, profesionales, métricas y pagos.</li>
-                <li>Preparación para señas o pagos anticipados con MercadoPago cuando el comercio tenga su cuenta lista.</li>
-                <li>Base para sincronizar reservas confirmadas con Google Calendar si la cuenta ya está configurada.</li>
+                <li>Página pública responsive con identidad básica, portada, frase principal y datos del comercio.</li>
+                <li>Configuración inicial de servicios, precios, duración, imágenes y reglas básicas de reserva.</li>
+                <li>Profesionales, horarios de atención y servicios que pueden ser compartidos o propios de cada trabajador.</li>
+                <li>Botón de WhatsApp, ubicación clara y accesos rápidos para que el cliente consulte o llegue al local.</li>
+                <li>Panel comercial para gestionar reservas, clientes, servicios, profesionales, métricas y pagos.</li>
+                <li>Base preparada para señas o pagos anticipados con MercadoPago cuando el comercio tenga sus credenciales.</li>
+                <li>Conexión con Google Calendar si el comercio entrega la cuenta y permisos necesarios.</li>
               </ul>
               <h4>No incluye por defecto</h4>
               <ul class="package-list excluded">
                 <li>Comisiones, planes pagos o costos de servicios externos como MercadoPago, WhatsApp, Google, hosting o almacenamiento.</li>
-                <li>Diseño profesional de marca, creación de logo, sesión de fotos, edición avanzada de imágenes o campañas publicitarias.</li>
-                <li>Funciones a medida, cambios especiales o desarrollos fuera del flujo base de Agendate.</li>
+                <li>Creación de marca, diseño de logo, sesión de fotos, edición avanzada de imágenes o campañas publicitarias.</li>
+                <li>Desarrollos a medida, integraciones especiales o cambios fuera del flujo base de Agendate.</li>
                 <li>Migraciones complejas desde otros sistemas o carga masiva de información histórica.</li>
               </ul>
             </div>
@@ -3752,21 +3991,45 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="quick-link-card">
             <div class="legal-eyebrow">Empezá hoy</div>
-            <h2>Probá cómo se vería tu link de reservas.</h2>
-            <p style="color:var(--texto2)">Escribí el nombre de tu negocio y mirá una idea rápida del link que podrías compartir.</p>
+            <h2>Imaginá tu link de reservas en segundos.</h2>
+            <p style="color:var(--texto2)">Escribí el nombre del comercio y generá una vista rápida del enlace que podrías compartir con tus clientes.</p>
             <div class="quick-link-input">
               <input id="lp-negocio" placeholder="Nombre de tu negocio">
               <button class="legal-btn-primary" onclick="generarDemoLinkAgendate()">Generar link</button>
             </div>
-            <div class="quick-link-preview" id="lp-link-preview">agendate.com/barberia-ejemplo</div>
+            <div class="quick-link-preview" id="lp-link-preview" role="status" aria-live="polite">agendate.com/tu-comercio</div>
+          </div>
+        </section>
+
+        <section class="legal-section reveal">
+          <div class="legal-section-head">
+            <div>
+              <div class="legal-eyebrow">Preguntas frecuentes</div>
+              <h2>Lo básico, explicado sin letra chica rara.</h2>
+            </div>
+            <p>Antes de avanzar con un comercio, conviene dejar claro qué se configura, qué depende de cuentas externas y cómo se cuidan los datos.</p>
+          </div>
+          <div class="legal-faq">
+            <details open>
+              <summary>¿Agendate cobra las comisiones de MercadoPago o WhatsApp?</summary>
+              <p>No. Esos costos dependen de cada proveedor externo y de la cuenta que use el comercio. Agendate prepara la integración, pero las comisiones las define cada servicio.</p>
+            </details>
+            <details>
+              <summary>¿Sirve si tengo más de un profesional?</summary>
+              <p>Sí. El comercio puede tener profesionales con horarios y servicios propios, o servicios compartidos para todo el equipo.</p>
+            </details>
+            <details>
+              <summary>¿Qué pasa con los datos de clientes?</summary>
+              <p>Los datos se usan para gestionar reservas y mejorar la atención del comercio. También podés revisar la política de privacidad desde esta misma página.</p>
+            </details>
           </div>
         </section>
 
         <section class="legal-section reveal">
           <div class="legal-final">
             <div>
-              <h2>Tu agenda puede verse más profesional desde el primer contacto.</h2>
-              <p>Agendate está pensado para que el comercio venda mejor, pierda menos turnos y tenga una operativa clara.</p>
+              <h2>Una agenda más clara empieza por un primer contacto más profesional.</h2>
+              <p>Agendate ayuda a que el comercio se vea mejor, reserve con menos fricción y tenga más control sobre su día.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
               <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
