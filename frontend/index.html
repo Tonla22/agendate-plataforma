@@ -3169,6 +3169,751 @@ input,select,textarea { font-family: inherit; }
   .hor-dia-row { grid-template-columns:1fr; gap:0.55rem; }
   .hor-bloque-row { align-items:flex-start; flex-wrap:wrap; }
 }
+/* ==================================================================
+   /SOBRE - LANDING AGENDATE REDISENADA
+   ================================================================== */
+.ag-about {
+  --about-bg: #f4efe6;
+  --about-surface: #fffdf8;
+  --about-surface-2: #ebe3d5;
+  --about-ink: #16130f;
+  --about-muted: #6f665c;
+  --about-line: rgba(42, 34, 24, 0.12);
+  --about-gold: #a67c1f;
+  --about-gold-2: #d8b454;
+  --about-green: #1f8f5f;
+  --about-red: #c84b42;
+  --about-blue: #315b83;
+  min-height: 100vh;
+  color: var(--about-ink);
+  background:
+    radial-gradient(circle at 14% 8%, rgba(216,180,84,0.20), transparent 28rem),
+    radial-gradient(circle at 88% 4%, rgba(49,91,131,0.12), transparent 26rem),
+    linear-gradient(180deg, #fffaf0 0%, var(--about-bg) 48%, #efe7d8 100%);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+
+.ag-about::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .38;
+  background-image:
+    linear-gradient(rgba(166,124,31,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(166,124,31,.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, black 0, transparent 70%);
+}
+
+.ag-about .legal-nav {
+  width: min(1180px, calc(100% - 32px));
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: .75rem .9rem;
+  border: 1px solid rgba(42,34,24,.10);
+  border-radius: 999px;
+  background: rgba(255,253,248,.82);
+  box-shadow: 0 20px 60px rgba(48,39,26,.10);
+  backdrop-filter: blur(18px);
+}
+
+.ag-about .legal-brand {
+  color: var(--about-ink);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.ag-about .legal-brand::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  margin-right: .55rem;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--about-gold), #f4d879);
+  box-shadow: 0 0 0 5px rgba(216,180,84,.18);
+}
+
+.ag-about .legal-links {
+  gap: .25rem;
+}
+
+.ag-about .legal-links a {
+  color: var(--about-muted);
+  border-radius: 999px;
+  padding: .55rem .8rem;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.ag-about .legal-links a:hover,
+.ag-about .legal-links a:focus-visible {
+  color: var(--about-ink);
+  background: rgba(166,124,31,.10);
+  transform: translateY(-1px);
+}
+
+.ag-about .legal-hero {
+  width: min(1180px, calc(100% - 32px));
+  min-height: auto;
+  margin: 0 auto;
+  padding: 10rem 0 4rem;
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(360px, .8fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.ag-about .legal-eyebrow {
+  color: var(--about-gold);
+  letter-spacing: 0;
+  font-weight: 900;
+  font-size: .72rem;
+}
+
+.ag-about .legal-hero h1 {
+  max-width: 760px;
+  margin-top: .9rem;
+  color: var(--about-ink);
+  font-size: 5.8rem;
+  line-height: .86;
+  letter-spacing: 0;
+}
+
+.ag-about .landing-hero-title {
+  display: block;
+}
+
+.ag-about .legal-hero p,
+.ag-about .landing-subtitle {
+  max-width: 650px;
+  color: var(--about-muted);
+  font-size: 1.18rem;
+  line-height: 1.62;
+}
+
+.ag-about .legal-actions {
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.ag-about .legal-btn-primary,
+.ag-about .legal-btn-secondary {
+  min-height: 48px;
+  border-radius: 16px;
+  padding: .9rem 1.15rem;
+  font-weight: 900;
+  letter-spacing: .01em;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.ag-about .legal-btn-primary {
+  color: #18130b;
+  border: 1px solid rgba(118,82,8,.18);
+  background: linear-gradient(135deg, #f5d978, var(--about-gold-2));
+  box-shadow: 0 16px 34px rgba(166,124,31,.22);
+}
+
+.ag-about .legal-btn-secondary {
+  color: var(--about-ink);
+  border: 1px solid var(--about-line);
+  background: rgba(255,255,255,.60);
+}
+
+.ag-about .legal-btn-primary:hover,
+.ag-about .legal-btn-secondary:hover,
+.ag-about .legal-btn-primary:focus-visible,
+.ag-about .legal-btn-secondary:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 38px rgba(48,39,26,.14);
+}
+
+.ag-about .legal-btn-primary:focus-visible,
+.ag-about .legal-btn-secondary:focus-visible,
+.ag-about summary:focus-visible,
+.ag-about input:focus-visible,
+.ag-about button:focus-visible,
+.ag-about a:focus-visible {
+  outline: 3px solid rgba(49,91,131,.35);
+  outline-offset: 3px;
+}
+
+.ag-about .legal-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .7rem;
+  margin-top: 1.6rem;
+}
+
+.ag-about .legal-stat {
+  border: 1px solid var(--about-line);
+  border-radius: 18px;
+  background: rgba(255,253,248,.66);
+  box-shadow: 0 12px 30px rgba(48,39,26,.07);
+}
+
+.ag-about .legal-stat strong {
+  color: var(--about-ink);
+}
+
+.ag-about .legal-stat span {
+  color: var(--about-muted);
+}
+
+.ag-about .ag-ops-board {
+  position: relative;
+  border-radius: 34px;
+  border: 1px solid rgba(42,34,24,.12);
+  background:
+    linear-gradient(145deg, rgba(255,253,248,.94), rgba(235,227,213,.72)),
+    radial-gradient(circle at top right, rgba(216,180,84,.28), transparent 18rem);
+  box-shadow: 0 32px 90px rgba(48,39,26,.16);
+  color: var(--about-ink);
+  padding: 1.15rem;
+}
+
+.ag-about .ag-ops-board::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  right: -40px;
+  bottom: -40px;
+  border-radius: 999px;
+  background: rgba(31,143,95,.12);
+  filter: blur(4px);
+}
+
+.ag-about .ag-ops-head,
+.ag-about .ag-flow-card,
+.ag-about .ag-panel-preview {
+  position: relative;
+  z-index: 1;
+  border-color: var(--about-line);
+  background: rgba(255,255,255,.68);
+  color: var(--about-ink);
+}
+
+.ag-about .ag-ops-title span,
+.ag-about .ag-flow-card span,
+.ag-about .ag-flow-card small,
+.ag-about .ag-panel-preview p {
+  color: var(--about-muted);
+}
+
+.ag-about .ag-chip {
+  color: #0d5134;
+  background: rgba(31,143,95,.13);
+  border-color: rgba(31,143,95,.22);
+}
+
+.ag-about .ag-route {
+  color: var(--about-muted);
+}
+
+.ag-about .legal-wrap {
+  width: min(1180px, calc(100% - 32px));
+  padding: 0 0 5rem;
+}
+
+.ag-about .legal-section {
+  margin: 2.2rem 0;
+}
+
+.ag-about .legal-section-head {
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.ag-about .legal-section-head h2,
+.ag-about .quick-link-card h2,
+.ag-about .legal-final h2,
+.ag-about .phone-card h2 {
+  color: var(--about-ink);
+  letter-spacing: 0;
+  font-size: 3.15rem;
+  line-height: .98;
+}
+
+.ag-about .legal-section-head p,
+.ag-about .quick-link-card p,
+.ag-about .phone-card p,
+.ag-about .legal-final p {
+  color: var(--about-muted) !important;
+  line-height: 1.65;
+}
+
+.ag-about .ag-flow-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .85rem;
+  padding: .95rem;
+  border: 1px solid var(--about-line);
+  border-radius: 28px;
+  background: rgba(255,253,248,.72);
+  box-shadow: 0 18px 48px rgba(48,39,26,.09);
+}
+
+.ag-about .ag-flow-rail div {
+  min-height: 170px;
+  border: 1px solid rgba(42,34,24,.10);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fff, rgba(255,255,255,.55));
+  padding: 1rem;
+}
+
+.ag-about .ag-flow-rail span {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  color: #17120b;
+  background: #f2d36b;
+  font-weight: 900;
+  margin-bottom: .8rem;
+}
+
+.ag-about .ag-flow-rail strong,
+.ag-about .sobre-audience-card h3,
+.ag-about .legal-card h3,
+.ag-about .payment-card h3,
+.ag-about .package-main h3 {
+  color: var(--about-ink);
+}
+
+.ag-about .ag-flow-rail p,
+.ag-about .sobre-audience-card p,
+.ag-about .legal-card p,
+.ag-about .payment-card p,
+.ag-about .package-main p,
+.ag-about .package-list li,
+.ag-about .legal-faq p {
+  color: var(--about-muted);
+}
+
+.ag-about .sobre-audience-grid,
+.ag-about .feature-strip {
+  gap: 1rem;
+}
+
+.ag-about .sobre-audience-card,
+.ag-about .legal-card,
+.ag-about .payment-card,
+.ag-about .compare-card,
+.ag-about .phone-card,
+.ag-about .sobre-proof-item,
+.ag-about .quick-link-card,
+.ag-about .single-package-card,
+.ag-about .legal-final,
+.ag-about .legal-faq details,
+.ag-about .loss-calculator {
+  border: 1px solid var(--about-line);
+  background: rgba(255,253,248,.78);
+  box-shadow: 0 18px 52px rgba(48,39,26,.08);
+}
+
+.ag-about .sobre-audience-card,
+.ag-about .legal-card {
+  border-radius: 26px;
+}
+
+.ag-about .sobre-audience-card:hover,
+.ag-about .legal-card:hover,
+.ag-about .payment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 70px rgba(48,39,26,.13);
+}
+
+.ag-about .sobre-audience-card span,
+.ag-about .legal-icon {
+  color: #18130b;
+  background: linear-gradient(135deg, #f5d978, #d7b14e);
+}
+
+.ag-about .landing-wide-stats {
+  border: 1px solid var(--about-line);
+  border-radius: 28px;
+  background: #171410;
+  color: #fff8e9;
+  box-shadow: 0 28px 70px rgba(48,39,26,.15);
+}
+
+.ag-about .landing-wide-stat {
+  border-color: rgba(255,255,255,.10);
+}
+
+.ag-about .landing-wide-stat strong {
+  color: #f4d879;
+}
+
+.ag-about .landing-wide-stat span,
+.ag-about .landing-wide-stat small {
+  color: rgba(255,248,233,.72);
+}
+
+.ag-about .ag-section-panel {
+  padding: 1.1rem;
+  border-radius: 32px;
+  background:
+    linear-gradient(135deg, rgba(255,253,248,.74), rgba(235,227,213,.58)),
+    radial-gradient(circle at 90% 12%, rgba(49,91,131,.12), transparent 22rem);
+  border: 1px solid var(--about-line);
+}
+
+.ag-about .loss-controls,
+.ag-about .loss-results {
+  background: rgba(255,255,255,.62);
+  border-color: var(--about-line);
+}
+
+.ag-about .loss-row input {
+  accent-color: var(--about-gold);
+}
+
+.ag-about .loss-note {
+  background: rgba(166,124,31,.10);
+  border-color: rgba(166,124,31,.18);
+  color: var(--about-muted);
+}
+
+.ag-about .loss-kpi,
+.ag-about .loss-money div {
+  background: #fffaf1;
+  border-color: rgba(42,34,24,.10);
+}
+
+.ag-about .loss-kpi strong,
+.ag-about .loss-money strong {
+  color: var(--about-gold);
+}
+
+.ag-about .payment-showcase {
+  gap: 1rem;
+}
+
+.ag-about .payment-tag {
+  color: #0e5135;
+  background: rgba(31,143,95,.12);
+}
+
+.ag-about .mini-terminal,
+.ag-about .mini-payment {
+  background: #15130f;
+}
+
+.ag-about .compare-toggle {
+  background: rgba(255,253,248,.80);
+  border-color: var(--about-line);
+  color: var(--about-muted);
+}
+
+.ag-about .compare-switch {
+  background: rgba(31,143,95,.14);
+  border-color: rgba(31,143,95,.24);
+}
+
+.ag-about .compare-switch span {
+  background: var(--about-green);
+}
+
+.ag-about .compare-arrow {
+  color: var(--about-gold);
+}
+
+.ag-about .compare-list.good li::before {
+  color: var(--about-green);
+}
+
+.ag-about .compare-list.bad li::before {
+  color: var(--about-red);
+}
+
+.ag-about .phone-flow {
+  border-radius: 34px;
+  padding: clamp(1rem, 3vw, 2rem);
+  background:
+    linear-gradient(135deg, #171410, #252017),
+    radial-gradient(circle at top left, rgba(216,180,84,.22), transparent 18rem);
+  color: #fff8e9;
+  box-shadow: 0 28px 80px rgba(48,39,26,.18);
+}
+
+.ag-about .phone-ui {
+  background: #fffdf8;
+  color: var(--about-ink);
+}
+
+.ag-about .phone-ui.dark {
+  background: #eaf5ed;
+}
+
+.ag-about .phone-card {
+  background: rgba(255,253,248,.08);
+  border-color: rgba(255,255,255,.12);
+}
+
+.ag-about .phone-card h2 {
+  color: #fff8e9;
+}
+
+.ag-about .phone-card p {
+  color: rgba(255,248,233,.72) !important;
+}
+
+.ag-about .sobre-proof-band {
+  gap: 1rem;
+}
+
+.ag-about .sobre-pill-list span,
+.ag-about .package-highlights span {
+  color: #4d3c16;
+  background: rgba(216,180,84,.16);
+  border-color: rgba(166,124,31,.16);
+}
+
+.ag-about .single-package-card {
+  display: grid;
+  grid-template-columns: .82fr 1fr;
+  gap: 1rem;
+  border-radius: 36px;
+  padding: 1rem;
+  background:
+    linear-gradient(135deg, rgba(255,253,248,.92), rgba(235,227,213,.70)),
+    radial-gradient(circle at 8% 0%, rgba(216,180,84,.24), transparent 23rem);
+}
+
+.ag-about .package-main {
+  border-radius: 28px;
+  padding: clamp(1.3rem, 3vw, 2.2rem);
+  background: #171410;
+  color: #fff8e9;
+}
+
+.ag-about .package-main h3,
+.ag-about .package-main p {
+  color: #fff8e9;
+}
+
+.ag-about .package-main p {
+  color: rgba(255,248,233,.72);
+}
+
+.ag-about .package-price {
+  border: 1px solid rgba(216,180,84,.28);
+  border-radius: 22px;
+  padding: 1rem;
+  background: rgba(216,180,84,.10);
+}
+
+.ag-about .package-price strong {
+  color: #f4d879;
+  font-size: 3.2rem;
+  letter-spacing: 0;
+}
+
+.ag-about .package-side {
+  border-radius: 28px;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  background: rgba(255,255,255,.64);
+}
+
+.ag-about .package-side h4 {
+  color: var(--about-ink);
+  margin: 1rem 0 .75rem;
+}
+
+.ag-about .package-side h4:first-child {
+  margin-top: 0;
+}
+
+.ag-about .package-list li {
+  position: relative;
+  padding-left: 2.4rem;
+  margin-bottom: .72rem;
+  line-height: 1.52;
+}
+
+.ag-about .package-list li::before {
+  position: absolute;
+  left: 0;
+  top: .05rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: white;
+  font-size: .86rem;
+  font-weight: 900;
+}
+
+.ag-about .package-list.included li::before {
+  content: "✓";
+  background: var(--about-green);
+}
+
+.ag-about .package-list.excluded li::before {
+  content: "×";
+  background: var(--about-red);
+}
+
+.ag-about .quick-link-card {
+  border-radius: 36px;
+  padding: clamp(1.4rem, 4vw, 3rem);
+  text-align: center;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(216,180,84,.24), transparent 20rem),
+    #fffdf8;
+}
+
+.ag-about .quick-link-input {
+  max-width: 760px;
+  margin: 1.4rem auto .9rem;
+  border-color: var(--about-line);
+  background: rgba(244,239,230,.72);
+}
+
+.ag-about .quick-link-input input {
+  color: var(--about-ink);
+}
+
+.ag-about .quick-link-preview {
+  color: var(--about-muted);
+}
+
+.ag-about .legal-faq summary {
+  color: var(--about-ink);
+}
+
+.ag-about .legal-final {
+  border-radius: 36px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background:
+    linear-gradient(135deg, #171410, #282216),
+    radial-gradient(circle at right top, rgba(216,180,84,.18), transparent 20rem);
+}
+
+.ag-about .legal-final h2 {
+  color: #fff8e9;
+}
+
+.ag-about .legal-final p {
+  color: rgba(255,248,233,.72) !important;
+}
+
+.ag-about .legal-footer {
+  color: var(--about-muted);
+  border-color: var(--about-line);
+}
+
+.ag-about .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .48s ease, transform .48s ease;
+}
+
+.ag-about .reveal.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 980px) {
+  .ag-about .legal-nav {
+    top: 10px;
+    border-radius: 24px;
+    align-items: flex-start;
+  }
+  .ag-about .legal-links {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: .1rem;
+  }
+  .ag-about .legal-hero {
+    grid-template-columns: 1fr;
+    padding-top: 9rem;
+    gap: 1.5rem;
+  }
+  .ag-about .legal-hero h1 {
+    font-size: 4.4rem;
+  }
+  .ag-about .legal-stats,
+  .ag-about .ag-flow-rail,
+  .ag-about .single-package-card {
+    grid-template-columns: 1fr;
+  }
+  .ag-about .legal-section-head {
+    grid-template-columns: 1fr;
+  }
+  .ag-about .legal-section-head h2,
+  .ag-about .quick-link-card h2,
+  .ag-about .legal-final h2,
+  .ag-about .phone-card h2 {
+    font-size: 2.55rem;
+  }
+  .ag-about .compare-grid {
+    grid-template-columns: 1fr;
+  }
+  .ag-about .compare-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .ag-about .legal-nav,
+  .ag-about .legal-hero,
+  .ag-about .legal-wrap {
+    width: min(100% - 20px, 1180px);
+  }
+  .ag-about .legal-hero {
+    padding-top: 8.5rem;
+  }
+  .ag-about .legal-hero h1 {
+    font-size: 3.05rem;
+    line-height: .95;
+  }
+  .ag-about .legal-section-head h2,
+  .ag-about .quick-link-card h2,
+  .ag-about .legal-final h2,
+  .ag-about .phone-card h2,
+  .ag-about .package-price strong {
+    font-size: 2.15rem;
+  }
+  .ag-about .legal-actions a,
+  .ag-about .quick-link-input button {
+    width: 100%;
+    justify-content: center;
+  }
+  .ag-about .quick-link-input {
+    display: grid;
+    gap: .7rem;
+    padding: .75rem;
+  }
+  .ag-about .quick-link-input input {
+    text-align: center;
+  }
+  .ag-about .phone-flow,
+  .ag-about .phones {
+    display: block;
+  }
+  .ag-about .phone-ui {
+    margin: 0 auto 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-about *,
+  .ag-about .reveal {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  .ag-about .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
 </style>
 </head>
 <body>
@@ -3426,7 +4171,7 @@ function irPanel() {
 // ============================================================
 function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre', heroVisual = '' }) {
   return `
-    <div class="legal-page">
+    <div class="legal-page ${activo === 'sobre' ? 'ag-about' : ''}">
       <nav class="legal-nav">
         <a class="legal-brand" href="/sobre" onclick="event.preventDefault();navegar('/sobre')">Agendate</a>
         <div class="legal-links">
@@ -3698,35 +4443,39 @@ function mostrarPaginaLegal(tipo = 'sobre') {
     return;
   }
 
+  return renderSobreAgendate(el);
+}
+
+function renderSobreAgendate(el) {
   document.title = 'Agendate - Reservas, pagos y agenda online';
   el.innerHTML = legalLayout({
     activo: 'sobre',
-    etiqueta: 'Agenda online para comercios de servicios',
-    titulo: '<span class="landing-hero-title">Una forma más clara de tomar reservas, cobrar y ordenar tu día.</span>',
-    subtitulo: '<span class="landing-subtitle">Agendate te da una página pública, un panel de gestión y un flujo simple para que tus clientes reserven sin depender de mensajes sueltos.</span>',
+    etiqueta: 'Sistema de reservas para comercios de servicios',
+    titulo: '<span class="landing-hero-title">Tu comercio listo para reservar, cobrar y trabajar más ordenado.</span>',
+    subtitulo: '<span class="landing-subtitle">Agendate une tu página pública, la agenda, los profesionales, los clientes y los pagos en una experiencia simple para vos y clara para quien reserva.</span>',
     heroVisual: `
       <div class="ag-ops-board float-soft" aria-label="Vista operativa de Agendate">
         <div class="ag-ops-head">
           <div class="ag-ops-title">
-            <strong>Mesa de control</strong>
-            <span>Turnos, clientes, pagos y equipo en una misma vista</span>
+            <strong>Centro de trabajo</strong>
+            <span>Una vista limpia para tomar decisiones sin buscar entre chats</span>
           </div>
-          <span class="ag-chip">Listo para atender</span>
+          <span class="ag-chip">Agenda activa</span>
         </div>
         <div class="ag-flow-grid">
-          <div class="ag-flow-card"><small>Reserva nueva</small><strong>Cliente registrado</strong><span>Servicio, día y hora guardados</span></div>
-          <div class="ag-flow-card"><small>Pago</small><strong>Seña recibida</strong><span>El turno avanza con más compromiso</span></div>
-          <div class="ag-flow-card"><small>Equipo</small><strong>Profesional asignado</strong><span>Agenda individual sin cruces</span></div>
-          <div class="ag-flow-card"><small>Calendario</small><strong>Evento creado</strong><span>La reserva queda sincronizada</span></div>
+          <div class="ag-flow-card"><small>Reserva nueva</small><strong>Datos completos</strong><span>Cliente, servicio, día y hora guardados</span></div>
+          <div class="ag-flow-card"><small>Anticipo</small><strong>Seña controlada</strong><span>El turno entra con más compromiso</span></div>
+          <div class="ag-flow-card"><small>Equipo</small><strong>Profesional asignado</strong><span>Cada agenda trabaja sin cruces</span></div>
+          <div class="ag-flow-card"><small>Calendario</small><strong>Evento sincronizado</strong><span>La reserva también vive en Google Calendar</span></div>
         </div>
         <div class="ag-route">
-          <span>Página pública</span>
-          <span>Datos del cliente</span>
-          <span>Reglas de reserva</span>
-          <span>Agenda ordenada</span>
+          <span>Link público</span>
+          <span>Cliente identificado</span>
+          <span>Reglas claras</span>
+          <span>Día organizado</span>
         </div>
         <div class="ag-panel-preview">
-          <h3>Resumen rápido</h3>
+          <h3>Hoy en el comercio</h3>
           <div class="ag-mini-row"><b>Reservas confirmadas</b><em>12</em></div>
           <div class="ag-mini-row"><b>Pagos completados</b><em>$ 8.400</em></div>
           <div class="ag-mini-row"><b>Próximo turno</b><em>16:30</em></div>
@@ -3736,33 +4485,33 @@ function mostrarPaginaLegal(tipo = 'sobre') {
     contenido: `
       <main class="legal-wrap">
         <div class="ag-flow-rail reveal">
-          <div><span>01</span><strong>Publicás tu página</strong><p>Compartís un link claro con tus servicios, horarios, ubicación y botón de contacto.</p></div>
-          <div><span>02</span><strong>El cliente reserva</strong><p>Elige servicio, profesional si corresponde, día y horario disponible.</p></div>
-          <div><span>03</span><strong>Aplicás tus reglas</strong><p>Podés pedir seña, pago anticipado, políticas de cancelación y datos del cliente.</p></div>
-          <div><span>04</span><strong>Gestionás desde el panel</strong><p>Ves reservas, clientes, métricas, pagos y calendario desde un solo lugar.</p></div>
+          <div><span>01</span><strong>Mostrás una página seria</strong><p>El cliente entra a un link claro con servicios, horarios, ubicación y contacto.</p></div>
+          <div><span>02</span><strong>La reserva se ordena sola</strong><p>Elige servicio, profesional si corresponde, día y horario disponible.</p></div>
+          <div><span>03</span><strong>Definís tus condiciones</strong><p>Podés pedir seña, pago anticipado, políticas de cancelación y datos del cliente.</p></div>
+          <div><span>04</span><strong>Trabajás desde el panel</strong><p>Ves reservas, clientes, métricas, pagos y calendario desde un solo lugar.</p></div>
         </div>
 
         <section class="legal-section reveal">
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Para quién es</div>
-              <h2>Hecho para comercios que trabajan con turnos.</h2>
+              <h2>Para negocios donde cada horario vale.</h2>
             </div>
-            <p>Agendate no está pensado para un solo rubro. Sirve para cualquier negocio donde reservar bien significa vender mejor y trabajar con menos desorden.</p>
+            <p>No está pensado sólo para barberías ni para un rubro específico. Sirve para cualquier comercio que necesite convertir consultas en reservas reales y trabajar con menos improvisación.</p>
           </div>
           <div class="sobre-audience-grid">
-            <div class="sobre-audience-card"><span>01</span><h3>Estética y cuidado personal</h3><p>Salones, uñas, cejas, masajes, depilación, barberías y peluquerías que necesitan organizar agenda y equipo.</p></div>
-            <div class="sobre-audience-card"><span>02</span><h3>Profesionales independientes</h3><p>Personas que atienden por horario y quieren recibir reservas sin responder el mismo mensaje veinte veces.</p></div>
-            <div class="sobre-audience-card"><span>03</span><h3>Locales con varios trabajadores</h3><p>Negocios donde cada profesional puede tener sus servicios, horarios y reservas sin mezclar agendas.</p></div>
+            <div class="sobre-audience-card"><span>01</span><h3>Locales de atención por turno</h3><p>Peluquerías, salones, estética, uñas, masajes, depilación y servicios donde el cliente necesita elegir horario.</p></div>
+            <div class="sobre-audience-card"><span>02</span><h3>Profesionales independientes</h3><p>Personas que trabajan con agenda propia y quieren dejar de responder el mismo mensaje una y otra vez.</p></div>
+            <div class="sobre-audience-card"><span>03</span><h3>Equipos con varias agendas</h3><p>Comercios donde cada profesional puede tener servicios, horarios y reservas sin mezclar responsabilidades.</p></div>
           </div>
         </section>
 
         <section class="legal-section reveal">
           <div class="landing-wide-stats">
-            <div class="landing-wide-stat"><strong>24h</strong><span>reservas abiertas</span><small>para que el cliente elija cuando pueda</small></div>
-            <div class="landing-wide-stat"><strong>1</strong><span>panel de trabajo</span><small>reservas, clientes, servicios y pagos</small></div>
-            <div class="landing-wide-stat"><strong>2+</strong><span>profesionales</span><small>agendas separadas dentro del mismo comercio</small></div>
-            <div class="landing-wide-stat"><strong>0</strong><span>planillas sueltas</span><small>menos datos perdidos entre chats</small></div>
+            <div class="landing-wide-stat"><strong>24h</strong><span>link disponible</span><small>reservas incluso cuando el local está cerrado</small></div>
+            <div class="landing-wide-stat"><strong>1</strong><span>panel central</span><small>reservas, clientes, servicios y pagos</small></div>
+            <div class="landing-wide-stat"><strong>2+</strong><span>agendas por equipo</span><small>servicios compartidos o por profesional</small></div>
+            <div class="landing-wide-stat"><strong>0</strong><span>datos sueltos</span><small>menos capturas, notas y mensajes perdidos</small></div>
           </div>
         </section>
 
@@ -3770,9 +4519,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Orden operativo</div>
-              <h2>Cuando la agenda depende solo del chat, algo siempre se pierde.</h2>
+              <h2>Lo caro no es perder un mensaje: es perder un horario vendible.</h2>
             </div>
-            <p>Usá esta estimación para visualizar el impacto de reservas sin confirmar, cancelaciones tardías y huecos que quedan vacíos.</p>
+            <p>Mové los números y mirá cuánto puede pesar una agenda sin reglas claras, sin anticipo y sin seguimiento.</p>
           </div>
           <div class="loss-calculator">
             <div class="loss-controls">
@@ -3793,7 +4542,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               </div>
             </div>
             <div class="loss-results">
-              <div class="loss-note">Con reglas claras, señas cuando corresponde y un panel ordenado, el comercio puede trabajar con menos improvisación.</div>
+              <div class="loss-note">Con reglas claras, señas cuando corresponde y un panel ordenado, el comercio trabaja con más previsibilidad.</div>
               <div class="loss-kpis">
                 <div class="loss-kpi"><strong id="lp-perdidos">4</strong><span>turnos en riesgo al mes</span></div>
                 <div class="loss-kpi"><strong id="lp-caidas-kpi">22%</strong><span>se caen o no vienen</span></div>
@@ -3812,22 +4561,22 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Cobros y compromiso</div>
-              <h2>Si el turno requiere seña, el flujo lo deja claro desde el inicio.</h2>
+              <h2>Cuando un turno necesita compromiso, el cliente lo sabe antes de reservar.</h2>
             </div>
-            <p>La idea es que el cliente entienda qué está reservando, cuánto debe abonar y cuándo el turno queda realmente confirmado.</p>
+            <p>El flujo deja explícito qué se reserva, cuánto se paga y cuándo el turno queda confirmado.</p>
           </div>
           <div class="payment-showcase">
             <div class="payment-card">
               <span class="payment-tag">REGLAS CLARAS</span>
               <h3>Servicios con seña</h3>
-              <p>Marcás qué servicios necesitan anticipo y el cliente lo ve antes de completar la reserva.</p>
+              <p>Marcás qué servicios necesitan anticipo y el cliente lo ve antes de confirmar sus datos.</p>
               <div class="mini-terminal"><div class="mini-progress"></div></div>
             </div>
             <div class="payment-card">
               <span class="payment-tag">MERCADOPAGO</span>
               <h3>Pago online preparado</h3>
               <p>Cuando el comercio conecta su cuenta, el anticipo puede cobrarse dentro del flujo de reserva.</p>
-              <div class="mini-payment"><div><div class="mini-check">✓</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
+              <div class="mini-payment"><div><div class="mini-check">OK</div><p style="text-align:center;margin-top:.7rem">Pago aprobado</p></div></div>
             </div>
           </div>
         </section>
@@ -3836,9 +4585,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Herramientas incluidas</div>
-              <h2>Lo importante del comercio, ordenado sin vueltas.</h2>
+              <h2>Todo lo que sostiene la atención, en una interfaz simple.</h2>
             </div>
-            <p>Cada módulo está pensado para resolver tareas concretas: vender, reservar, cobrar, atender y medir.</p>
+            <p>Cada módulo tiene una función concreta: mostrar mejor el negocio, tomar reservas, cobrar anticipos, medir y atender con más claridad.</p>
           </div>
           <div class="feature-strip">
             <div class="legal-card"><div class="legal-icon">LK</div><div><h3>Página pública</h3><p>Un link para compartir en Instagram, WhatsApp o donde el comercio consiga clientes.</p></div></div>
@@ -3854,14 +4603,14 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Antes y después</div>
-              <h2>El cambio no es tener más pantallas: es tener menos desorden.</h2>
+              <h2>Menos coordinación manual, más control sobre el día.</h2>
             </div>
-            <p>Compará cómo se siente una agenda manejada por mensajes contra una operación con reglas, panel y registro.</p>
+            <p>La diferencia se nota cuando cada reserva deja de depender de memoria, capturas y mensajes perdidos.</p>
           </div>
           <div style="display:flex;justify-content:center">
             <div class="compare-toggle">
               <span>Sin Agendate</span>
-              <button class="compare-switch act" id="lp-switch" onclick="alternarComparacionAgendate()" aria-label="Cambiar comparacion"><span></span></button>
+              <button class="compare-switch act" id="lp-switch" onclick="alternarComparacionAgendate()" aria-label="Cambiar comparación"><span></span></button>
               <span>Con Agendate</span>
             </div>
           </div>
@@ -3910,8 +4659,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             </div>
             <div class="phone-card">
               <div class="legal-eyebrow">Flujo completo</div>
-              <h2>Desde el primer clic hasta la agenda del comercio.</h2>
-              <p>El cliente reserva, completa sus datos, paga si corresponde y el comercio recibe una reserva más clara. La experiencia se mantiene simple para el cliente y ordenada para quien trabaja.</p>
+              <h2>Una experiencia limpia para el cliente y útil para el comercio.</h2>
+              <p>El cliente reserva, completa sus datos, paga si corresponde y el comercio recibe información clara para trabajar. Sin hacerle aprender un sistema complicado a quien sólo quiere tomar un turno.</p>
             </div>
           </div>
         </section>
@@ -3920,19 +4669,19 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Confianza</div>
-              <h2>Una herramienta chica por fuera, seria por dentro.</h2>
+              <h2>Simple de usar, preparada para operar en serio.</h2>
             </div>
-            <p>Agendate prioriza claridad, control y una experiencia que cualquier comercio pueda entender sin depender de configuraciones raras.</p>
+            <p>Agendate prioriza claridad, control y una experiencia que cualquier comercio pueda adoptar sin depender de configuraciones raras.</p>
           </div>
           <div class="sobre-proof-band">
             <div class="sobre-proof-item">
-              <strong>Diseñado para vender, no solo para mostrar información.</strong>
-              <p>La página pública lleva al cliente hacia una acción concreta: reservar, consultar, ubicarse o conocer los servicios.</p>
+              <strong>Tu página trabaja como un mostrador digital.</strong>
+              <p>No es sólo una vidriera. Ordena la información y empuja al cliente hacia una acción concreta: reservar, consultar o llegar al local.</p>
               <div class="sobre-pill-list"><span>CTA claros</span><span>Mobile primero</span><span>Servicios visibles</span></div>
             </div>
             <div class="sobre-proof-item">
-              <strong>Preparado para crecer con el comercio.</strong>
-              <p>Podés empezar con una agenda simple y sumar profesionales, pagos, métricas y calendario cuando el negocio lo necesite.</p>
+              <strong>Empieza simple y acompaña el crecimiento.</strong>
+              <p>Podés empezar con una agenda clara y sumar profesionales, pagos, métricas y calendario cuando el negocio lo necesite.</p>
               <div class="sobre-pill-list"><span>Multi-profesional</span><span>Pagos</span><span>Google Calendar</span></div>
             </div>
           </div>
@@ -3942,24 +4691,24 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Paquete Agendate</div>
-              <h2>Una puesta en marcha clara, con lo esencial bien configurado.</h2>
+              <h2>Un solo paquete para salir con una base profesional.</h2>
             </div>
-            <p>Un único paquete de configuración inicial para que el comercio salga con una base profesional y lista para compartir.</p>
+            <p>Configuramos lo necesario para que el comercio tenga presencia, agenda y panel sin arrancar desde una página vacía.</p>
           </div>
           <div class="single-package-card">
             <div class="package-main">
               <span class="payment-tag">PUESTA EN MARCHA</span>
-              <h3>Página comercial + sistema de reservas</h3>
-              <p>Dejamos armado el espacio público del comercio y configuramos la base operativa: servicios, profesionales, horarios, datos principales y flujo de reserva.</p>
+              <h3>Agendate Inicial</h3>
+              <p>Armamos la página pública del comercio y dejamos configurada la base operativa: servicios, profesionales, horarios, datos principales y flujo de reserva.</p>
               <div class="package-price">
                 <strong>UYU $1.600</strong>
                 <span>pago único por configuración inicial</span>
               </div>
-              <p class="package-note">La idea es que el comercio no arranque desde cero ni con una página vacía. Sale con una presencia lista para compartir y un panel preparado para trabajar.</p>
+              <p class="package-note">La idea es que el comercio pueda compartir su link con seguridad y empezar a ordenar reservas desde el primer día.</p>
               <div class="package-highlights">
-                <span>Implementación inicial</span>
+                <span>Configuración inicial</span>
                 <span>Link público listo</span>
-                <span>Panel comercial ordenado</span>
+                <span>Panel comercial preparado</span>
               </div>
               <div class="package-actions">
                 <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
@@ -3969,18 +4718,18 @@ function mostrarPaginaLegal(tipo = 'sobre') {
             <div class="package-side">
               <h4>Incluye</h4>
               <ul class="package-list included">
-                <li>Página pública responsive con identidad básica, portada, frase principal y datos del comercio.</li>
-                <li>Configuración inicial de servicios, precios, duración, imágenes y reglas básicas de reserva.</li>
-                <li>Profesionales, horarios de atención y servicios que pueden ser compartidos o propios de cada trabajador.</li>
+                <li>Página pública responsive con nombre, portada, frase principal, logo y datos visibles del comercio.</li>
+                <li>Carga inicial de servicios con precio, duración, imagen y reglas básicas de reserva.</li>
+                <li>Configuración de profesionales, horarios de atención y servicios compartidos o propios de cada trabajador.</li>
                 <li>Botón de WhatsApp, ubicación clara y accesos rápidos para que el cliente consulte o llegue al local.</li>
                 <li>Panel comercial para gestionar reservas, clientes, servicios, profesionales, métricas y pagos.</li>
                 <li>Base preparada para señas o pagos anticipados con MercadoPago cuando el comercio tenga sus credenciales.</li>
-                <li>Conexión con Google Calendar si el comercio entrega la cuenta y permisos necesarios.</li>
+                <li>Conexión inicial con Google Calendar si el comercio entrega la cuenta y permisos necesarios.</li>
               </ul>
               <h4>No incluye por defecto</h4>
               <ul class="package-list excluded">
-                <li>Comisiones, planes pagos o costos de servicios externos como MercadoPago, WhatsApp, Google, hosting o almacenamiento.</li>
-                <li>Creación de marca, diseño de logo, sesión de fotos, edición avanzada de imágenes o campañas publicitarias.</li>
+                <li>Comisiones, planes pagos o costos externos de MercadoPago, WhatsApp, Google, hosting o almacenamiento.</li>
+                <li>Diseño de marca desde cero, creación de logo, sesión de fotos, edición avanzada o campañas publicitarias.</li>
                 <li>Desarrollos a medida, integraciones especiales o cambios fuera del flujo base de Agendate.</li>
                 <li>Migraciones complejas desde otros sistemas o carga masiva de información histórica.</li>
               </ul>
@@ -3991,8 +4740,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="quick-link-card">
             <div class="legal-eyebrow">Empezá hoy</div>
-            <h2>Imaginá tu link de reservas en segundos.</h2>
-            <p style="color:var(--texto2)">Escribí el nombre del comercio y generá una vista rápida del enlace que podrías compartir con tus clientes.</p>
+            <h2>Probá cómo sonaría tu link público.</h2>
+            <p style="color:var(--texto2)">Escribí el nombre del comercio y generá una idea rápida del enlace que podrías compartir en Instagram, WhatsApp o Google.</p>
             <div class="quick-link-input">
               <input id="lp-negocio" placeholder="Nombre de tu negocio">
               <button class="legal-btn-primary" onclick="generarDemoLinkAgendate()">Generar link</button>
@@ -4005,9 +4754,9 @@ function mostrarPaginaLegal(tipo = 'sobre') {
           <div class="legal-section-head">
             <div>
               <div class="legal-eyebrow">Preguntas frecuentes</div>
-              <h2>Lo básico, explicado sin letra chica rara.</h2>
+              <h2>Preguntas simples antes de avanzar.</h2>
             </div>
-            <p>Antes de avanzar con un comercio, conviene dejar claro qué se configura, qué depende de cuentas externas y cómo se cuidan los datos.</p>
+            <p>Antes de configurar un comercio, dejamos claro qué incluye Agendate, qué depende de terceros y cómo se cuida la información.</p>
           </div>
           <div class="legal-faq">
             <details open>
@@ -4028,8 +4777,8 @@ function mostrarPaginaLegal(tipo = 'sobre') {
         <section class="legal-section reveal">
           <div class="legal-final">
             <div>
-              <h2>Una agenda más clara empieza por un primer contacto más profesional.</h2>
-              <p>Agendate ayuda a que el comercio se vea mejor, reserve con menos fricción y tenga más control sobre su día.</p>
+              <h2>Una agenda más clara empieza con un link que trabaja por vos.</h2>
+              <p>Agendate ayuda a que el comercio se vea mejor, reciba reservas con menos fricción y tenga más control sobre su día.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
               <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
@@ -4041,7 +4790,6 @@ function mostrarPaginaLegal(tipo = 'sobre') {
     `
   });
   setTimeout(inicializarLandingAgendate, 0);
-  return;
 }
 
 // ============================================================
