@@ -9,7 +9,10 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { v2: cloudinary } = require('cloudinary');
 const { v4: uuidv4 } = require('uuid');
-const { enviarConfirmacionReserva } = require('../services/whatsapp');
+const {
+  enviarConfirmacionReserva,
+  enviarCancelacionReserva
+} = require('../services/whatsapp');
 const {
   getGoogleRedirectUri,
   generarUrlAutorizacionGoogle,
@@ -669,8 +672,13 @@ router.get('/:slug/mercadopago/conectar', authAdminOrComercio, async (req, res) 
       return res.status(500).json({ error: 'Faltan las credenciales OAuth de Mercado Pago' });
     }
 
-    const comercio = await pool.query(
-      'SELECT id,slug FROM comercios WHERE slug=$1',
+        const comercio = await pool.query(
+      `SELECT
+        id,
+        nombre,
+        auto_cancelacion_activa
+       FROM comercios
+       WHERE slug=$1`,
       [req.params.slug]
     );
 
@@ -2222,10 +2230,53 @@ router.put('/:slug/reservas/:id/estado', authAdminOrComercio, async (req, res) =
       });
     }
 
-    if (estado === 'cancelada') {
+        if (estado === 'cancelada') {
       cancelarEventoReserva(pool, r.rows[0].id).catch(err => {
         console.error('No se pudo cancelar Google Calendar:', err.message);
       });
+
+      if (
+        comercio.rows[0].auto_cancelacion_activa !== false &&
+        r.rows[0].cancelacion_enviada !== true
+      ) {
+        pool.query(
+          `SELECT id, nombre
+           FROM servicios
+           WHERE id=$1 AND comercio_id=$2
+           LIMIT 1`,
+          [r.rows[0].servicio_id, comercio.rows[0].id]
+        )
+          .then(resultadoServicio => {
+            const servicio = resultadoServicio.rows[0];
+
+            if (!servicio) {
+              throw new Error('Servicio de la reserva no encontrado');
+            }
+
+            return enviarCancelacionReserva({
+              reserva: r.rows[0],
+              comercio: comercio.rows[0],
+              servicio
+            });
+          })
+          .then(async enviado => {
+            if (!enviado) return;
+
+            await pool.query(
+              `UPDATE reservas
+               SET cancelacion_enviada=true,
+                   cancelacion_enviada_en=NOW()
+               WHERE id=$1`,
+              [r.rows[0].id]
+            );
+          })
+          .catch(error => {
+            console.error(
+              'No se pudo enviar cancelacion WhatsApp desde el panel:',
+              error.message
+            );
+          });
+      }
     }
 
     res.json(r.rows[0]);

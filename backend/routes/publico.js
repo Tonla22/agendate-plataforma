@@ -3,8 +3,10 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
 const { body, param, validationResult } = require('express-validator');
-const { enviarConfirmacionReserva } = require('../services/whatsapp');
-const { crearPreferenciaReserva } = require('../services/mercadopago');
+const {
+  enviarConfirmacionReserva,
+  enviarCancelacionReserva
+} = require('../services/whatsapp');const { crearPreferenciaReserva } = require('../services/mercadopago');
 const { sincronizarReservaConfirmada, cancelarEventoReserva } = require('../services/googleCalendar');
 
 const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
@@ -765,15 +767,28 @@ router.get('/reservas/:uuid', async (req, res) => {
 // POST /api/p/reservas/:uuid/cancelar - cancelar reserva publica
 router.post('/reservas/:uuid/cancelar', async (req, res) => {
   try {
-    const actual = await pool.query(
+        const actual = await pool.query(
       `SELECT
         r.id,
+        r.uuid,
         r.estado,
         r.fecha,
         r.hora::text AS hora,
-        c.anticipacion_cancelacion_min
+        r.cliente_nombre,
+        r.cliente_whatsapp,
+
+        c.id AS comercio_id,
+        c.nombre AS comercio_nombre,
+        c.anticipacion_cancelacion_min,
+        c.auto_cancelacion_activa,
+
+        s.id AS servicio_id,
+        s.nombre AS servicio_nombre
+
        FROM reservas r
        JOIN comercios c ON c.id = r.comercio_id
+       JOIN servicios s ON s.id = r.servicio_id
+
        WHERE r.uuid=$1
        LIMIT 1`,
       [req.params.uuid]
@@ -811,9 +826,49 @@ router.post('/reservas/:uuid/cancelar', async (req, res) => {
       [actual.rows[0].id]
     );
 
-    cancelarEventoReserva(pool, actual.rows[0].id).catch(err => {
-      console.error('No se pudo cancelar Google Calendar desde cancelacion publica:', err.message);
+        cancelarEventoReserva(pool, actual.rows[0].id).catch(err => {
+      console.error(
+        'No se pudo cancelar Google Calendar desde cancelacion publica:',
+        err.message
+      );
     });
+
+    if (actual.rows[0].auto_cancelacion_activa !== false) {
+      enviarCancelacionReserva({
+        reserva: {
+          uuid: actual.rows[0].uuid,
+          fecha: actual.rows[0].fecha,
+          hora: actual.rows[0].hora,
+          cliente_nombre: actual.rows[0].cliente_nombre,
+          cliente_whatsapp: actual.rows[0].cliente_whatsapp
+        },
+        comercio: {
+          id: actual.rows[0].comercio_id,
+          nombre: actual.rows[0].comercio_nombre
+        },
+        servicio: {
+          id: actual.rows[0].servicio_id,
+          nombre: actual.rows[0].servicio_nombre
+        }
+      })
+        .then(async enviado => {
+          if (!enviado) return;
+
+          await pool.query(
+            `UPDATE reservas
+             SET cancelacion_enviada=true,
+                 cancelacion_enviada_en=NOW()
+             WHERE id=$1`,
+            [actual.rows[0].id]
+          );
+        })
+        .catch(error => {
+          console.error(
+            'No se pudo enviar cancelacion WhatsApp:',
+            error.message
+          );
+        });
+    }
 
     res.json({ ok: true, reserva: r.rows[0] });
   } catch (e) {

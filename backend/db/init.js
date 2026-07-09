@@ -197,8 +197,10 @@ CREATE TABLE IF NOT EXISTS reservas (
   confirmacion_enviada_en TIMESTAMP,
   recordatorio_enviado BOOLEAN DEFAULT false,
   recordatorio_enviado_en TIMESTAMP,
-  cancelacion_enviada BOOLEAN DEFAULT false,
+   cancelacion_enviada BOOLEAN DEFAULT false,
   cancelacion_enviada_en TIMESTAMP,
+  agradecimiento_enviado BOOLEAN DEFAULT false,
+  agradecimiento_enviado_en TIMESTAMP,
   cancelada_por_cliente_en TIMESTAMP,
   reprogramada_en TIMESTAMP,
   fecha_original DATE,
@@ -314,8 +316,10 @@ DO $$ BEGIN
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS confirmacion_enviada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS recordatorio_enviado_en TIMESTAMP;
-  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada BOOLEAN DEFAULT false;
+    ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada BOOLEAN DEFAULT false;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelacion_enviada_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS agradecimiento_enviado BOOLEAN DEFAULT false;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS agradecimiento_enviado_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS cancelada_por_cliente_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS reprogramada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS fecha_original DATE;

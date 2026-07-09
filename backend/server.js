@@ -4,6 +4,9 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const {
+  iniciarAutomatizacionesWhatsApp
+} = require('./services/whatsappAutomations');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,5 +79,8 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
-  console.log(`✅ Servidor corriendo en ${baseUrl}`);
+
+  console.log(`Servidor corriendo en ${baseUrl}`);
+
+  iniciarAutomatizacionesWhatsApp();
 });

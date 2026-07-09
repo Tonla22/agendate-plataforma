@@ -102,6 +102,82 @@ async function enviarConfirmacionReserva({ reserva, comercio, servicio, profesio
   });
 }
 
+async function enviarRecordatorioReserva({ reserva, comercio, servicio, profesional }) {
+  const templateName =
+    process.env.WHATSAPP_RECORDATORIO_TEMPLATE || 'recordatorio_reserva';
+
+  return enviarTemplateWhatsApp({
+    to: reserva.cliente_whatsapp,
+    templateName,
+    components: [
+      {
+        type: 'body',
+        parameters: [
+          templateText(reserva.cliente_nombre),
+          templateText(comercio.nombre),
+          templateText(servicio.nombre),
+          templateText(formatearFecha(reserva.fecha)),
+          templateText(String(reserva.hora || '').slice(0, 5)),
+          templateText(profesional?.nombre || 'el equipo')
+        ]
+      },
+      {
+        type: 'button',
+        sub_type: 'url',
+        index: '0',
+        parameters: [templateText(reserva.uuid)]
+      }
+    ]
+  });
+}
+
+async function enviarCancelacionReserva({ reserva, comercio, servicio }) {
+  const templateName =
+    process.env.WHATSAPP_CANCELACION_TEMPLATE || 'cancelacion_reserva';
+
+  return enviarTemplateWhatsApp({
+    to: reserva.cliente_whatsapp,
+    templateName,
+    components: [
+      {
+        type: 'body',
+        parameters: [
+          templateText(reserva.cliente_nombre),
+          templateText(comercio.nombre),
+          templateText(servicio.nombre),
+          templateText(formatearFecha(reserva.fecha)),
+          templateText(String(reserva.hora || '').slice(0, 5))
+        ]
+      }
+    ]
+  });
+}
+
+async function enviarAgradecimientoReserva({ reserva, comercio, servicio, profesional }) {
+  const templateName =
+    process.env.WHATSAPP_AGRADECIMIENTO_TEMPLATE || 'agradecimiento_reserva';
+
+  return enviarTemplateWhatsApp({
+    to: reserva.cliente_whatsapp,
+    templateName,
+    components: [
+      {
+        type: 'body',
+        parameters: [
+          templateText(reserva.cliente_nombre),
+          templateText(comercio.nombre),
+          templateText(servicio.nombre),
+          templateText(profesional?.nombre || 'el equipo')
+        ]
+      }
+    ]
+  });
+}
+
 module.exports = {
-  enviarConfirmacionReserva
+  enviarTemplateWhatsApp,
+  enviarConfirmacionReserva,
+  enviarRecordatorioReserva,
+  enviarCancelacionReserva,
+  enviarAgradecimientoReserva
 };
