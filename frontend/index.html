@@ -2718,6 +2718,30 @@ input,select,textarea { font-family: inherit; }
 .admin-sidebar { background:var(--bg2); border-right:1px solid var(--borde2); padding:0; display:flex; flex-direction:column; }
 .admin-sidebar-logo { padding:1.5rem 1.2rem; border-bottom:1px solid var(--borde2); font-size:1.1rem; font-weight:700; color:var(--oro); }
 .admin-sidebar-logo span { font-size:0.65rem; display:block; color:var(--texto2); font-weight:400; letter-spacing:0.05em; margin-top:2px; }
+.logo-plataforma-admin {
+  display: none;
+  width: auto;
+  max-width: 150px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.logo-plataforma-nav {
+  display: none;
+  width: auto;
+  max-width: 150px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.logo-plataforma-login {
+  display: none;
+  width: auto;
+  max-width: 190px;
+  height: 72px;
+  object-fit: contain;
+  margin: 0 auto;
+}
 .admin-nav { flex:1; padding:1rem 0; }
 .admin-nav a { display:flex; align-items:center; gap:0.6rem; padding:0.7rem 1.2rem; color:var(--texto2); font-size:0.85rem; transition:all 0.15s; border-left:3px solid transparent; }
 .admin-nav a:hover,.admin-nav a.act { color:var(--texto); background:rgba(255,255,255,0.04); border-left-color:var(--oro); }
@@ -4486,6 +4510,22 @@ input,select,textarea { font-family: inherit; }
 
 .ag-about .ag-v2-list .no b {
   background: #c84b42;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 0;
+  line-height: 1;
+}
+
+.ag-about .ag-v2-list .no b::before {
+  content: "×";
+  display: block;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 .ag-about .ag-v2-linkbox {
@@ -4622,6 +4662,40 @@ const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DIAS_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
+let logoPlataformaUrl = '';
+
+async function cargarLogoPlataforma() {
+  try {
+    const respuesta = await fetch(
+      API + '/p/configuracion-plataforma',
+      { cache: 'no-store' }
+    );
+
+    if (!respuesta.ok) {
+      throw new Error('No se pudo consultar el logo');
+    }
+
+    const data = await respuesta.json();
+    logoPlataformaUrl = data.logo_url || '';
+
+    document.querySelectorAll('[data-logo-plataforma]').forEach(img => {
+      if (logoPlataformaUrl) {
+        img.src = logoPlataformaUrl;
+        img.style.display = 'block';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+    });
+
+    document.querySelectorAll('[data-logo-plataforma-fallback]').forEach(elemento => {
+      elemento.style.display = logoPlataformaUrl ? 'none' : '';
+    });
+  } catch (error) {
+    console.warn('No se pudo cargar el logo de Agendate:', error.message);
+  }
+}
+
 function aplicarTemaPanel(tema = localStorage.getItem('panelTema') || 'oscuro') {
   const claro = tema === 'claro';
   document.body.classList.toggle('panel-theme-light', claro);
@@ -4640,6 +4714,8 @@ function route() {
     window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
+
+  setTimeout(cargarLogoPlataforma, 0);
 
   const path = location.pathname.replace(/\/$/, '');
   const parts = path.split('/').filter(Boolean);
@@ -4848,10 +4924,15 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
   return `
     <div class="legal-page ${activo === 'sobre' ? 'ag-about' : ''}">
       <nav class="legal-nav">
-        <a class="legal-brand" href="/sobre" onclick="event.preventDefault();navegar('/sobre')">Agendate</a>
-        <div class="legal-links">
-          <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="${activo === 'sobre' ? 'color:var(--oro)' : ''}">Sobre la plataforma</a>
-          <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="${activo === 'privacidad' ? 'color:var(--oro)' : ''}">Privacidad</a>
+<a class="legal-brand" href="/sobre" onclick="event.preventDefault();navegar('/sobre')">
+  <img
+    class="logo-plataforma-nav"
+    data-logo-plataforma
+    alt="Logo de Agendate"
+  >
+  <span data-logo-plataforma-fallback>Agendate</span>
+</a>        <div class="legal-links">
+<a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="${activo === 'sobre' ? 'color:#4a3308;background:#f4d879;box-shadow:0 0 0 1px rgba(74,51,8,.14)' : ''}">Sobre la plataforma</a>          <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="${activo === 'privacidad' ? 'color:var(--oro)' : ''}">Privacidad</a>
           <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="${activo === 'terminos' ? 'color:var(--oro)' : ''}">Términos</a>
           <a href="/login" onclick="event.preventDefault();navegar('/login')">Ingresar</a>
         </div>
@@ -5386,7 +5467,7 @@ function renderSobreAgendate(el) {
                 <span>Panel comercial preparado</span>
               </div>
               <div class="package-actions">
-                <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
+                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
                 <a class="legal-btn-secondary" href="#legal-como-funciona">Ver cómo funciona</a>
               </div>
             </div>
@@ -5456,7 +5537,7 @@ function renderSobreAgendate(el) {
               <p>Agendate ayuda a que el comercio se vea mejor, reciba reservas con menos fricción y tenga más control sobre su día.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
-              <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+              <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
               <a class="legal-btn-secondary" href="#legal-paquete">Ver paquete</a>
             </div>
           </div>
@@ -5695,7 +5776,7 @@ function renderSobreAgendateNueva(el) {
               <p style="color:rgba(255,248,233,.72);line-height:1.7">Armamos la presencia digital y dejamos listo el sistema base para empezar a recibir reservas con más orden.</p>
               <div class="ag-v2-price"><strong>UYU $1.600</strong><span>pago único por puesta en marcha</span></div>
               <div class="legal-actions">
-                <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Inicial%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
+                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Inicial%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
                 <a class="legal-btn-secondary" href="#legal-como-funciona">Ver impacto</a>
               </div>
             </div>
@@ -5707,7 +5788,8 @@ function renderSobreAgendateNueva(el) {
                 <li class="ok"><b>✓</b><span>Profesionales, horarios, servicios compartidos o propios y panel comercial preparado.</span></li>
                 <li class="ok"><b>✓</b><span>Base para señas o pagos anticipados con MercadoPago cuando el comercio conecte su cuenta.</span></li>
                 <li class="ok"><b>✓</b><span>Preparación para Google Calendar si el comercio entrega permisos y credenciales necesarias.</span></li>
-              </ul>
+              <li class="ok"><b>✓</b><span>Servicio de mantenimiento técnico y soporte para resolver dudas o consultas relacionadas con el uso de la plataforma.</span></li>
+                </ul>
               <h3>No incluye por defecto</h3>
               <ul class="ag-v2-list">
                 <li class="no"><b>×</b><span>Comisiones o costos externos de MercadoPago, WhatsApp, Google, hosting o almacenamiento.</span></li>
@@ -5753,7 +5835,7 @@ function renderSobreAgendateNueva(el) {
               <p>La idea no es complicar el comercio: es darle una base profesional para reservar, cobrar y atender con más claridad.</p>
             </div>
             <div class="legal-actions" style="margin-top:0">
-              <a class="legal-btn-primary" href="https://wa.me/59892484220?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+              <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20empezar%20con%20Agendate" target="_blank" rel="noopener">Hablar por WhatsApp</a>
               <a class="legal-btn-secondary" href="/terminos" onclick="event.preventDefault();navegar('/terminos')">Ver términos</a>
             </div>
           </div>
@@ -5773,7 +5855,14 @@ function mostrarLogin(tipo = 'comercio') {
   document.getElementById('pagina-login').classList.add('activa');
   document.getElementById('pagina-login').innerHTML = `
           <div class="login-box">
-        <div class="login-logo">Agendate</div>
+<div class="login-logo">
+  <img
+    class="logo-plataforma-login"
+    data-logo-plataforma
+    alt="Logo de Agendate"
+  >
+  <span data-logo-plataforma-fallback>Agendate</span>
+</div>
         <p class="login-sub">${esAdmin ? 'Acceso interno' : 'Acceso para comercios'}</p>
         <div class="card">
           <div style="margin-bottom:1.5rem;text-align:center">
@@ -5850,11 +5939,23 @@ async function mostrarAdmin() {
   el.classList.add('activa');
   el.innerHTML = `
     <aside class="admin-sidebar">
-      <div class="admin-sidebar-logo">Agendate <span>Panel de Control</span></div>
-      <nav class="admin-nav">
+<div class="admin-sidebar-logo">
+  <img
+    class="logo-plataforma-admin"
+    data-logo-plataforma
+    alt="Logo de Agendate"
+  >
+
+  <div data-logo-plataforma-fallback>
+    Agendate
+    <span>Panel de Control</span>
+  </div>
+</div>      <nav class="admin-nav">
         <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">Dashboard</a>
         <a href="#" onclick="adminSec('comercios');return false" id="an-comercios">Comercios</a>
         <a href="#" onclick="adminSec('reservas');return false" id="an-reservas">Reservas</a>
+      <a href="#" onclick="adminSec('configuracion');return false" id="an-configuracion">Identidad</a>
+        <div id="admin-configuracion" class="admin-sec"></div>
       </nav>
       <div class="admin-sidebar-bot">
         <div style="font-size:0.78rem;color:var(--texto2);margin-bottom:0.5rem">${S.nombre}</div>
@@ -5879,6 +5980,157 @@ function adminSec(sec) {
   if (sec === 'dashboard') cargarAdminDashboard();
   if (sec === 'comercios') cargarAdminComercios();
   if (sec === 'reservas')  cargarAdminReservas();
+  if (sec === 'configuracion') cargarAdminConfiguracion();
+}
+
+async function cargarAdminConfiguracion() {
+  const el = document.getElementById('admin-configuracion');
+
+  el.innerHTML = `
+    <div class="admin-header">
+      <div>
+        <h1>Identidad de Agendate</h1>
+        <p style="color:var(--texto2);margin-top:0.35rem">
+          Administrá el logo general que identifica a la plataforma.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-soft" style="max-width:620px">
+      <div style="padding:2rem;text-align:center">
+        <span class="loader-inline claro"></span>
+        Cargando configuración...
+      </div>
+    </div>
+  `;
+
+  try {
+    const data = await api('GET', '/admin/configuracion');
+
+    el.innerHTML = `
+      <div class="admin-header">
+        <div>
+          <h1>Identidad de Agendate</h1>
+          <p style="color:var(--texto2);margin-top:0.35rem">
+            Administrá el logo general que identifica a la plataforma.
+          </p>
+        </div>
+      </div>
+
+      <div class="panel-soft" style="max-width:620px;padding:1.5rem">
+        <h2 style="font-size:1.1rem;margin-bottom:0.5rem">
+          Logo de la plataforma
+        </h2>
+
+        <p style="color:var(--texto2);line-height:1.6;margin-bottom:1.2rem">
+          Este logo aparecerá en el panel administrativo y en las páginas
+          institucionales de Agendate.
+        </p>
+
+        <div class="form-group">
+          <label class="label">Archivo del logo</label>
+
+          <input
+            class="input"
+            type="file"
+            id="admin-logo-file"
+            accept="image/png,image/webp,image/jpeg"
+            onchange="previewArchivoImagen(this,'admin-logo-preview')"
+          >
+
+          <small style="display:block;color:var(--texto2);margin-top:0.5rem">
+            Recomendado: PNG con fondo transparente, hasta 5 MB.
+          </small>
+        </div>
+
+        <div style="min-height:150px;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--borde2);margin:1rem 0;padding:1rem">
+          <img
+            id="admin-logo-preview"
+            class="img-preview img-preview-logo ${data.logo_url ? 'visible' : ''}"
+            src="${data.logo_url || ''}"
+            alt="Vista previa del logo de Agendate"
+          >
+        </div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button
+            class="btn btn-oro"
+            id="admin-logo-guardar"
+            onclick="guardarLogoPlataforma()"
+          >
+            Guardar logo
+          </button>
+
+          ${data.logo_url ? `
+            <button
+              class="btn btn-peligro"
+              onclick="eliminarLogoPlataforma()"
+            >
+              Quitar logo
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    el.innerHTML += `
+      <p style="color:var(--rojo);margin-top:1rem">
+        ${error.message}
+      </p>
+    `;
+  }
+}
+
+async function guardarLogoPlataforma() {
+  const input = document.getElementById('admin-logo-file');
+  const boton = document.getElementById('admin-logo-guardar');
+  const archivo = input?.files?.[0];
+
+  if (!archivo) {
+    toast('Seleccioná un archivo para el logo', 'error');
+    return;
+  }
+
+  try {
+    boton.disabled = true;
+    boton.textContent = 'Guardando...';
+
+    const subida = await apiUpload(
+      '/comercio/agendate/upload-imagen',
+      archivo,
+      { tipo: 'logo' }
+    );
+
+    await api('PUT', '/admin/configuracion', {
+      logo_url: subida.url
+    });
+
+    toast('Logo de Agendate guardado correctamente');
+
+    await cargarLogoPlataforma();
+    await cargarAdminConfiguracion();
+  } catch (error) {
+    toast(error.message, 'error');
+    boton.disabled = false;
+    boton.textContent = 'Guardar logo';
+  }
+}
+
+async function eliminarLogoPlataforma() {
+  if (!confirm('¿Querés quitar el logo general de Agendate?')) return;
+
+  try {
+    await api('PUT', '/admin/configuracion', {
+      logo_url: null
+    });
+
+    toast('Logo eliminado');
+
+    await cargarLogoPlataforma();
+    await cargarAdminConfiguracion();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
 }
 
 async function cargarAdminDashboard() {
@@ -7916,15 +8168,6 @@ async function abrirModalReservaManual() {
           </select>
         </div>
 
-        <div class="form-group">
-          <label class="label">Confirmación</label>
-          <label style="display:flex;align-items:center;gap:0.5rem;color:var(--texto2);font-size:0.88rem;padding-top:0.65rem">
-            <input type="checkbox" id="rm-enviar-confirmacion">
-            Enviar WhatsApp si está disponible
-          </label>
-        </div>
-      </div>
-
       <div class="form-group">
         <label class="label">Nota interna</label>
         <textarea class="input" id="rm-comentarios" rows="3" placeholder="Detalle interno para el comercio"></textarea>
@@ -7967,7 +8210,6 @@ async function abrirModalReservaManual() {
         estado: document.getElementById('rm-estado').value,
         forma_pago: document.getElementById('rm-forma-pago').value,
         estado_pago: document.getElementById('rm-estado-pago').value,
-        enviar_confirmacion: document.getElementById('rm-enviar-confirmacion').checked,
         comentarios: document.getElementById('rm-comentarios').value.trim()
       };
 

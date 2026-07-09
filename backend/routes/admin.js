@@ -189,4 +189,64 @@ router.get('/reservas', authAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/configuracion - configuración general de Agendate
+router.get('/configuracion', authAdmin, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `SELECT logo_url, actualizado_en
+       FROM configuracion_plataforma
+       WHERE id=1`
+    );
+
+    res.json(
+      resultado.rows[0] || {
+        logo_url: null,
+        actualizado_en: null
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/admin/configuracion - guardar logo general
+router.put('/configuracion', authAdmin, async (req, res) => {
+  try {
+    const logoUrl = String(req.body.logo_url || '').trim();
+
+    if (
+      logoUrl &&
+      (
+        logoUrl.length > 500 ||
+        !logoUrl.startsWith('https://res.cloudinary.com/')
+      )
+    ) {
+      return res.status(400).json({
+        error: 'La URL del logo no es válida'
+      });
+    }
+
+    const resultado = await pool.query(
+      `INSERT INTO configuracion_plataforma
+        (id, logo_url, actualizado_en)
+       VALUES (1, $1, NOW())
+
+       ON CONFLICT (id)
+       DO UPDATE SET
+         logo_url=EXCLUDED.logo_url,
+         actualizado_en=NOW()
+
+       RETURNING logo_url, actualizado_en`,
+      [logoUrl || null]
+    );
+
+    res.json({
+      ok: true,
+      configuracion: resultado.rows[0]
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

@@ -11,6 +11,27 @@ const { sincronizarReservaConfirmada, cancelarEventoReserva } = require('../serv
 
 const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
 
+// GET /api/p/configuracion-plataforma - datos visuales públicos de Agendate
+router.get('/configuracion-plataforma', async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `SELECT logo_url
+       FROM configuracion_plataforma
+       WHERE id=1`
+    );
+
+    res.json(
+      resultado.rows[0] || {
+        logo_url: null
+      }
+    );
+  } catch (error) {
+    res.status(500).json({
+      error: 'No se pudo cargar la configuración visual'
+    });
+  }
+});
+
 // GET /api/p/:slug - datos publicos del comercio
 router.get('/:slug', async (req, res) => {
   try {
@@ -875,5 +896,6 @@ router.post('/reservas/:uuid/cancelar', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
 
 module.exports = router;

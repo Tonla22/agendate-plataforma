@@ -14,6 +14,13 @@ CREATE TABLE IF NOT EXISTS admins (
   creado_en TIMESTAMP DEFAULT NOW()
 );
 
+-- Configuración visual general de Agendate
+CREATE TABLE IF NOT EXISTS configuracion_plataforma (
+  id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  logo_url VARCHAR(500),
+  actualizado_en TIMESTAMP DEFAULT NOW()
+);
+
 -- Tabla de comercios (cada cliente tuyo)
 CREATE TABLE IF NOT EXISTS comercios (
   id SERIAL PRIMARY KEY,
