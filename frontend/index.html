@@ -4473,6 +4473,33 @@ input,select,textarea { font-family: inherit; }
   line-height: 1;
 }
 
+.ag-about .ag-v2-price strong small {
+  color: rgba(255, 248, 233, .78);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.ag-about .ag-v2-price span,
+.ag-about .ag-v2-price small {
+  display: block;
+  margin-top: .55rem;
+  color: rgba(255, 248, 233, .72);
+  line-height: 1.45;
+}
+
+.ag-about .ag-v2-price em {
+  display: inline-flex;
+  margin-top: .85rem;
+  padding: .45rem .65rem;
+  border-radius: 999px;
+  background: rgba(255, 248, 233, .10);
+  border: 1px solid rgba(255, 248, 233, .16);
+  color: #fff8e9;
+  font-style: normal;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
 .ag-about .ag-v2-list-panel {
   padding: 1.4rem;
   border-radius: 26px;
@@ -4781,6 +4808,43 @@ function navegar(path) {
   setTimeout(() => window.scrollTo(0, 0), 0);
 }
 
+function scrollASeccionLegal(id, actualizarHash = true) {
+  const destino = document.getElementById(id);
+  if (!destino) return false;
+
+  const nav = document.querySelector('.legal-page .legal-nav');
+  const offset = (nav?.getBoundingClientRect().height || 0) + 18;
+  const top = window.scrollY + destino.getBoundingClientRect().top - offset;
+  const reducirMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (actualizarHash && location.hash !== `#${id}`) {
+    history.replaceState({}, '', `/sobre#${id}`);
+  }
+
+  window.scrollTo({
+    top: Math.max(0, top),
+    behavior: reducirMovimiento ? 'auto' : 'smooth'
+  });
+
+  return true;
+}
+
+function irAPaqueteSobre() {
+  if (typeof cerrarMenuComercio === 'function') cerrarMenuComercio();
+
+  if (location.pathname !== '/sobre') {
+    history.pushState({}, '', '/sobre#legal-paquete');
+    route();
+    setTimeout(() => scrollASeccionLegal('legal-paquete', false), 90);
+    return;
+  }
+
+  if (location.hash !== '#legal-paquete') {
+    history.pushState({}, '', '/sobre#legal-paquete');
+  }
+  setTimeout(() => scrollASeccionLegal('legal-paquete', false), 30);
+}
+
 function reemplazarRuta(path) {
   history.replaceState({}, '', path);
   route();
@@ -4944,8 +5008,8 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
           <p>${subtitulo}</p>
           ${heroVisual ? `
             <div class="legal-actions">
-              <a class="legal-btn-primary" href="#legal-paquete">Ver paquete</a>
-              <a class="legal-btn-secondary" href="#legal-como-funciona">Conocer más</a>
+              <a class="legal-btn-primary" href="/sobre#legal-paquete" onclick="event.preventDefault();irAPaqueteSobre()">Ver paquete</a>
+              <a class="legal-btn-secondary" href="/sobre#legal-paquete" onclick="event.preventDefault();irAPaqueteSobre()">Conocer más</a>
             </div>
             <div class="legal-stats">
               <div class="legal-stat"><strong>24/7</strong><span>Reservas disponibles para tus clientes</span></div>
@@ -5056,6 +5120,10 @@ function inicializarLandingAgendate() {
   const input = document.getElementById('lp-negocio');
   if (input && !input.value) input.value = 'Mi comercio';
   activarRevealsAgendate();
+  const hash = (location.hash || '').replace('#', '');
+  if (hash === 'legal-paquete' || hash === 'legal-como-funciona') {
+    setTimeout(() => scrollASeccionLegal(hash === 'legal-como-funciona' ? 'legal-paquete' : hash, false), 80);
+  }
 }
 
 function mostrarPaginaLegal(tipo = 'sobre') {
@@ -5177,7 +5245,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <p>El tratamiento de datos personales se rige por la Política de Privacidad de Agendate. El comercio se compromete a utilizar los datos de sus clientes de forma responsable, únicamente para la gestión de reservas, atención comercial y comunicaciones vinculadas a su servicio.</p>
 
               <h2>11. Condiciones comerciales del paquete</h2>
-              <p>El paquete inicial de Agendate tiene un valor de UYU $1.600 e incluye configuración y puesta en marcha según el alcance informado en la página comercial. Costos externos, comisiones de proveedores, producción profesional de contenido, campañas publicitarias, desarrollos a medida, migraciones complejas o configuraciones fuera del alcance inicial pueden requerir presupuesto adicional.</p>
+              <p>La mensualidad de Agendate Inicial es de UYU $1.600 por mes y corresponde al uso, mantenimiento y soporte de la plataforma mientras el servicio esté activo. La configuración inicial y puesta en marcha se cotiza como un pago único separado, según el alcance acordado con el comercio. Costos externos, comisiones de proveedores, producción profesional de contenido, campañas publicitarias, desarrollos a medida, migraciones complejas o configuraciones fuera del alcance inicial pueden requerir presupuesto adicional.</p>
 
               <h2>12. Contacto y actualizaciones</h2>
               <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos términos, el usuario puede comunicarse con Agendate mediante los canales oficiales publicados. Estas condiciones pueden actualizarse para reflejar cambios del producto, mejoras operativas, integraciones nuevas o requisitos legales.</p>
@@ -5454,13 +5522,13 @@ function renderSobreAgendate(el) {
           <div class="single-package-card">
             <div class="package-main">
               <span class="payment-tag">PUESTA EN MARCHA</span>
-              <h3>Agendate Inicial</h3>
-              <p>Armamos la página pública del comercio y dejamos configurada la base operativa: servicios, profesionales, horarios, datos principales y flujo de reserva.</p>
+              <h3>Agéndate Inicial</h3>
+              <p>Armamos tu presencia digital y dejamos configurado el sistema base para que puedas empezar a recibir reservas de forma simple, ordenada y profesional.</p>
               <div class="package-price">
-                <strong>UYU $1.600</strong>
-                <span>pago único por configuración inicial</span>
+                <strong>UYU $1.600 / mes</strong>
+                <span>Mensualidad por uso y mantenimiento de la plataforma.</span>
               </div>
-              <p class="package-note">La idea es que el comercio pueda compartir su link con seguridad y empezar a ordenar reservas desde el primer día.</p>
+              <p class="package-note">+ pago único de configuración inicial. Se abona mes a mes mientras el servicio esté activo.</p>
               <div class="package-highlights">
                 <span>Configuración inicial</span>
                 <span>Link público listo</span>
@@ -5771,28 +5839,33 @@ function renderSobreAgendateNueva(el) {
           </div>
           <div class="ag-v2-package">
             <div class="ag-v2-price-panel">
-              <span class="ag-product-badge">Configuración inicial</span>
-              <h3>Agendate Inicial</h3>
-              <p style="color:rgba(255,248,233,.72);line-height:1.7">Armamos la presencia digital y dejamos listo el sistema base para empezar a recibir reservas con más orden.</p>
-              <div class="ag-v2-price"><strong>UYU $1.600</strong><span>pago único por puesta en marcha</span></div>
+              <span class="ag-product-badge">Suscripción mensual</span>
+              <h3>Agéndate Inicial</h3>
+              <p style="color:rgba(255,248,233,.72);line-height:1.7">Armamos tu presencia digital y dejamos configurado el sistema base para que puedas empezar a recibir reservas de forma simple, ordenada y profesional.</p>
+              <div class="ag-v2-price">
+                <strong>UYU $1.600 <small>/ mes</small></strong>
+                <span>Mensualidad por uso y mantenimiento de la plataforma.</span>
+                <em>+ pago único de configuración inicial</em>
+                <small>Se abona mes a mes mientras el servicio esté activo.</small>
+              </div>
               <div class="legal-actions">
-                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Inicial%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
-                <a class="legal-btn-secondary" href="#legal-como-funciona">Ver impacto</a>
+                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Ag%C3%A9ndate%20Inicial%20de%20UYU%201600%20mensuales" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
+                <a class="legal-btn-secondary" href="#legal-paquete" onclick="event.preventDefault();irAPaqueteSobre()">Ver qué incluye</a>
               </div>
             </div>
             <div class="ag-v2-list-panel">
               <h3>Incluye</h3>
               <ul class="ag-v2-list">
-                <li class="ok"><b>✓</b><span>Página pública responsive con logo, portada, frase principal, contacto, WhatsApp y ubicación.</span></li>
+                <li class="ok"><b>✓</b><span>Página pública responsive con logo, portada, frase principal, datos de contacto, WhatsApp y ubicación.</span></li>
                 <li class="ok"><b>✓</b><span>Carga inicial de servicios con precio, duración, imagen y condiciones de reserva.</span></li>
-                <li class="ok"><b>✓</b><span>Profesionales, horarios, servicios compartidos o propios y panel comercial preparado.</span></li>
-                <li class="ok"><b>✓</b><span>Base para señas o pagos anticipados con MercadoPago cuando el comercio conecte su cuenta.</span></li>
-                <li class="ok"><b>✓</b><span>Preparación para Google Calendar si el comercio entrega permisos y credenciales necesarias.</span></li>
-              <li class="ok"><b>✓</b><span>Servicio de mantenimiento técnico y soporte para resolver dudas o consultas relacionadas con el uso de la plataforma.</span></li>
-                </ul>
+                <li class="ok"><b>✓</b><span>Configuración de profesionales, horarios, servicios compartidos o individuales y panel comercial listo para usar.</span></li>
+                <li class="ok"><b>✓</b><span>Base preparada para señas o pagos anticipados con MercadoPago, una vez que el comercio conecte su cuenta.</span></li>
+                <li class="ok"><b>✓</b><span>Preparación para integración con Google Calendar, siempre que el comercio entregue los permisos y credenciales necesarias.</span></li>
+                <li class="ok"><b>✓</b><span>Mantenimiento técnico y soporte para resolver dudas o consultas relacionadas con el uso de la plataforma.</span></li>
+              </ul>
               <h3>No incluye por defecto</h3>
               <ul class="ag-v2-list">
-                <li class="no"><b>×</b><span>Comisiones o costos externos de MercadoPago, WhatsApp, Google, hosting o almacenamiento.</span></li>
+                <li class="no"><b>×</b><span>Comisiones, cargos o costos externos de MercadoPago, WhatsApp, Google, hosting o almacenamiento.</span></li>
                 <li class="no"><b>×</b><span>Diseño de marca desde cero, logo profesional, sesión de fotos o campañas publicitarias.</span></li>
                 <li class="no"><b>×</b><span>Desarrollos a medida, migraciones complejas o integraciones especiales fuera del alcance inicial.</span></li>
               </ul>
