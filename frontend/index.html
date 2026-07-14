@@ -6433,8 +6433,8 @@ function abrirModalNuevoComercio() {
     ${diasHTML}
   `, async () => {
     const nombre = document.getElementById('nc-nombre').value.trim();
-    const slug   = document.getElementById('nc-slug').value.trim();
-    const demail = document.getElementById('nc-demail').value.trim();
+    const slug   = document.getElementById('nc-slug').value.trim().toLowerCase();
+    const demail = document.getElementById('nc-demail').value.trim().toLowerCase();
     const dpass  = document.getElementById('nc-dpass').value;
     if (!nombre || !slug) { toast('Nombre y slug son obligatorios', 'error'); return false; }
     if (!demail || !dpass) { toast('Email y contraseña del dueño son obligatorios', 'error'); return false; }

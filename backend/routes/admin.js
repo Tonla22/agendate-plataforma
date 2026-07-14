@@ -4,6 +4,10 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
 const { authAdmin } = require('../middleware/auth');
 
+function normalizarEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 // GET /api/admin/comercios — listar todos
 router.get('/comercios', authAdmin, async (req, res) => {
   try {
@@ -55,33 +59,57 @@ router.post('/comercios', authAdmin, async (req, res) => {
       horarios = []
     } = req.body;
 
+    const slugNormalizado = String(slug || '').trim().toLowerCase();
+    const duenoEmailNormalizado = normalizarEmail(dueno_email);
+    const duenoPassword = String(dueno_password || '');
+    const duenoNombre = String(dueno_nombre || nombre || '').trim();
+
     // Validar slug único y formato
-    if (!/^[a-z0-9-]+$/.test(slug)) {
+    if (!/^[a-z0-9-]+$/.test(slugNormalizado)) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'El slug solo puede tener letras minúsculas, números y guiones' });
     }
 
-    const slugExiste = await client.query('SELECT id FROM comercios WHERE slug=$1', [slug]);
+    const slugExiste = await client.query('SELECT id FROM comercios WHERE slug=$1', [slugNormalizado]);
+    if (slugExiste.rows[0]) await client.query('ROLLBACK');
     if (slugExiste.rows[0]) return res.status(400).json({ error: 'Ese slug ya está en uso' });
+
+    if (!duenoEmailNormalizado || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(duenoEmailNormalizado)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'El email del dueno no es valido' });
+    }
+
+    if (duenoPassword.length < 6 || duenoPassword.length > 100) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'La contrasena del dueno debe tener entre 6 y 100 caracteres' });
+    }
+
+    const emailExiste = await client.query(
+      'SELECT id FROM usuarios_comercio WHERE LOWER(TRIM(email))=$1 LIMIT 1',
+      [duenoEmailNormalizado]
+    );
+    if (emailExiste.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Ese email ya esta registrado para otro comercio' });
+    }
 
     // Crear comercio
     const c = await client.query(`
       INSERT INTO comercios (slug,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
         direccion,instagram_url,color_acento,color_fondo,moneda,duracion_turno_min,webhook_url)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
-      [slug,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
+      [slugNormalizado,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
        direccion,instagram_url,color_acento||'#C9A84C',color_fondo||'#0D0D0D',
        moneda||'$',duracion_turno_min||30,webhook_url]
     );
     const comercioId = c.rows[0].id;
 
     // Crear usuario dueño
-    if (dueno_email && dueno_password) {
-      const hash = await bcrypt.hash(dueno_password, 10);
-      await client.query(
-        'INSERT INTO usuarios_comercio (comercio_id,email,password_hash,nombre,rol) VALUES ($1,$2,$3,$4,$5)',
-        [comercioId, dueno_email, hash, dueno_nombre || nombre, 'dueno']
-      );
-    }
+    const hash = await bcrypt.hash(duenoPassword, 10);
+    await client.query(
+      'INSERT INTO usuarios_comercio (comercio_id,email,password_hash,nombre,rol) VALUES ($1,$2,$3,$4,$5)',
+      [comercioId, duenoEmailNormalizado, hash, duenoNombre || nombre, 'dueno']
+    );
 
     // Insertar servicios
     for (const s of servicios) {

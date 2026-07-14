@@ -5,12 +5,16 @@ const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { body, validationResult } = require('express-validator');
 
+function normalizarEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 const validarLogin = [
   body('email')
     .trim()
     .isEmail()
     .withMessage('Email inválido')
-    .normalizeEmail(),
+    .toLowerCase(),
 
   body('password')
     .isLength({ min: 6, max: 100 })
@@ -33,11 +37,12 @@ function revisarLogin(req, res, next) {
 router.post('/admin/login', validarLogin, revisarLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
-    const r = await pool.query('SELECT * FROM admins WHERE email=$1', [email]);
+    const emailNormalizado = normalizarEmail(email);
+    const r = await pool.query('SELECT * FROM admins WHERE LOWER(TRIM(email))=$1', [emailNormalizado]);
     if (!r.rows[0]) return res.status(401).json({ error: 'Credenciales inválidas' });
     const ok = await bcrypt.compare(password, r.rows[0].password_hash);
     if (!ok) return res.status(401).json({ error: 'Credenciales inválidas' });
-    const token = jwt.sign({ id: r.rows[0].id, email, tipo: 'admin', nombre: r.rows[0].nombre }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: r.rows[0].id, email: emailNormalizado, tipo: 'admin', nombre: r.rows[0].nombre }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.json({ token, nombre: r.rows[0].nombre });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -46,17 +51,18 @@ router.post('/admin/login', validarLogin, revisarLogin, async (req, res) => {
 router.post('/comercio/login', validarLogin, revisarLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const emailNormalizado = normalizarEmail(email);
     const r = await pool.query(
       `SELECT uc.*, c.slug, c.nombre as comercio_nombre, c.activo as comercio_activo
        FROM usuarios_comercio uc JOIN comercios c ON c.id=uc.comercio_id
-       WHERE uc.email=$1 AND uc.activo=true`, [email]
+       WHERE LOWER(TRIM(uc.email))=$1 AND uc.activo=true`, [emailNormalizado]
     );
     if (!r.rows[0]) return res.status(401).json({ error: 'Credenciales inválidas' });
     if (!r.rows[0].comercio_activo) return res.status(403).json({ error: 'Este comercio está desactivado' });
     const ok = await bcrypt.compare(password, r.rows[0].password_hash);
     if (!ok) return res.status(401).json({ error: 'Credenciales inválidas' });
     const token = jwt.sign({
-      id: r.rows[0].id, email, tipo: 'comercio',
+      id: r.rows[0].id, email: emailNormalizado, tipo: 'comercio',
       comercio_id: r.rows[0].comercio_id, slug: r.rows[0].slug,
       nombre: r.rows[0].nombre
     }, process.env.JWT_SECRET, { expiresIn: '24h' });
