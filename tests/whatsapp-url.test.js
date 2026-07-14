@@ -7,7 +7,9 @@ const {
 assert.strictEqual(normalizarTelefonoWhatsApp('+598 98 689 005'), '59898689005');
 assert.strictEqual(normalizarTelefonoWhatsApp('598-98-689-005'), '59898689005');
 assert.strictEqual(normalizarTelefonoWhatsApp('(598) 98 689 005'), '59898689005');
-assert.strictEqual(normalizarTelefonoWhatsApp('098 689 005'), '');
+assert.strictEqual(normalizarTelefonoWhatsApp('098 689 005'), '59898689005');
+assert.strictEqual(normalizarTelefonoWhatsApp('98689005'), '59898689005');
+assert.strictEqual(normalizarTelefonoWhatsApp('00598 98 689 005'), '59898689005');
 assert.strictEqual(normalizarTelefonoWhatsApp(''), '');
 assert.strictEqual(normalizarTelefonoWhatsApp(null), '');
 
@@ -22,6 +24,11 @@ assert.strictEqual(
 );
 
 assert.strictEqual(crearWhatsappUrl(undefined), '');
+
+assert.strictEqual(
+  crearWhatsappUrl('098 689 005', 'Consulta desde la página'),
+  'https://wa.me/59898689005?text=Consulta%20desde%20la%20p%C3%A1gina'
+);
 
 const clienteA = crearWhatsappUrl('+598 91 111 111');
 const clienteB = crearWhatsappUrl('+598 92 222 222');

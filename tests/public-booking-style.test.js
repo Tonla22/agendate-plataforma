@@ -10,7 +10,12 @@ assert.ok(
 );
 
 assert.ok(
-  html.includes('window.AgendateWhatsApp?.crearWhatsappUrl(d.whatsapp'),
+  html.includes('const whatsappPublico = d.whatsapp || ubicacionPrincipal?.whatsapp ||'),
+  'La pagina publica debe usar el WhatsApp del comercio o de la ubicacion principal.'
+);
+
+assert.ok(
+  html.includes('window.AgendateWhatsApp?.crearWhatsappUrl(whatsappPublico'),
   'La pagina publica debe usar el helper para generar la URL de WhatsApp.'
 );
 

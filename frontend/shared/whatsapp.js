@@ -1,6 +1,18 @@
 (function (root) {
   function normalizarTelefonoWhatsApp(valor) {
-    const numero = String(valor || '').replace(/\D/g, '');
+    let numero = String(valor || '').replace(/\D/g, '');
+    if (!numero) return '';
+
+    if (numero.startsWith('00')) {
+      numero = numero.slice(2);
+    }
+
+    if (/^09\d{7}$/.test(numero)) {
+      numero = `598${numero.slice(1)}`;
+    } else if (/^9\d{7}$/.test(numero)) {
+      numero = `598${numero}`;
+    }
+
     if (!/^\d{10,15}$/.test(numero)) return '';
     return numero;
   }
