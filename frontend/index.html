@@ -3217,6 +3217,179 @@ body.panel-theme-light .com-sidebar-logo-img--light {
   color: var(--texto-acento, #111);
 }
 
+.cuenta-theme-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cuenta-theme-card h3 {
+  margin-bottom: 0.25rem;
+}
+
+.negocio-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.negocio-hero-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--borde2);
+  border-radius: 14px;
+  padding: 1.2rem;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(201,168,76,0.16), transparent 32%),
+    linear-gradient(135deg, var(--bg2), var(--bg3));
+}
+
+.negocio-hero-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% -55% auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.10);
+  pointer-events: none;
+}
+
+.negocio-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.negocio-logo-frame {
+  width: 76px;
+  height: 76px;
+  border-radius: 14px;
+  border: 1px solid var(--borde2);
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.negocio-logo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.35rem;
+}
+
+.negocio-logo-fallback {
+  color: var(--oro);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.negocio-hero-text h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.negocio-hero-text p {
+  color: var(--texto2);
+  line-height: 1.45;
+  font-size: 0.86rem;
+}
+
+.negocio-quick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.negocio-quick-item {
+  border: 1px solid var(--borde2);
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.035);
+}
+
+.negocio-quick-item span {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.negocio-quick-item strong {
+  display: block;
+  color: var(--texto);
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.negocio-card-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.negocio-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(201,168,76,0.12);
+  color: var(--oro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.78rem;
+  flex: 0 0 auto;
+}
+
+.negocio-card-head h3 {
+  margin: 0 0 0.18rem;
+}
+
+.negocio-card-head + h3 {
+  display: none;
+}
+
+.negocio-shell .perfil-panel-card > h3:first-child {
+  display: none;
+}
+
+.negocio-card-head p {
+  color: var(--texto2);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.negocio-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+body.panel-theme-light .negocio-hero-card {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(155,122,34,0.13), transparent 32%),
+    linear-gradient(135deg, #FFFFFF, #F8F6F1);
+}
+
+body.panel-theme-light .negocio-logo-frame,
+body.panel-theme-light .negocio-quick-item {
+  background: rgba(20,18,16,0.025);
+}
+
 /* Login */
 #pagina-login { min-height:100vh; display:flex; align-items:center; justify-content:center; background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 60%), var(--bg); }
 .login-box { width:100%; max-width:380px; }
@@ -3312,6 +3485,17 @@ body.panel-theme-light .com-sidebar-logo-img--light {
   .toast { left:1rem; right:1rem; bottom:1rem; max-width:none; }
   .pc-nav-links { display:none; }
   .input-grid-2 { grid-template-columns:1fr; }
+  .cuenta-theme-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .negocio-hero-content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .negocio-quick {
+    grid-template-columns: 1fr;
+  }
   .hor-dia-row { grid-template-columns:1fr; gap:0.55rem; }
   .hor-bloque-row { align-items:flex-start; flex-wrap:wrap; }
 }
@@ -7363,6 +7547,7 @@ async function cargarComCuenta() {
 
   const nombre = cuenta.nombre || S.nombre || 'Usuario';
   const comercio = cuenta.comercio_nombre || S.comercio?.nombre || S.slug || '';
+  const temaPanel = localStorage.getItem('panelTema') || 'oscuro';
   const avatarHTML = cuenta.avatar_url
     ? `<img src="${cuenta.avatar_url}" alt="${nombre}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid var(--borde2)">`
     : `<div class="com-user-avatar" style="width:54px;height:54px;font-size:1rem">${inicialesPanel(nombre)}</div>`;
@@ -7382,6 +7567,17 @@ async function cargarComCuenta() {
             <h3 style="margin:0">${nombre}</h3>
             <p>${cuenta.email || comercio}</p>
           </div>
+        </div>
+      </div>
+
+      <div class="panel-soft-card cuenta-theme-card" style="grid-column:1/-1;max-width:720px">
+        <div>
+          <h3>Tema del panel</h3>
+          <p>Eleg&iacute; el modo que te resulte m&aacute;s c&oacute;modo para trabajar.</p>
+        </div>
+        <div class="tema-switch" aria-label="Tema del panel">
+          <button type="button" data-panel-theme="oscuro" class="${temaPanel !== 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('oscuro')">Oscuro</button>
+          <button type="button" data-panel-theme="claro" class="${temaPanel === 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('claro')">Claro</button>
         </div>
       </div>
 
@@ -9975,7 +10171,7 @@ async function cargarComPerfil() {
   el.innerHTML = `
     <div class="com-header">
       <div>
-        <h1>Perfil del comercio</h1>
+        <h1>Mi negocio</h1>
         <small style="color:var(--texto2)">Ajustá la información, la portada y el tema que ven tus clientes.</small>
       </div>
     </div>
@@ -9984,14 +10180,48 @@ async function cargarComPerfil() {
 
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
+    const publicPath = `/${S.slug || data.slug || ''}`;
+    const negocioLogo = data.logo_url
+      ? `<img src="${data.logo_url}" alt="${data.nombre || 'Logo del comercio'}">`
+      : `<span class="negocio-logo-fallback">${inicialesPanel(data.nombre || S.slug || 'N')}</span>`;
     const temaPanel = localStorage.getItem('panelTema') || 'oscuro';
     document.getElementById('perfil-form').innerHTML = `
-     
+      <div class="negocio-shell">
+        <div class="negocio-hero-card">
+          <div class="negocio-hero-content">
+            <div class="negocio-logo-frame">${negocioLogo}</div>
+            <div class="negocio-hero-text">
+              <h2>${data.nombre || 'Tu comercio'}</h2>
+              <p>${data.slogan || 'Configura como se presenta tu negocio cuando un cliente entra a reservar.'}</p>
+            </div>
+          </div>
+          <div class="negocio-quick">
+            <div class="negocio-quick-item">
+              <span>Pagina publica</span>
+              <strong>${publicPath}</strong>
+            </div>
+            <div class="negocio-quick-item">
+              <span>WhatsApp</span>
+              <strong>${data.whatsapp || 'Sin cargar'}</strong>
+            </div>
+            <div class="negocio-quick-item">
+              <span>Tema clientes</span>
+              <strong>${String(data.color_fondo || '').toLowerCase() === '#ffffff' ? 'Claro' : 'Oscuro'}</strong>
+            </div>
+          </div>
+        </div>
+
       <div class="perfil-layout">
         <div>
           <div class="perfil-panel-card">
-            <h3>Identidad del comercio</h3>
-            <div class="form-group">
+            <div class="negocio-card-head">
+              <div class="negocio-card-icon">ID</div>
+              <div>
+                <h3>Identidad del comercio</h3>
+                <p>Logo, nombre y frase principal que ven tus clientes.</p>
+              </div>
+            </div>
+            <div class="form-group" style="display:none">
   <label class="label">Tema del panel</label>
   <div class="tema-switch" aria-label="Tema del panel">
     <button type="button" data-panel-theme="oscuro" class="${temaPanel !== 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('oscuro')">Oscuro</button>
@@ -10024,6 +10254,13 @@ async function cargarComPerfil() {
           </div>
 
           <div class="perfil-panel-card">
+            <div class="negocio-card-head">
+              <div class="negocio-card-icon">CT</div>
+              <div>
+                <h3>Contacto y ubicacion</h3>
+                <p>Datos visibles para consultas, reservas y ubicacion general.</p>
+              </div>
+            </div>
             <h3>Contacto y ubicación</h3>
             <div class="input-grid-2">
               <div class="form-group">
@@ -10051,6 +10288,13 @@ async function cargarComPerfil() {
 
           <div class="perfil-panel-card">
             <h3>Apariencia de la página pública</h3>
+            <div class="negocio-card-head">
+              <div class="negocio-card-icon">UI</div>
+              <div>
+                <h3>Apariencia de la pagina publica</h3>
+                <p>Defini moneda, tema y portada para la experiencia del cliente.</p>
+              </div>
+            </div>
             <div class="input-grid-2">
               <div class="form-group">
                 <label class="label">Moneda de precios</label>
@@ -10082,7 +10326,9 @@ async function cargarComPerfil() {
             </div>
           </div>
 
-          <button class="btn btn-oro" onclick="guardarPerfil()">Guardar cambios</button>
+          <div class="negocio-actions">
+            <button class="btn btn-oro" onclick="guardarPerfil()">Guardar cambios</button>
+          </div>
         </div>
 
         <div class="perfil-preview">
