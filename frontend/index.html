@@ -2879,10 +2879,20 @@ input,select,textarea { font-family: inherit; }
   justify-content:center;
 }
 .com-sidebar-logo-img {
-  max-width:140px;
+  width:auto;
+  max-width:156px;
   max-height:54px;
   object-fit:contain;
   display:none;
+}
+.com-sidebar-logo-img--dark {
+  display:block;
+}
+body.panel-theme-light .com-sidebar-logo-img--dark {
+  display:none;
+}
+body.panel-theme-light .com-sidebar-logo-img--light {
+  display:block;
 }
 .com-sidebar-logo-placeholder {
   width:52px;
@@ -6567,9 +6577,9 @@ async function mostrarPanelComercio() {
     <div class="com-menu-backdrop" id="com-menu-backdrop" onclick="cerrarMenuComercio()"></div>
     <aside class="com-sidebar">
       <div class="com-sidebar-logo">
-  <img class="com-sidebar-logo-img" id="cs-logo-img" data-logo-plataforma alt="Logo de Agendate">
-  <div class="com-sidebar-logo-placeholder" id="cs-logo-placeholder" data-logo-plataforma-fallback>Logo</div>
-</div>
+        <img class="com-sidebar-logo-img com-sidebar-logo-img--dark" src="/assets/agendate-logo-dark.png" alt="Agendate">
+        <img class="com-sidebar-logo-img com-sidebar-logo-img--light" src="/assets/agendate-logo.png" alt="Agendate">
+      </div>
       <div class="com-user-mini" onclick="comSec('cuenta')" title="Abrir perfil">
         <div class="com-user-avatar" id="cs-avatar">U</div>
         <div class="com-user-info">
