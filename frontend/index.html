@@ -599,12 +599,51 @@ input,select,textarea { font-family: inherit; }
 .paso-sub { color:var(--texto2); font-size:0.85rem; margin-bottom:1.5rem; }
 
 .opcs-serv { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0.6rem; }
-.opc-s { border:1px solid var(--borde2); padding:1rem; border-radius:2px; cursor:pointer; transition:all 0.15s; background:var(--bg3); }
-.opc-s:hover { border-color:var(--pc-action-border); }
-.opc-s.sel { border-color:var(--pc-action-border); background:var(--pc-action-soft); }
-.opc-s .nom { font-size:0.9rem; margin-bottom:0.3rem; font-family:Georgia,serif; }
-.opc-s .pre { font-size:1.2rem; font-weight:700; color:var(--pc-action-bg); }
-.opc-s .dur { font-size:0.72rem; color:var(--texto2); margin-top:0.25rem; }
+.opc-s {
+  border:1px solid var(--borde2);
+  padding:1rem;
+  border-radius:2px;
+  cursor:pointer;
+  transition:background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.12s;
+  background:var(--bg3);
+  color:var(--texto);
+}
+.opc-s:hover {
+  border-color:var(--pc-action-border);
+  box-shadow:0 0 0 3px rgba(255,255,255,0.08);
+  transform:translateY(-1px);
+}
+.opc-s.sel {
+  border-color:var(--pc-action-border);
+  background:var(--pc-action-bg);
+  color:var(--pc-action-text);
+  box-shadow:0 0 0 3px var(--pc-action-soft);
+}
+.opc-s .nom {
+  font-size:0.95rem;
+  margin-bottom:0.3rem;
+  font-family:Georgia,serif;
+  font-weight:700;
+  color:inherit;
+}
+.opc-s .pre {
+  font-size:1.2rem;
+  font-weight:800;
+  color:var(--pc-action-bg);
+}
+.opc-s .dur {
+  font-size:0.78rem;
+  color:rgba(245,240,232,0.76);
+  margin-top:0.25rem;
+  line-height:1.35;
+}
+.opc-s.sel .pre,
+.opc-s.sel .dur {
+  color:inherit;
+}
+.opc-s.sel img {
+  border-color:currentColor !important;
+}
 
 .cal-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; }
 .cal-mes-txt { font-size:0.95rem; }
@@ -751,6 +790,30 @@ input,select,textarea { font-family: inherit; }
 .pc-tema-claro .pc-conf-detalle {
   background: #fff;
   border-color: rgba(0,0,0,0.10);
+}
+
+.pc-tema-claro .opc-s {
+  color: #171717;
+}
+
+.pc-tema-claro .opc-s:hover {
+  box-shadow: 0 0 0 3px rgba(17,17,17,0.08);
+}
+
+.pc-tema-claro .opc-s .dur {
+  color: #5A5148;
+}
+
+.pc-tema-claro .opc-s.sel {
+  background: #111111;
+  border-color: #111111;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(17,17,17,0.12);
+}
+
+.pc-tema-claro .opc-s.sel .pre,
+.pc-tema-claro .opc-s.sel .dur {
+  color: #FFFFFF;
 }
 
 .pc-tema-claro .input {
