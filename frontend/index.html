@@ -587,10 +587,10 @@ input,select,textarea { font-family: inherit; }
 .steps-bar { display:flex; align-items:center; margin-bottom:2.5rem; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; }
 .step-item { display:flex; align-items:center; gap:0.4rem; flex:1; }
 .step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.72rem; border:1px solid var(--borde2); color:var(--texto2); flex-shrink:0; transition:all 0.3s; }
-.step-num.on { background:var(--oro); color:#0D0D0D; border-color:var(--oro); }
+.step-num.on { background:var(--pc-action-bg); color:var(--pc-action-text); border-color:var(--pc-action-border); }
 .step-num.done { background:var(--verde); color:#fff; border-color:var(--verde); }
 .step-lbl { color:var(--texto2); font-size:0.68rem; }
-.step-lbl.on { color:var(--oro); }
+.step-lbl.on { color:var(--pc-action-bg); }
 .step-line { flex:1; height:1px; background:var(--borde2); margin:0 0.4rem; }
 .step-line.done { background:var(--verde); }
 .paso { display:none; }
@@ -600,30 +600,30 @@ input,select,textarea { font-family: inherit; }
 
 .opcs-serv { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0.6rem; }
 .opc-s { border:1px solid var(--borde2); padding:1rem; border-radius:2px; cursor:pointer; transition:all 0.15s; background:var(--bg3); }
-.opc-s:hover { border-color:var(--oro); }
-.opc-s.sel { border-color:var(--oro); background:rgba(201,168,76,0.07); }
+.opc-s:hover { border-color:var(--pc-action-border); }
+.opc-s.sel { border-color:var(--pc-action-border); background:var(--pc-action-soft); }
 .opc-s .nom { font-size:0.9rem; margin-bottom:0.3rem; font-family:Georgia,serif; }
-.opc-s .pre { font-size:1.2rem; font-weight:700; color:var(--oro); }
+.opc-s .pre { font-size:1.2rem; font-weight:700; color:var(--pc-action-bg); }
 .opc-s .dur { font-size:0.72rem; color:var(--texto2); margin-top:0.25rem; }
 
 .cal-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; }
 .cal-mes-txt { font-size:0.95rem; }
 .cal-btn { background:none; border:1px solid var(--borde2); color:var(--texto); width:30px; height:30px; border-radius:2px; font-size:1rem; transition:border-color 0.2s; }
-.cal-btn:hover { border-color:var(--oro); color:var(--oro); }
+.cal-btn:hover { border-color:var(--pc-action-border); color:var(--pc-action-bg); }
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 .cal-dn { text-align:center; font-size:0.65rem; color:var(--texto2); padding:0.4rem 0; letter-spacing:0.04em; text-transform:uppercase; }
 .cal-d { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:0.82rem; border-radius:2px; border:1px solid transparent; }
 .cal-d.disp { cursor:pointer; transition:all 0.12s; }
-.cal-d.disp:hover { border-color:var(--oro); color:var(--oro); }
-.cal-d.sel { background:var(--oro); color:#0D0D0D; font-weight:700; }
+.cal-d.disp:hover { border-color:var(--pc-action-border); color:var(--pc-action-bg); }
+.cal-d.sel { background:var(--pc-action-bg); color:var(--pc-action-text); font-weight:700; }
 .cal-d.pas { color:var(--texto2); opacity:0.25; }
 .cal-d.cer { color:var(--texto2); opacity:0.2; text-decoration:line-through; }
-.cal-d.hoy { border-color:rgba(201,168,76,0.35); }
+.cal-d.hoy { border-color:var(--pc-action-focus); }
 
 .horas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(82px,1fr)); gap:0.4rem; margin-top:1.2rem; }
 .hora-b { padding:0.55rem; text-align:center; border:1px solid var(--borde2); border-radius:2px; font-size:0.82rem; cursor:pointer; background:var(--bg3); color:var(--texto); transition:all 0.12s; }
-.hora-b:hover { border-color:var(--oro); color:var(--oro); }
-.hora-b.sel { background:var(--oro); color:#0D0D0D; font-weight:700; border-color:var(--oro); }
+.hora-b:hover { border-color:var(--pc-action-border); color:var(--pc-action-bg); }
+.hora-b.sel { background:var(--pc-action-bg); color:var(--pc-action-text); font-weight:700; border-color:var(--pc-action-border); }
 
 .resumen-card { background:var(--bg3); border:1px solid var(--borde); border-radius:3px; padding:1.2rem; margin-bottom:1.5rem; }
 .res-fila { display:flex; justify-content:space-between; padding:0.4rem 0; border-bottom:1px solid var(--borde2); font-size:0.88rem; }
@@ -637,11 +637,11 @@ input,select,textarea { font-family: inherit; }
 .btn-atras { background:transparent; border:1px solid var(--borde2); color:var(--texto2); padding:0.7rem 1.2rem; border-radius:2px; font-size:0.82rem; transition:all 0.2s; }
 .btn-atras:hover { border-color:var(--texto2); color:var(--texto); }
 .btn-atras:focus-visible,
-.btn-sig:focus-visible { outline:2px solid var(--oro); outline-offset:3px; }
-.btn-sig { background:var(--oro); color:var(--texto-acento); border:1px solid var(--oro); padding:0.7rem 1.8rem; border-radius:2px; font-size:0.82rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; flex:1; max-width:260px; transition:opacity 0.2s, transform 0.1s, background-color 0.2s, color 0.2s, border-color 0.2s; }
-.btn-sig:hover:not(:disabled) { opacity:0.87; }
+.btn-sig:focus-visible { outline:2px solid var(--pc-action-focus); outline-offset:3px; }
+.btn-sig { background:var(--pc-action-bg); color:var(--pc-action-text); border:1px solid var(--pc-action-border); padding:0.7rem 1.8rem; border-radius:2px; font-size:0.82rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; flex:1; max-width:260px; transition:opacity 0.2s, transform 0.1s, background-color 0.2s, color 0.2s, border-color 0.2s; }
+.btn-sig:hover:not(:disabled) { background:var(--pc-action-hover-bg); border-color:var(--pc-action-hover-bg); opacity:1; }
 .btn-sig:active:not(:disabled) { transform:scale(0.98); }
-.btn-sig:disabled { background:rgba(154,145,133,0.18); border-color:var(--borde2); color:var(--texto2); cursor:not-allowed; opacity:1; }
+.btn-sig:disabled { background:var(--pc-action-disabled-bg); border-color:var(--borde2); color:var(--pc-action-disabled-text); cursor:not-allowed; opacity:1; }
 .pc-tema-claro .btn-sig { background:#111111; border-color:#111111; color:#FFFFFF; }
 .pc-tema-claro .btn-sig:hover:not(:disabled) { background:#2A2A2A; border-color:#2A2A2A; color:#FFFFFF; opacity:1; }
 .pc-tema-claro .btn-sig:disabled { background:#E3DED6; border-color:#D5CEC3; color:#6D6257; opacity:1; }
@@ -661,6 +661,14 @@ input,select,textarea { font-family: inherit; }
   --texto2: #6D6257;
   --oro: #111111;
   --texto-acento: #FFFFFF;
+  --pc-action-bg: #111111;
+  --pc-action-text: #FFFFFF;
+  --pc-action-border: #111111;
+  --pc-action-hover-bg: #2A2A2A;
+  --pc-action-disabled-bg: #E3DED6;
+  --pc-action-disabled-text: #6D6257;
+  --pc-action-soft: rgba(17,17,17,0.07);
+  --pc-action-focus: rgba(17,17,17,0.55);
   --borde2: rgba(0,0,0,0.10);
   background: var(--bg);
   color: var(--texto);
@@ -669,11 +677,27 @@ input,select,textarea { font-family: inherit; }
 #pagina-comercio {
   --oro: #FFFFFF;
   --texto-acento: #111111;
+  --pc-action-bg: #FFFFFF;
+  --pc-action-text: #111111;
+  --pc-action-border: #FFFFFF;
+  --pc-action-hover-bg: #EDE7DA;
+  --pc-action-disabled-bg: rgba(255,255,255,0.10);
+  --pc-action-disabled-text: rgba(255,255,255,0.56);
+  --pc-action-soft: rgba(255,255,255,0.09);
+  --pc-action-focus: rgba(255,255,255,0.70);
 }
 
 #pagina-comercio.pc-tema-claro {
   --oro: #111111;
   --texto-acento: #FFFFFF;
+  --pc-action-bg: #111111;
+  --pc-action-text: #FFFFFF;
+  --pc-action-border: #111111;
+  --pc-action-hover-bg: #2A2A2A;
+  --pc-action-disabled-bg: #E3DED6;
+  --pc-action-disabled-text: #6D6257;
+  --pc-action-soft: rgba(17,17,17,0.07);
+  --pc-action-focus: rgba(17,17,17,0.55);
 }
 
 
@@ -3254,19 +3278,21 @@ input,select,textarea { font-family: inherit; }
 
 .ag-about .legal-brand {
   color: var(--about-ink);
+  gap: .75rem;
   font-weight: 900;
   letter-spacing: 0;
 }
 
 .ag-about .legal-brand::before {
-  content: "";
-  width: 12px;
-  height: 12px;
-  display: inline-block;
-  margin-right: .55rem;
-  border-radius: 4px;
-  background: linear-gradient(135deg, var(--about-gold), #f4d879);
-  box-shadow: 0 0 0 5px rgba(216,180,84,.18);
+  content: none;
+  display: none;
+}
+
+.ag-about .legal-brand [data-logo-plataforma] {
+  width: auto;
+  max-width: 180px;
+  max-height: 56px;
+  object-fit: contain;
 }
 
 .ag-about .legal-links {
@@ -6525,8 +6551,8 @@ async function mostrarPanelComercio() {
     <div class="com-menu-backdrop" id="com-menu-backdrop" onclick="cerrarMenuComercio()"></div>
     <aside class="com-sidebar">
       <div class="com-sidebar-logo">
-  <img class="com-sidebar-logo-img" id="cs-logo-img" alt="Logo del comercio">
-  <div class="com-sidebar-logo-placeholder" id="cs-logo-placeholder">Logo</div>
+  <img class="com-sidebar-logo-img" id="cs-logo-img" data-logo-plataforma alt="Logo de Agendate">
+  <div class="com-sidebar-logo-placeholder" id="cs-logo-placeholder" data-logo-plataforma-fallback>Logo</div>
 </div>
       <div class="com-user-mini" onclick="comSec('cuenta')" title="Abrir perfil">
         <div class="com-user-avatar" id="cs-avatar">U</div>
@@ -6587,17 +6613,7 @@ async function mostrarPanelComercio() {
     document.getElementById('cs-slug').textContent = '/' + data.slug;
     document.getElementById('cs-avatar').textContent = inicialesPanel(S.nombre || data.nombre);
     document.getElementById('cs-user-name').textContent = S.nombre || data.nombre;
- const logoImg = document.getElementById('cs-logo-img');
-const logoPlaceholder = document.getElementById('cs-logo-placeholder');
-if (data.logo_url) {
-  logoImg.src = data.logo_url;
-  logoImg.style.display = 'block';
-  logoPlaceholder.style.display = 'none';
-} else {
-  logoImg.removeAttribute('src');
-  logoImg.style.display = 'none';
-  logoPlaceholder.style.display = 'flex';
-}
+    await cargarLogoPlataforma();
   } 
   catch(e) {}
   const secInicial = (location.hash || '#dashboard').replace('#', '');
@@ -10306,7 +10322,7 @@ function renderComercioPublico(d) {
     `;
 
   pagina.innerHTML = `
-    <style>#pagina-comercio{--oro:${acento};--texto-acento:${textoSobreAcento}}</style>
+    <style>#pagina-comercio{--oro:${acento};--texto-acento:${textoSobreAcento};--pc-action-bg:${acento};--pc-action-text:${textoSobreAcento};--pc-action-border:${acento};--pc-action-hover-bg:${temaClaro ? '#2A2A2A' : '#EDE7DA'};--pc-action-disabled-bg:${temaClaro ? '#E3DED6' : 'rgba(255,255,255,0.10)'};--pc-action-disabled-text:${temaClaro ? '#6D6257' : 'rgba(255,255,255,0.56)'};--pc-action-soft:${temaClaro ? 'rgba(17,17,17,0.07)' : 'rgba(255,255,255,0.09)'};--pc-action-focus:${temaClaro ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.70)'}}</style>
     <nav id="pc-nav">
       <div class="pc-brand">
   ${d.logo_url ? `<img class="pc-brand-img" src="${d.logo_url}" alt="${d.nombre}">` : ''}
@@ -10556,7 +10572,9 @@ ${waNumero ? `
 function abrirReservaPublica() {
   const sec = document.getElementById('pc-reservas');
   if (!sec) return;
+  pcPrepararHistorialReserva();
   sec.classList.add('abierto');
+  pcPushReservaHistory(S.paso || 1);
   sec.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -10564,6 +10582,103 @@ function volverAInfoPublica() {
   const sec = document.getElementById('pc-reservas');
   sec?.classList.remove('abierto');
   document.getElementById('pc-servicios')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+let pcReservaHistorialListo = false;
+
+function pcSetDisabled(id, disabled) {
+  const el = document.getElementById(id);
+  if (el) el.disabled = Boolean(disabled);
+}
+
+function pcLimpiarSeleccionesReservaDesde(pasoDestino) {
+  const destino = Number(pasoDestino || 1);
+
+  if (destino <= 1) {
+    S.reserva = {
+      servicio: null,
+      trabajador: null,
+      fecha: null,
+      hora: null,
+      nombre: '',
+      apellido: '',
+      wa: '',
+      email: '',
+      ubicacion_id: null,
+      comentarios: ''
+    };
+
+    document.querySelectorAll('.opc-trab,.opc-serv,.hora-b,.cal-d.sel').forEach(el => el.classList.remove('sel'));
+    pcSetDisabled('pc-btn12', Boolean(S.comercio?.trabajadores?.length));
+    pcSetDisabled('pc-btn23', true);
+    pcSetDisabled('pc-btn34', true);
+    pcSetDisabled('pc-btn45', true);
+    pcRenderServiciosReserva();
+    pcRenderCalendario();
+    document.getElementById('pc-horas-grid')?.replaceChildren();
+    return;
+  }
+
+  if (destino <= 2) {
+    S.reserva.servicio = null;
+    S.reserva.fecha = null;
+    S.reserva.hora = null;
+    delete S.reserva.precio;
+    delete S.reserva.sena;
+    delete S.reserva.sena_monto;
+    delete S.reserva.sena_porcentaje;
+    delete S.reserva.forma_pago;
+    delete S.reserva.estado_pago;
+
+    document.querySelectorAll('.opc-serv,.hora-b,.cal-d.sel').forEach(el => el.classList.remove('sel'));
+    pcSetDisabled('pc-btn23', true);
+    pcSetDisabled('pc-btn34', true);
+    pcSetDisabled('pc-btn45', true);
+    pcRenderServiciosReserva();
+    pcRenderCalendario();
+    document.getElementById('pc-horas-grid')?.replaceChildren();
+    return;
+  }
+
+  if (destino <= 3) {
+    S.reserva.fecha = null;
+    S.reserva.hora = null;
+    document.querySelectorAll('.hora-b,.cal-d.sel').forEach(el => el.classList.remove('sel'));
+    pcSetDisabled('pc-btn34', true);
+    pcSetDisabled('pc-btn45', true);
+    pcRenderCalendario();
+    document.getElementById('pc-horas-grid')?.replaceChildren();
+    return;
+  }
+
+  if (destino <= 4) {
+    S.reserva.hora = null;
+    document.querySelectorAll('.hora-b').forEach(el => el.classList.remove('sel'));
+    pcSetDisabled('pc-btn45', true);
+  }
+}
+
+function pcPushReservaHistory(paso) {
+  if (!document.getElementById('pc-reservas')?.classList.contains('abierto')) return;
+  const state = history.state || {};
+  const actual = Number(state.pcPaso || 0);
+  const destino = Number(paso || 1);
+  if (state.pcReserva && actual === destino) return;
+  history.pushState({ pcReserva: true, pcPaso: destino }, '', `#reservar-paso-${destino}`);
+}
+
+function pcPrepararHistorialReserva() {
+  if (pcReservaHistorialListo) return;
+  pcReservaHistorialListo = true;
+
+  window.addEventListener('popstate', event => {
+    const paso = Number(event.state?.pcPaso || 0);
+    if (event.state?.pcReserva && paso >= 1 && paso <= 6) {
+      pcIrPaso(paso, { skipHistory: true });
+      return;
+    }
+    volverAInfoPublica();
+  });
 }
 
 function activarWhatsAppTransparente() {
@@ -10920,15 +11035,28 @@ function pcReiniciar() {
   document.getElementById('pc-reservas')?.scrollIntoView({ behavior: 'smooth' });
 }
 
-function pcIrPaso(n) {
-  if (n === 2) pcRenderServiciosReserva();
-  if (n === 4) pcCargarHoras();
-  if (n === 6) pcRenderResumen();
+function pcIrPaso(n, opciones = {}) {
+  const destino = Number(n);
+  if (!Number.isInteger(destino) || destino < 1 || destino > 6) return;
+
+  const pasoAnterior = Number(S.paso || 1);
+  if (destino < pasoAnterior) pcLimpiarSeleccionesReservaDesde(destino);
+
+  if (destino === 2) pcRenderServiciosReserva();
+  if (destino === 4) {
+    if (!S.reserva.servicio || !S.reserva.fecha) return;
+    pcCargarHoras();
+  }
+  if (destino === 6) {
+    if (!S.reserva.servicio || !S.reserva.fecha || !S.reserva.hora) return;
+    pcRenderResumen();
+  }
   const ant = document.getElementById('pc-paso' + S.paso) || document.getElementById('pc-paso-ok');
   ant?.classList.remove('v');
-  document.getElementById('pc-paso' + n)?.classList.add('v');
-  S.paso = n;
-  pcActualizarSteps(n);
+  document.getElementById('pc-paso' + destino)?.classList.add('v');
+  S.paso = destino;
+  pcActualizarSteps(destino);
+  if (!opciones.skipHistory) pcPushReservaHistory(destino);
   document.getElementById('pc-reservas')?.scrollIntoView({ behavior: 'smooth' });
 }
 

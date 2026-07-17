@@ -6,10 +6,27 @@ const { body, param, validationResult } = require('express-validator');
 const {
   enviarConfirmacionReserva,
   enviarCancelacionReserva
-} = require('../services/whatsapp');const { crearPreferenciaReserva } = require('../services/mercadopago');
+} = require('../services/whatsapp');
+const { crearPreferenciaReserva } = require('../services/mercadopago');
 const { sincronizarReservaConfirmada, cancelarEventoReserva } = require('../services/googleCalendar');
 
 const FORMAS_PAGO = new Set(['local', 'online', 'sena']);
+const RETENCION_PAGO_MINUTOS = 10;
+
+async function expirarReservasPendientesPago(db = pool) {
+  return db.query(
+    `UPDATE reservas
+     SET estado='cancelada',
+         estado_pago='expirado',
+         mercadopago_status=COALESCE(mercadopago_status, 'retencion_expirada'),
+         pago_retencion_expirada_en=COALESCE(pago_retencion_expirada_en, NOW())
+     WHERE estado='pendiente'
+       AND estado_pago='pendiente'
+       AND pago_retencion_vence_en IS NOT NULL
+       AND pago_retencion_vence_en <= NOW()
+     RETURNING id`
+  );
+}
 
 // GET /api/p/configuracion-plataforma - datos visuales públicos de Agendate
 router.get('/configuracion-plataforma', async (req, res) => {
@@ -303,6 +320,7 @@ router.get('/:slug/disponibilidad', async (req, res) => {
     const c = await pool.query('SELECT id, anticipacion_reserva_min FROM comercios WHERE slug=$1 AND activo=true', [req.params.slug]);
     if (!c.rows[0]) return res.status(404).json({ error: 'No encontrado' });
     const cid = c.rows[0].id;
+    await expirarReservasPendientesPago();
 
     const servicio = await pool.query('SELECT duracion_min,trabajador_id FROM servicios WHERE id=$1 AND comercio_id=$2 AND activo=true', [servicio_id, cid]);
     if (!servicio.rows[0]) return res.status(404).json({ error: 'Servicio no encontrado' });
@@ -514,6 +532,7 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
 
   try {
     await client.query('BEGIN');
+    await expirarReservasPendientesPago(client);
 
     const c = await client.query('SELECT * FROM comercios WHERE slug=$1 AND activo=true', [req.params.slug]);
     if (!c.rows[0]) {
@@ -599,6 +618,11 @@ router.post('/:slug/reservar', validarReservaPublica, async (req, res) => {
       });
     }
 
+    await client.query(
+      'SELECT pg_advisory_xact_lock(hashtext($1))',
+      [`reserva:${comercio.id}:${trabajadorId || 0}:${fecha}:${hora}`]
+    );
+
     let ocupadaQuery = `
       SELECT id
       FROM reservas
@@ -644,14 +668,17 @@ const estadoPagoFinal = requierePagoOnline
   : (formaPagoFinal === 'online' ? 'pagado' : 'pendiente');
 
 const estadoReservaFinal = requierePagoOnline ? 'pendiente' : 'confirmada';
+const pagoRetencionVenceEn = requierePagoOnline
+  ? new Date(Date.now() + RETENCION_PAGO_MINUTOS * 60000)
+  : null;
 
     const r = await client.query(
       `INSERT INTO reservas (
          uuid,comercio_id,cliente_id,ubicacion_id,servicio_id,trabajador_id,fecha,hora,duracion_min,
          cliente_nombre,cliente_apellido,cliente_whatsapp,cliente_email,comentarios,
-         forma_pago,estado_pago,sena_monto,estado
+         forma_pago,estado_pago,sena_monto,pago_retencion_vence_en,estado
        )
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
        RETURNING *`,
       [
         uuid,
@@ -671,6 +698,7 @@ const estadoReservaFinal = requierePagoOnline ? 'pendiente' : 'confirmada';
         formaPagoFinal,
         estadoPagoFinal,
         senaMonto,
+        pagoRetencionVenceEn,
         estadoReservaFinal
       ]
     );
@@ -726,7 +754,9 @@ if (requierePagoOnline) {
       ok: true,
       uuid,
       requiere_pago: requierePagoOnline,
-  payment_url: pagoMercadoPago?.payment_url || null,
+      payment_url: pagoMercadoPago?.payment_url || null,
+      pago_retencion_vence_en: pagoRetencionVenceEn,
+      retencion_minutos: requierePagoOnline ? RETENCION_PAGO_MINUTOS : null,
       reserva: {
 
         fecha,

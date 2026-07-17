@@ -20,6 +20,21 @@ function mercadopagoRedirectUri() {
   return `${getBaseUrl()}/api/pagos/mercadopago/oauth/callback`;
 }
 
+async function expirarReservasPendientesPago() {
+  return pool.query(
+    `UPDATE reservas
+     SET estado='cancelada',
+         estado_pago='expirado',
+         mercadopago_status=COALESCE(mercadopago_status, 'retencion_expirada'),
+         pago_retencion_expirada_en=COALESCE(pago_retencion_expirada_en, NOW())
+     WHERE estado='pendiente'
+       AND estado_pago='pendiente'
+       AND pago_retencion_vence_en IS NOT NULL
+       AND pago_retencion_vence_en <= NOW()
+     RETURNING id`
+  );
+}
+
 router.get('/mercadopago/oauth/callback', async (req, res) => {
   try {
     const { code, state } = req.query;
@@ -87,6 +102,8 @@ router.get('/mercadopago/oauth/callback', async (req, res) => {
 
 router.post('/mercadopago/webhook', async (req, res) => {
   try {
+    await expirarReservasPendientesPago();
+
     const paymentId = obtenerPaymentId(req);
     const reservaUuidDesdeUrl = req.query.reserva || null;
     const tipo = req.query.type || req.query.topic || req.body?.type || '';
@@ -119,12 +136,24 @@ router.post('/mercadopago/webhook', async (req, res) => {
     const reservaUuid = pago.external_reference || reservaUuidDesdeUrl;
 
     if (pago.status !== 'approved') {
+      const estadosPagoCancelanRetencion = new Set([
+        'rejected',
+        'cancelled',
+        'cancelled_by_user',
+        'refunded',
+        'charged_back'
+      ]);
+      const cancelarRetencion = estadosPagoCancelanRetencion.has(String(pago.status || '').toLowerCase());
+
       await pool.query(
         `UPDATE reservas
          SET mercadopago_payment_id=$1,
-             mercadopago_status=$2
+             mercadopago_status=$2,
+             estado=CASE WHEN $4::boolean AND estado='pendiente' THEN 'cancelada' ELSE estado END,
+             estado_pago=CASE WHEN $4::boolean AND estado_pago='pendiente' THEN 'cancelado' ELSE estado_pago END,
+             pago_retencion_expirada_en=CASE WHEN $4::boolean AND pago_retencion_expirada_en IS NULL THEN NOW() ELSE pago_retencion_expirada_en END
          WHERE uuid=$3`,
-        [String(pago.id), pago.status || null, reservaUuid]
+        [String(pago.id), pago.status || null, reservaUuid, cancelarRetencion]
       );
 
       return res.sendStatus(200);
@@ -139,6 +168,8 @@ router.post('/mercadopago/webhook', async (req, res) => {
            pagada_en=NOW()
        WHERE uuid=$3
          AND estado='pendiente'
+         AND estado_pago='pendiente'
+         AND (pago_retencion_vence_en IS NULL OR pago_retencion_vence_en > NOW())
        RETURNING *`,
       [String(pago.id), pago.status, reservaUuid]
     );

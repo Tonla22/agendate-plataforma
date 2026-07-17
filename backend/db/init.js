@@ -192,6 +192,8 @@ CREATE TABLE IF NOT EXISTS reservas (
   forma_pago VARCHAR(30) DEFAULT 'local',
   estado_pago VARCHAR(30) DEFAULT 'pendiente',
   sena_monto NUMERIC(10,2) DEFAULT 0,
+  pago_retencion_vence_en TIMESTAMP,
+  pago_retencion_expirada_en TIMESTAMP,
   mercadopago_preference_id VARCHAR(120),
   mercadopago_payment_id VARCHAR(120),
   mercadopago_status VARCHAR(80),
@@ -239,6 +241,7 @@ CREATE INDEX IF NOT EXISTS idx_trabajadores_comercio ON trabajadores(comercio_id
 CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horario_bloques_comercio ON horario_bloques(comercio_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_reservas_trabajador_fecha ON reservas(trabajador_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_reservas_retencion_pago ON reservas(estado, estado_pago, pago_retencion_vence_en);
 CREATE INDEX IF NOT EXISTS idx_trabajador_horario_bloques ON trabajador_horario_bloques(trabajador_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_bloqueos_comercio_fecha ON disponibilidad_bloqueos(comercio_id, fecha_desde, fecha_hasta);
 
@@ -312,6 +315,8 @@ DO $$ BEGIN
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS forma_pago VARCHAR(30) DEFAULT 'local';
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) DEFAULT 'pendiente';
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS sena_monto NUMERIC(10,2) DEFAULT 0;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS pago_retencion_vence_en TIMESTAMP;
+  ALTER TABLE reservas ADD COLUMN IF NOT EXISTS pago_retencion_expirada_en TIMESTAMP;
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_preference_id VARCHAR(120);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_payment_id VARCHAR(120);
   ALTER TABLE reservas ADD COLUMN IF NOT EXISTS mercadopago_status VARCHAR(80);

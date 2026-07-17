@@ -30,8 +30,28 @@ assert.ok(
 );
 
 assert.ok(
-  /\.btn-atras:focus-visible,\s*\n\.btn-sig:focus-visible\s*\{[^}]*outline:2px solid var\(--oro\)/i.test(html),
+  /\.btn-atras:focus-visible,\s*\n\.btn-sig:focus-visible\s*\{[^}]*outline:2px solid var\(--pc-action-focus\)/i.test(html),
   'Los botones del flujo publico deben tener foco visible.'
+);
+
+assert.ok(
+  html.includes('--pc-action-bg') && html.includes('--pc-action-text'),
+  'El flujo publico debe declarar variables de accion para evitar contraste heredado.'
+);
+
+assert.ok(
+  /\.btn-sig\s*\{[^}]*background:var\(--pc-action-bg\)[^}]*color:var\(--pc-action-text\)/s.test(html),
+  'El boton principal debe usar variables explicitas de fondo y texto.'
+);
+
+assert.ok(
+  /\.ag-about\s+\.legal-brand::before\s*\{[^}]*content:\s*none/s.test(html),
+  'La pagina sobre no debe mostrar el cuadrado decorativo antes del logo.'
+);
+
+assert.ok(
+  html.includes('class="com-sidebar-logo-img" id="cs-logo-img" data-logo-plataforma'),
+  'El panel del comercio debe usar el logo global de Agendate.'
 );
 
 console.log('public-booking-style.test ok');
