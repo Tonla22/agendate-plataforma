@@ -2766,6 +2766,23 @@ input,select,textarea { font-family: inherit; }
   object-fit: contain;
 }
 
+.legal-brand--logo {
+  line-height: 0;
+}
+
+.legal-brand--logo::before {
+  content: none;
+  display: none;
+}
+
+.logo-plataforma-nav.logo-plataforma-nav--static {
+  display: block;
+  width: auto;
+  max-width: 180px;
+  height: 42px;
+  object-fit: contain;
+}
+
 .logo-plataforma-login {
   display: none;
   width: auto;
@@ -5023,13 +5040,12 @@ function legalLayout({ titulo, subtitulo, etiqueta, contenido, activo = 'sobre',
   return `
     <div class="legal-page ${activo === 'sobre' ? 'ag-about' : ''}">
       <nav class="legal-nav">
-<a class="legal-brand" href="/sobre" onclick="event.preventDefault();navegar('/sobre')">
+<a class="legal-brand legal-brand--logo" href="/sobre" onclick="event.preventDefault();navegar('/sobre')" aria-label="Ir a Sobre Agendate">
   <img
-    class="logo-plataforma-nav"
-    data-logo-plataforma
-    alt="Logo de Agendate"
+    class="logo-plataforma-nav logo-plataforma-nav--static"
+    src="/assets/agendate-logo.png"
+    alt="Agendate"
   >
-  <span data-logo-plataforma-fallback>Agendate</span>
 </a>        <div class="legal-links">
 <a href="/sobre" onclick="event.preventDefault();navegar('/sobre')" style="${activo === 'sobre' ? 'color:#4a3308;background:#f4d879;box-shadow:0 0 0 1px rgba(74,51,8,.14)' : ''}">Sobre la plataforma</a>          <a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')" style="${activo === 'privacidad' ? 'color:var(--oro)' : ''}">Privacidad</a>
           <a href="/terminos" onclick="event.preventDefault();navegar('/terminos')" style="${activo === 'terminos' ? 'color:var(--oro)' : ''}">Términos</a>

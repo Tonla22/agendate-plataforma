@@ -241,7 +241,6 @@ CREATE INDEX IF NOT EXISTS idx_trabajadores_comercio ON trabajadores(comercio_id
 CREATE INDEX IF NOT EXISTS idx_horarios_comercio ON horarios(comercio_id);
 CREATE INDEX IF NOT EXISTS idx_horario_bloques_comercio ON horario_bloques(comercio_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_reservas_trabajador_fecha ON reservas(trabajador_id, fecha);
-CREATE INDEX IF NOT EXISTS idx_reservas_retencion_pago ON reservas(estado, estado_pago, pago_retencion_vence_en);
 CREATE INDEX IF NOT EXISTS idx_trabajador_horario_bloques ON trabajador_horario_bloques(trabajador_id, dia_semana);
 CREATE INDEX IF NOT EXISTS idx_bloqueos_comercio_fecha ON disponibilidad_bloqueos(comercio_id, fecha_desde, fecha_hasta);
 
@@ -340,6 +339,8 @@ DO $$ BEGIN
   ALTER TABLE comercios ADD COLUMN IF NOT EXISTS anticipacion_cancelacion_min INTEGER DEFAULT 0;
 EXCEPTION WHEN others THEN NULL;
 END $$;
+
+CREATE INDEX IF NOT EXISTS idx_reservas_retencion_pago ON reservas(estado, estado_pago, pago_retencion_vence_en);
 `;
 
 async function init() {
