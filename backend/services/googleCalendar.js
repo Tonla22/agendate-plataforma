@@ -1,7 +1,7 @@
 const { google } = require('googleapis');
 
 const GOOGLE_SCOPES = [
-  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/calendar.events.owned',
   'https://www.googleapis.com/auth/userinfo.email'
 ];
 
