@@ -1,4 +1,10 @@
 const { defineConfig } = require('@playwright/test');
+const path = require('path');
+
+const backendDir = path.join(__dirname, 'backend');
+require(require.resolve('dotenv', { paths: [backendDir] })).config({
+  path: path.join(backendDir, '.env')
+});
 
 const port = Number(process.env.E2E_PORT || 3100);
 const baseURL = `http://127.0.0.1:${port}`;

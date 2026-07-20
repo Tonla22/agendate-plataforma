@@ -1,4 +1,3 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../../backend/.env') });
 const pool = require('../../backend/db/pool');
 const { validarBaseE2E } = require('./database-guard');
 
