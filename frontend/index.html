@@ -99,6 +99,41 @@ input,select,textarea { font-family: inherit; }
 
 /* ---- LAYOUTS ---- */
 #app { min-height: 100vh; }
+.agendate-static-home {
+  min-height: 100vh;
+  padding: 4rem 1.5rem;
+  background: #fffaf0;
+  color: #18130f;
+}
+.agendate-static-home__content {
+  width: min(780px, 100%);
+  margin: 0 auto;
+}
+.agendate-static-home h1 {
+  margin-bottom: .75rem;
+  font-family: Georgia, serif;
+  font-size: 3.5rem;
+}
+.agendate-static-home h2 {
+  margin: 2rem 0 .65rem;
+  font-size: 1.5rem;
+}
+.agendate-static-home p {
+  margin-bottom: 1rem;
+  color: #5f554c;
+  line-height: 1.7;
+}
+.agendate-static-home nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+.agendate-static-home a {
+  color: #765816;
+  font-weight: 700;
+  text-decoration: underline;
+}
 .page {
   display: none !important;
 }
@@ -5027,6 +5062,23 @@ body.panel-theme-light .negocio-quick-item {
 </style>
 </head>
 <body>
+<main id="agendate-static-home" class="agendate-static-home">
+  <div class="agendate-static-home__content">
+    <h1>Agendate</h1>
+    <p><strong>Agendate es una aplicación web de gestión de reservas para comercios de servicios.</strong></p>
+    <p>Permite administrar reservas, agenda, profesionales, clientes y pagos desde un mismo panel, además de ofrecer una página pública para que los clientes puedan elegir un servicio, una fecha y un horario disponible.</p>
+
+    <h2>Por qué Agendate solicita acceso a Google Calendar</h2>
+    <p>La conexión con Google Calendar es opcional y solamente se activa cuando el propietario de un comercio decide vincular su cuenta desde el panel de Agendate. El acceso se utiliza para crear eventos de reservas confirmadas, actualizar esos eventos cuando cambia el turno y eliminarlos cuando la reserva se cancela.</p>
+    <p>Agendate también consulta el correo de la cuenta conectada para mostrar al comercio qué cuenta de Google está vinculada. Los datos de Google no se utilizan para publicidad ni se venden a terceros, y el comercio puede desconectar la integración cuando lo desee.</p>
+
+    <nav aria-label="Información legal y acceso">
+      <a href="/privacidad">Política de privacidad</a>
+      <a href="/terminos">Términos y condiciones</a>
+      <a href="/login">Ingresar al panel</a>
+    </nav>
+  </div>
+</main>
 <div id="app">
   <!-- Páginas -->
   <div id="pagina-comercio" class="page"></div>
@@ -5107,6 +5159,7 @@ aplicarTemaPanel();
 // ROUTING
 // ============================================================
 function route() {
+  document.getElementById('agendate-static-home')?.remove();
     window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
@@ -6026,6 +6079,22 @@ function renderSobreAgendateNueva(el) {
     `,
     contenido: `
       <main class="ag-v2-wrap">
+        <section class="ag-v2-section reveal" aria-labelledby="google-calendar-purpose-title">
+          <div class="ag-v2-head">
+            <div>
+              <div class="ag-v2-label">INTEGRACIÓN OPCIONAL</div>
+              <h2 id="google-calendar-purpose-title">Por qué Agendate solicita acceso a Google Calendar.</h2>
+            </div>
+            <p>El propietario del comercio decide si quiere conectar su cuenta. Agendate utiliza ese acceso únicamente para sincronizar las reservas del negocio con un calendario que la persona conectada posee.</p>
+          </div>
+          <div class="ag-v2-grid-3">
+            <div class="ag-v2-card"><div class="ag-v2-icon">EV</div><h3>Eventos de reservas</h3><p>Agendate crea un evento cuando una reserva se confirma, lo actualiza si cambia el turno y lo elimina cuando la reserva se cancela.</p></div>
+            <div class="ag-v2-card"><div class="ag-v2-icon">ID</div><h3>Cuenta identificada</h3><p>El correo de Google se consulta para mostrar al comercio qué cuenta quedó conectada a su panel.</p></div>
+            <div class="ag-v2-card"><div class="ag-v2-icon">CT</div><h3>Control del comercio</h3><p>La integración se puede desconectar en cualquier momento. Los datos de Google no se usan para publicidad ni se venden a terceros.</p></div>
+          </div>
+          <p style="margin-top:1rem"><a href="/privacidad" onclick="event.preventDefault();navegar('/privacidad')">Conocé cómo Agendate usa y protege los datos de Google en la Política de Privacidad.</a></p>
+        </section>
+
         <section class="ag-v2-section reveal">
           <div class="ag-v2-strip">
             <div class="ag-v2-step"><span>1</span><h3>Publicás un link claro</h3><p>Servicios, horarios, ubicación, WhatsApp y reserva online en una página preparada para celular.</p></div>

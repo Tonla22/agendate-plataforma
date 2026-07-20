@@ -75,4 +75,11 @@ assert.ok(
   'La raiz debe redirigir a /sobre antes de servir la SPA para que los crawlers lleguen a la portada.'
 );
 
+assert.ok(
+  html.includes('<main id="agendate-static-home" class="agendate-static-home">') &&
+    html.includes('Por qué Agendate solicita acceso a Google Calendar') &&
+    html.includes("document.getElementById('agendate-static-home')?.remove()"),
+  'La portada debe explicar el producto y el uso de datos de Google aun para crawlers sin JavaScript.'
+);
+
 console.log('public-booking-style.test ok');
