@@ -57,6 +57,14 @@ assert.ok(
 );
 
 assert.ok(
+  html.includes('class="logo-plataforma-admin logo-plataforma-admin--dark" src="/assets/agendate-logo-dark.png"') &&
+    html.includes('class="logo-plataforma-admin logo-plataforma-admin--light" src="/assets/agendate-logo.png"') &&
+    html.includes('class="logo-plataforma-login logo-plataforma-login--dark" src="/assets/agendate-logo-dark.png"') &&
+    html.includes('class="logo-plataforma-login logo-plataforma-login--light" src="/assets/agendate-logo.png"'),
+  'El administrador y el login deben usar los logos versionados en codigo para ambos temas.'
+);
+
+assert.ok(
   html.includes('<meta name="application-name" content="Agendate">') &&
     html.includes('<link rel="canonical" href="https://tuagendate.com/sobre">'),
   'La portada debe identificar a Agendate y declarar su URL canonica para la verificacion OAuth.'

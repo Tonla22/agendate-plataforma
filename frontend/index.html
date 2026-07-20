@@ -2908,14 +2908,30 @@ input,select,textarea { font-family: inherit; }
    ================================================================== */
 #panel-admin { min-height:100vh; display:grid; grid-template-columns:220px 1fr; }
 .admin-sidebar { background:var(--bg2); border-right:1px solid var(--borde2); padding:0; display:flex; flex-direction:column; }
-.admin-sidebar-logo { padding:1.5rem 1.2rem; border-bottom:1px solid var(--borde2); font-size:1.1rem; font-weight:700; color:var(--oro); }
+.admin-sidebar-logo { min-height:91px; padding:1rem 1.2rem; border-bottom:1px solid var(--borde2); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:var(--oro); }
 .admin-sidebar-logo span { font-size:0.65rem; display:block; color:var(--texto2); font-weight:400; letter-spacing:0.05em; margin-top:2px; }
 .logo-plataforma-admin {
   display: none;
-  width: auto;
-  max-width: 150px;
-  height: 58px;
+  width: min(100%, 164px);
+  height: auto;
+  max-height: 55px;
   object-fit: contain;
+}
+.logo-plataforma-admin.logo-plataforma-admin--dark,
+.logo-plataforma-login.logo-plataforma-login--dark {
+  display: block;
+  mix-blend-mode: lighten;
+}
+
+body.panel-theme-light .logo-plataforma-admin--dark,
+body.panel-theme-light .logo-plataforma-login--dark {
+  display: none;
+}
+
+body.panel-theme-light .logo-plataforma-admin--light,
+body.panel-theme-light .logo-plataforma-login--light {
+  display: block;
+  mix-blend-mode: multiply;
 }
 
 .logo-plataforma-nav {
@@ -2945,9 +2961,9 @@ input,select,textarea { font-family: inherit; }
 
 .logo-plataforma-login {
   display: none;
-  width: auto;
-  max-width: 190px;
-  height: 72px;
+  width: min(100%, 220px);
+  height: auto;
+  max-height: 74px;
   object-fit: contain;
   margin: 0 auto;
 }
@@ -6388,12 +6404,8 @@ function mostrarLogin(tipo = 'comercio') {
   document.getElementById('pagina-login').innerHTML = `
           <div class="login-box">
 <div class="login-logo">
-  <img
-    class="logo-plataforma-login"
-    data-logo-plataforma
-    alt="Logo de Agendate"
-  >
-  <span data-logo-plataforma-fallback>Agendate</span>
+  <img class="logo-plataforma-login logo-plataforma-login--dark" src="/assets/agendate-logo-dark.png" width="1203" height="401" alt="Agendate">
+  <img class="logo-plataforma-login logo-plataforma-login--light" src="/assets/agendate-logo.png" width="1203" height="401" alt="Agendate">
 </div>
         <p class="login-sub">${esAdmin ? 'Acceso interno' : 'Acceso para comercios'}</p>
         <div class="card">
@@ -6472,16 +6484,8 @@ async function mostrarAdmin() {
   el.innerHTML = `
     <aside class="admin-sidebar">
 <div class="admin-sidebar-logo">
-  <img
-    class="logo-plataforma-admin"
-    data-logo-plataforma
-    alt="Logo de Agendate"
-  >
-
-  <div data-logo-plataforma-fallback>
-    Agendate
-    <span>Panel de Control</span>
-  </div>
+  <img class="logo-plataforma-admin logo-plataforma-admin--dark" src="/assets/agendate-logo-dark.png" width="1203" height="401" alt="Agendate">
+  <img class="logo-plataforma-admin logo-plataforma-admin--light" src="/assets/agendate-logo.png" width="1203" height="401" alt="Agendate">
 </div>      <nav class="admin-nav">
         <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">Dashboard</a>
         <a href="#" onclick="adminSec('sistema');return false" id="an-sistema">Estado del sistema</a>
