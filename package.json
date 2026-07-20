@@ -1,0 +1,30 @@
+{
+  "name": "agendate",
+  "version": "1.0.0",
+  "description": "Plataforma SaaS donde cada comercio tiene su propia página pública bajo el mismo dominio.",
+  "private": true,
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  },
+  "scripts": {
+    "test": "node tests/run-unit.js",
+    "test:e2e": "playwright test",
+    "test:all": "npm test && npm run test:e2e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tonla22/agendate-plataforma.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Tonla22/agendate-plataforma/issues"
+  },
+  "homepage": "https://github.com/Tonla22/agendate-plataforma#readme"
+}

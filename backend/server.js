@@ -90,5 +90,7 @@ app.listen(PORT, () => {
 
   console.log(`Servidor corriendo en ${baseUrl}`);
 
-  iniciarAutomatizacionesWhatsApp();
+  if (process.env.DISABLE_AUTOMATIONS !== 'true') {
+    iniciarAutomatizacionesWhatsApp();
+  }
 });
