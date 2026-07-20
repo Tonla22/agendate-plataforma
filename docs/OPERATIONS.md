@@ -72,6 +72,12 @@ Un respaldo no esta comprobado hasta restaurarlo. Cada mes:
 
 No guardar dumps sin cifrar en Git, GitHub Actions ni el disco publico del servicio.
 
+### Ultima prueba de recuperacion
+
+El 20 de julio de 2026 se creo un snapshot manual de `production` en Neon y se restauro mediante **Multi-step restore** a una rama aislada. La operacion termino correctamente en 0,53 segundos. En la copia se verificaron las tablas operativas y sus conteos (`comercios`: 3, `reservas`: 44, `usuarios_comercio`: 3 y `eventos_sistema`: 0). La rama temporal se elimino despues de la prueba y el snapshot manual quedo conservado sin vencimiento.
+
+El proyecto sigue en el plan Free: tiene una ventana de restauracion de 6 horas, admite un snapshot manual y no permite programar snapshots. Antes de depender comercialmente de esta base, evaluar Launch para contar con hasta 7 dias y programacion de copias.
+
 ## Respuesta a incidentes
 
 1. Confirmar el alcance desde `/api/health` y **Estado del sistema**.
