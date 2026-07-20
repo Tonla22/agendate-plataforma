@@ -28,6 +28,10 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// La portada publica debe resolverse tambien para crawlers que no ejecutan JavaScript.
+app.get('/', (req, res) => res.redirect(302, '/sobre'));
+
 app.use(express.static(path.join(__dirname, '../frontend'), {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('index.html')) {

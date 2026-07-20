@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '../frontend/index.html'), 'utf8');
+const server = fs.readFileSync(path.join(__dirname, '../backend/server.js'), 'utf8');
 
 assert.ok(
   html.includes('<script src="/shared/whatsapp.js"></script>'),
@@ -50,8 +51,28 @@ assert.ok(
 );
 
 assert.ok(
-  html.includes('class="com-sidebar-logo-img" id="cs-logo-img" data-logo-plataforma'),
-  'El panel del comercio debe usar el logo global de Agendate.'
+  html.includes('class="com-sidebar-logo-img com-sidebar-logo-img--dark"') &&
+    html.includes('class="com-sidebar-logo-img com-sidebar-logo-img--light"'),
+  'El panel del comercio debe conservar los logos de Agendate para tema oscuro y claro.'
+);
+
+assert.ok(
+  html.includes('<meta name="application-name" content="Agendate">') &&
+    html.includes('<link rel="canonical" href="https://tuagendate.com/sobre">'),
+  'La portada debe identificar a Agendate y declarar su URL canonica para la verificacion OAuth.'
+);
+
+assert.ok(
+  html.includes("titulo: 'Agendate'") &&
+    html.includes('Agendate es una aplicación web de gestión de reservas para comercios de servicios.'),
+  'La portada debe mostrar el nombre OAuth exacto y explicar explicitamente el proposito de la app.'
+);
+
+assert.ok(
+  server.includes("app.get('/', (req, res) => res.redirect(302, '/sobre'))") &&
+    server.indexOf("app.get('/', (req, res) => res.redirect(302, '/sobre'))") <
+    server.indexOf("app.use(express.static(path.join(__dirname, '../frontend')"),
+  'La raiz debe redirigir a /sobre antes de servir la SPA para que los crawlers lleguen a la portada.'
 );
 
 console.log('public-booking-style.test ok');

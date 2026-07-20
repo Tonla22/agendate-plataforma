@@ -3,7 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agendate</title>
+<title>Agendate - Sistema de reservas para comercios</title>
+<meta name="application-name" content="Agendate">
+<meta name="description" content="Agendate es una aplicacion web de gestion de reservas para comercios de servicios. Permite administrar agenda, profesionales, clientes, pagos e integraciones como Google Calendar desde un mismo panel.">
+<link rel="canonical" href="https://tuagendate.com/sobre">
+<meta property="og:site_name" content="Agendate">
+<meta property="og:title" content="Agendate - Sistema de reservas para comercios">
+<meta property="og:description" content="Aplicacion web para gestionar reservas, agenda, profesionales, clientes y pagos desde un mismo panel.">
+<meta property="og:url" content="https://tuagendate.com/sobre">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Agendate",
+  "url": "https://tuagendate.com/sobre",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "Agendate es una aplicacion web para gestionar reservas, agenda, profesionales, clientes y pagos de comercios de servicios."
+}
+</script>
 <style>
 :root {
   --bg: #0D0D0D; --bg2: #1A1A1A; --bg3: #222;
@@ -3640,6 +3659,21 @@ body.panel-theme-light .negocio-quick-item {
   display: block;
 }
 
+.ag-about .landing-value-proposition {
+  display: block;
+  max-width: 720px;
+  margin: 1rem 0 .75rem;
+  color: var(--about-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+.ag-about .landing-purpose {
+  display: block;
+}
+
 .ag-about .legal-hero p,
 .ag-about .landing-subtitle {
   max-width: 650px;
@@ -4959,6 +4993,10 @@ body.panel-theme-light .negocio-quick-item {
     font-size: 2.85rem;
   }
 
+  .ag-about .landing-value-proposition {
+    font-size: 1.7rem;
+  }
+
   .ag-about .ag-v2-head h2,
   .ag-about .ag-v2-final h2 {
     font-size: 2.2rem;
@@ -5950,9 +5988,9 @@ function renderSobreAgendateNueva(el) {
   document.title = 'Agendate - Sistema de reservas para comercios';
   el.innerHTML = legalLayout({
     activo: 'sobre',
-    etiqueta: '<span class="ag-hero-kicker">Reservas, pagos y agenda en un mismo lugar</span>',
-    titulo: 'El sistema que ordena tu comercio antes de que empiece el día.',
-    subtitulo: '<span class="landing-subtitle">Agendate convierte consultas sueltas en reservas claras: una página pública para tus clientes, un panel para tu equipo y reglas simples para cobrar, organizar y atender mejor.</span>',
+    etiqueta: '<span class="ag-hero-kicker">Agendate · Reservas, pagos y agenda en un mismo lugar</span>',
+    titulo: 'Agendate',
+    subtitulo: '<span class="landing-value-proposition">El sistema que ordena tu comercio antes de que empiece el día.</span><span class="landing-subtitle landing-purpose">Agendate es una aplicación web de gestión de reservas para comercios de servicios. Permite administrar la agenda, los profesionales, los clientes y los pagos desde un mismo panel, y conectar las reservas confirmadas con Google Calendar.</span>',
     heroVisual: `
       <div class="ag-product-shell reveal" aria-label="Vista de producto de Agendate">
         <div class="ag-product-top">
