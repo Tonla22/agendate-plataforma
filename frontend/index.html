@@ -5108,9 +5108,9 @@ if (path === '/admin') {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('activa'));
 
   if (parts.length === 0 || path === '/') {
-    // Home → si logueado ir al panel, si no login
-    if (S.token && S.tipo) return irPanel();
-    mostrarLogin();
+    // La portada publica de Agendate vive en /sobre.
+    reemplazarRuta('/sobre');
+    return;
   } else if (parts[0] === 'admin') {
     mostrarAdmin();
   } else if (parts[0] === 'panel') {
