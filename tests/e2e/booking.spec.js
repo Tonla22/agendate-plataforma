@@ -22,8 +22,8 @@ test('completa una reserva sin pago desde la página pública', async ({ page, r
   await page.getByPlaceholder('Tu nombre').fill('Prueba');
   await page.getByPlaceholder('Tu apellido').fill('Automática');
   await page.getByPlaceholder('+598 91 000 000').fill('59899000001');
-  await page.getByPlaceholder('tu@email.com').fill('e2e@tuagendate.com');
-  await page.getByRole('button', { name: 'Revisar reserva →' }).click();
+  await page.locator('#pc-email').fill('e2e@tuagendate.com');
+  await page.getByRole('button', { name: 'Revisar →', exact: true }).click();
 
   const respuestaReserva = page.waitForResponse(respuesta =>
     respuesta.url().includes('/api/p/e2e-reservas/reservar') &&
