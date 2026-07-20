@@ -82,4 +82,10 @@ assert.ok(
   'La portada debe explicar el producto y el uso de datos de Google aun para crawlers sin JavaScript.'
 );
 
+assert.ok(
+  html.includes("<script>document.documentElement.classList.add('js')</script>") &&
+    /\.js\s+\.agendate-static-home\s*\{[^}]*display:\s*none/s.test(html),
+  'La portada estatica no debe producir un pantallazo antes de resolver la ruta con JavaScript.'
+);
+
 console.log('public-booking-style.test ok');
