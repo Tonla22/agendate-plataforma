@@ -4,6 +4,8 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const pool = require('./db/pool');
+const { crearHealthHandler } = require('./services/health');
 const {
   iniciarAutomatizacionesWhatsApp
 } = require('./services/whatsappAutomations');
@@ -26,6 +28,9 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '1mb' }));
+
+// Fuera del rate limit general para permitir comprobaciones externas frecuentes.
+app.get('/api/health', crearHealthHandler({ pool }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -73,7 +78,6 @@ app.use('/api/pagos', require('./routes/pagos'));
 app.use('/api/p',       require('./routes/publico'));
 
 // Salud del servidor
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: new Date() }));
 
 // SPA fallback — todas las rutas van al frontend
 app.get('*', (req, res) => {
