@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const pool = require('./db/pool');
 const { crearHealthHandler } = require('./services/health');
+const { registrarEvento } = require('./services/operationalEvents');
 const {
   iniciarAutomatizacionesWhatsApp
 } = require('./services/whatsappAutomations');
@@ -31,6 +32,21 @@ app.use(express.json({ limit: '1mb' }));
 
 // Fuera del rate limit general para permitir comprobaciones externas frecuentes.
 app.get('/api/health', crearHealthHandler({ pool }));
+
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    if (res.statusCode < 500 || req.path === '/api/health') return;
+
+    registrarEvento({
+      nivel: 'error',
+      categoria: 'http',
+      codigo: `http_${res.statusCode}`,
+      mensaje: `Respuesta ${res.statusCode} en ${req.method} ${req.path}`,
+      contexto: { metodo: req.method, ruta: req.path, estado: res.statusCode }
+    });
+  });
+  next();
+});
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

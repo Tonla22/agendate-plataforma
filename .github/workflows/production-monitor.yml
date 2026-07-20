@@ -1,0 +1,57 @@
+name: Monitor de produccion
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: production-health-monitor
+  cancel-in-progress: true
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HEALTH_URL: https://tuagendate.com/api/health
+      ISSUE_TITLE: 'Alerta: Agendate no responde correctamente'
+    steps:
+      - name: Comprobar servidor y base de datos
+        shell: bash
+        run: |
+          set +e
+          body="$(curl --silent --show-error --fail --max-time 25 "$HEALTH_URL")"
+          curl_status=$?
+          set -e
+
+          gh label create monitoreo --repo "$GITHUB_REPOSITORY" --color B60205 \
+            --description "Alertas automaticas de produccion" --force
+
+          issue_number="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --label monitoreo --search "$ISSUE_TITLE in:title" --json number --jq '.[0].number // empty')"
+
+          if [ "$curl_status" -eq 0 ] && printf '%s' "$body" | grep -q '"status":"healthy"'; then
+            echo "Agendate esta operativo."
+            if [ -n "$issue_number" ]; then
+              gh issue close "$issue_number" --repo "$GITHUB_REPOSITORY" \
+                --comment "El control de salud volvio a responder correctamente en $(date -u +'%Y-%m-%d %H:%M UTC')."
+            fi
+            exit 0
+          fi
+
+          if [ -z "$issue_number" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --label monitoreo \
+              --title "$ISSUE_TITLE" \
+              --body "El endpoint $HEALTH_URL fallo el $(date -u +'%Y-%m-%d %H:%M UTC'). Revisar Render, Neon y el panel Estado del sistema. Este issue se cerrara automaticamente cuando el servicio se recupere."
+          else
+            gh issue comment "$issue_number" --repo "$GITHUB_REPOSITORY" \
+              --body "El control sigue fallando el $(date -u +'%Y-%m-%d %H:%M UTC')."
+          fi
+
+          echo "El endpoint de salud no devolvio un estado saludable."
+          exit 1

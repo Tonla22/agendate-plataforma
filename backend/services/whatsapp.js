@@ -1,3 +1,5 @@
+const { registrarEvento } = require('./operationalEvents');
+
 function limpiarTexto(valor, fallback = '-') {
   const texto = String(valor ?? '').trim();
   return texto || fallback;
@@ -65,6 +67,17 @@ async function enviarTemplateWhatsApp({ to, templateName, language, components }
 
   if (!resp.ok) {
     const detalle = data?.error?.message || JSON.stringify(data);
+    registrarEvento({
+      nivel: 'error',
+      categoria: 'whatsapp',
+      codigo: 'whatsapp_api_error',
+      mensaje: `No se pudo enviar la plantilla ${templateName}`,
+      contexto: {
+        estado_http: resp.status,
+        codigo_proveedor: data?.error?.code || null,
+        plantilla: templateName
+      }
+    });
     throw new Error(`WhatsApp API error: ${detalle}`);
   }
 

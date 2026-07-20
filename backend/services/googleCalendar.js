@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const { registrarEvento } = require('./operationalEvents');
 
 const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/calendar.events.owned',
@@ -226,6 +227,15 @@ async function sincronizarReservaConfirmada(pool, reservaId) {
     );
 
     console.error('No se pudo sincronizar Google Calendar:', e.message);
+    registrarEvento({
+      nivel: 'error',
+      categoria: 'google_calendar',
+      codigo: 'google_calendar_sync_error',
+      mensaje: 'No se pudo sincronizar una reserva con Google Calendar',
+      comercioId: contexto.comercio_id,
+      reservaId,
+      contexto: { motivo: String(e.message || e).slice(0, 300) }
+    });
     return { ok: false, error: e.message };
   }
 }

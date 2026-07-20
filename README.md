@@ -1,5 +1,7 @@
 # Agendaté — Plataforma Multi-Tenant de Reservas
 
+> Operacion de la beta: salud, alertas, pruebas E2E, despliegue y respaldos en [`docs/OPERATIONS.md`](docs/OPERATIONS.md). La plantilla actual de variables esta en [`backend/.env.example`](backend/.env.example).
+
 Plataforma SaaS donde cada comercio tiene su propia página pública bajo el mismo dominio.
 
 ```
@@ -196,4 +198,3 @@ Modelo recomendado:
 
 Para desactivar un comercio que no paga:
 → En el panel admin, botón "Desactivar" → la página muestra "comercio inactivo"
-

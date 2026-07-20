@@ -42,6 +42,93 @@ router.get('/stats', authAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// GET /api/admin/sistema - estado operativo global
+router.get('/sistema', authAdmin, async (req, res) => {
+  const inicio = Date.now();
+
+  try {
+    const [
+      relojDb,
+      eventosResumen,
+      eventosRecientes,
+      pagos,
+      calendar,
+      actividad
+    ] = await Promise.all([
+      pool.query('SELECT NOW() AS ahora'),
+      pool.query(`
+        SELECT nivel, categoria, COUNT(*)::integer AS total
+        FROM eventos_sistema
+        WHERE creado_en >= NOW() - INTERVAL '24 hours'
+        GROUP BY nivel, categoria
+        ORDER BY nivel, categoria
+      `),
+      pool.query(`
+        SELECT e.id,e.nivel,e.categoria,e.codigo,e.mensaje,e.contexto,e.creado_en,
+               c.nombre AS comercio_nombre
+        FROM eventos_sistema e
+        LEFT JOIN comercios c ON c.id=e.comercio_id
+        ORDER BY e.creado_en DESC
+        LIMIT 40
+      `),
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE estado_pago='pagado' AND pagada_en >= NOW() - INTERVAL '24 hours')::integer AS aprobados_24h,
+          COUNT(*) FILTER (WHERE mercadopago_status IN ('rejected','cancelled','cancelled_by_user','charged_back') AND creado_en >= NOW() - INTERVAL '24 hours')::integer AS fallidos_24h,
+          COUNT(*) FILTER (WHERE estado='pendiente' AND estado_pago='pendiente' AND pago_retencion_vence_en > NOW())::integer AS pendientes_activos,
+          COUNT(*) FILTER (WHERE estado_pago='expirado' AND pago_retencion_expirada_en >= NOW() - INTERVAL '24 hours')::integer AS vencidos_24h,
+          MAX(pagada_en) AS ultimo_pago_aprobado
+        FROM reservas
+      `),
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE google_calendar_access_token IS NOT NULL)::integer AS comercios_conectados,
+          (SELECT COUNT(*)::integer FROM reservas WHERE google_calendar_sync_error IS NOT NULL) AS errores_pendientes
+        FROM comercios
+        WHERE activo=true
+      `),
+      pool.query(`
+        SELECT
+          MAX(creado_en) AS ultima_reserva,
+          COUNT(*) FILTER (WHERE creado_en >= NOW() - INTERVAL '24 hours')::integer AS reservas_24h
+        FROM reservas
+      `)
+    ]);
+
+    const resumen = eventosResumen.rows.reduce((acc, fila) => {
+      acc.total += fila.total;
+      acc.por_nivel[fila.nivel] = (acc.por_nivel[fila.nivel] || 0) + fila.total;
+      acc.por_categoria[fila.categoria] = (acc.por_categoria[fila.categoria] || 0) + fila.total;
+      return acc;
+    }, { total: 0, por_nivel: {}, por_categoria: {} });
+
+    res.json({
+      status: resumen.por_nivel.critical || resumen.por_nivel.error ? 'attention' : 'healthy',
+      checked_at: new Date().toISOString(),
+      release: process.env.RENDER_GIT_COMMIT?.slice(0, 7) || null,
+      server: { status: 'ok', uptime_seconds: Math.floor(process.uptime()) },
+      database: {
+        status: 'ok',
+        latency_ms: Date.now() - inicio,
+        timestamp: relojDb.rows[0].ahora
+      },
+      integrations: {
+        mercadopago: pagos.rows[0],
+        google_calendar: calendar.rows[0],
+        whatsapp: {
+          configured: Boolean(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID),
+          errors_24h: resumen.por_categoria.whatsapp || 0
+        }
+      },
+      activity: actividad.rows[0],
+      events_24h: resumen,
+      recent_events: eventosRecientes.rows
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'No se pudo consultar el estado del sistema' });
+  }
+});
+
 // POST /api/admin/comercios — crear nuevo comercio
 router.post('/comercios', authAdmin, async (req, res) => {
   const client = await pool.connect();

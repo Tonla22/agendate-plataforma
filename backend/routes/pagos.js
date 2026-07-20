@@ -5,6 +5,7 @@ const pool = require('../db/pool');
 const { obtenerPagoMercadoPago, getBaseUrl } = require('../services/mercadopago');
 const { enviarConfirmacionReserva } = require('../services/whatsapp');
 const { sincronizarReservaConfirmada } = require('../services/googleCalendar');
+const { registrarEvento } = require('../services/operationalEvents');
 
 function obtenerPaymentId(req) {
   return (
@@ -68,6 +69,13 @@ router.get('/mercadopago/oauth/callback', async (req, res) => {
 
     if (!tokenRes.ok) {
       console.error('Error OAuth MercadoPago:', tokenData);
+      registrarEvento({
+        nivel: 'error',
+        categoria: 'pagos',
+        codigo: 'mercadopago_oauth_error',
+        mensaje: 'Mercado Pago rechazó la conexión OAuth',
+        contexto: { estado_http: tokenRes.status, slug: dataState.slug }
+      });
       return res.redirect(`${getBaseUrl()}/panel?mp=error`);
     }
 
@@ -96,6 +104,12 @@ router.get('/mercadopago/oauth/callback', async (req, res) => {
     res.redirect(`${getBaseUrl()}/panel?mp=conectado`);
   } catch (e) {
     console.error('Error callback MercadoPago:', e.message);
+    registrarEvento({
+      nivel: 'error',
+      categoria: 'pagos',
+      codigo: 'mercadopago_callback_error',
+      mensaje: 'Falló el callback de conexión con Mercado Pago'
+    });
     res.redirect(`${getBaseUrl()}/panel?mp=error`);
   }
 });
@@ -156,6 +170,14 @@ router.post('/mercadopago/webhook', async (req, res) => {
         [String(pago.id), pago.status || null, reservaUuid, cancelarRetencion]
       );
 
+      registrarEvento({
+        nivel: cancelarRetencion ? 'warning' : 'info',
+        categoria: 'pagos',
+        codigo: cancelarRetencion ? 'mercadopago_pago_no_aprobado' : 'mercadopago_pago_pendiente',
+        mensaje: cancelarRetencion ? 'Mercado Pago informó un pago no aprobado' : 'Mercado Pago informó un pago pendiente',
+        contexto: { estado_pago: pago.status || 'sin_estado', reserva_uuid: reservaUuid }
+      });
+
       return res.sendStatus(200);
     }
 
@@ -177,8 +199,25 @@ router.post('/mercadopago/webhook', async (req, res) => {
     const reserva = reservaActualizada.rows[0];
 
     if (!reserva) {
+      registrarEvento({
+        nivel: 'warning',
+        categoria: 'pagos',
+        codigo: 'mercadopago_aprobado_fuera_de_plazo',
+        mensaje: 'Se recibió un pago aprobado para una retención vencida o ya procesada',
+        contexto: { reserva_uuid: reservaUuid }
+      });
       return res.sendStatus(200);
     }
+
+    registrarEvento({
+      nivel: 'info',
+      categoria: 'pagos',
+      codigo: 'mercadopago_pago_aprobado',
+      mensaje: 'Pago aprobado y reserva confirmada',
+      comercioId: reserva.comercio_id,
+      reservaId: reserva.id,
+      contexto: { estado_pago: pago.status }
+    });
 
     const comercioRes = await pool.query(
       'SELECT * FROM comercios WHERE id=$1',
@@ -226,6 +265,12 @@ router.post('/mercadopago/webhook', async (req, res) => {
     res.sendStatus(200);
   } catch (e) {
     console.error('Error webhook MercadoPago:', e.message);
+    registrarEvento({
+      nivel: 'error',
+      categoria: 'pagos',
+      codigo: 'mercadopago_webhook_error',
+      mensaje: 'Falló el procesamiento de un webhook de Mercado Pago'
+    });
     res.sendStatus(200);
   }
 });

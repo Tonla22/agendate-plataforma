@@ -217,6 +217,23 @@ CREATE TABLE IF NOT EXISTS reservas (
   creado_en TIMESTAMP DEFAULT NOW()
 );
 
+-- Eventos operativos visibles únicamente para el superadmin
+CREATE TABLE IF NOT EXISTS eventos_sistema (
+  id BIGSERIAL PRIMARY KEY,
+  nivel VARCHAR(20) NOT NULL DEFAULT 'error',
+  categoria VARCHAR(60) NOT NULL,
+  codigo VARCHAR(100) NOT NULL,
+  mensaje TEXT NOT NULL,
+  comercio_id INTEGER REFERENCES comercios(id) ON DELETE SET NULL,
+  reserva_id INTEGER REFERENCES reservas(id) ON DELETE SET NULL,
+  contexto JSONB NOT NULL DEFAULT '{}'::jsonb,
+  creado_en TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_eventos_sistema_creado ON eventos_sistema(creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_eventos_sistema_categoria ON eventos_sistema(categoria, creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_eventos_sistema_nivel ON eventos_sistema(nivel, creado_en DESC);
+
 -- Bloqueos de disponibilidad: feriados, vacaciones, trámites, eventos, etc.
 CREATE TABLE IF NOT EXISTS disponibilidad_bloqueos (
   id SERIAL PRIMARY KEY,
