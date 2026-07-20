@@ -5312,6 +5312,12 @@ function reemplazarRuta(path) {
 }
 window.addEventListener('popstate', route);
 
+function decodificarEntidadesHtml(valor) {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = String(valor ?? '');
+  return textarea.value;
+}
+
 // ============================================================
 // API HELPER
 // ============================================================
@@ -7123,8 +7129,9 @@ async function mostrarPanelComercio() {
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
     S.comercio = data;
-    document.getElementById('cs-nombre').textContent = data.nombre;
-    document.getElementById('cs-mobile-nombre').textContent = data.nombre;
+    const nombreComercio = decodificarEntidadesHtml(data.nombre);
+    document.getElementById('cs-nombre').textContent = nombreComercio;
+    document.getElementById('cs-mobile-nombre').textContent = nombreComercio;
     document.getElementById('cs-slug').textContent = '/' + data.slug;
     document.getElementById('cs-avatar').textContent = inicialesPanel(S.nombre || data.nombre);
     document.getElementById('cs-user-name').textContent = S.nombre || data.nombre;
@@ -10811,7 +10818,7 @@ async function cargarComercioPublico(slug) {
     S.paso = 1;
     S.calMes = new Date().getMonth();
     S.calAnio = new Date().getFullYear();
-    document.title = data.nombre + ' · Reservas';
+    document.title = decodificarEntidadesHtml(data.nombre) + ' · Reservas';
     renderComercioPublico(data);
     const params = new URLSearchParams(location.search);
     const pago = params.get('pago');
@@ -10879,11 +10886,14 @@ function renderResultadoPagoPublico(reserva, pagoHint) {
   const fecha = new Date(`${fechaIso}T12:00:00`).toLocaleDateString('es-UY', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
-  const comercioNombre = pcEscaparHtml(reserva.comercio_nombre || S.comercio?.nombre || 'Comercio');
+  const comercioNombrePlano = decodificarEntidadesHtml(
+    reserva.comercio_nombre || S.comercio?.nombre || 'Comercio'
+  );
+  const comercioNombre = pcEscaparHtml(comercioNombrePlano);
   const slug = encodeURIComponent(reserva.comercio_slug || S.comercio?.slug || '');
   const sena = Number(reserva.sena_monto || 0);
 
-  document.title = `${configuracion.titulo} · ${reserva.comercio_nombre || S.comercio?.nombre || 'Agendate'}`;
+  document.title = `${configuracion.titulo} · ${comercioNombrePlano}`;
   pagina.innerHTML = `
     <div class="pc-pago-resultado">
       <nav class="pc-pago-nav"><div class="pc-logo">${comercioNombre}</div></nav>

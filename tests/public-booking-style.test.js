@@ -96,4 +96,11 @@ assert.ok(
   'La portada estatica no debe producir un pantallazo antes de resolver la ruta con JavaScript.'
 );
 
+assert.ok(
+  html.includes('function decodificarEntidadesHtml(valor)') &&
+    html.includes("document.title = decodificarEntidadesHtml(data.nombre) + ' · Reservas'") &&
+    html.includes('document.title = `${configuracion.titulo} · ${comercioNombrePlano}`'),
+  'Los titulos publicos deben mostrar apostrofes y entidades HTML como texto normal.'
+);
+
 console.log('public-booking-style.test ok');
