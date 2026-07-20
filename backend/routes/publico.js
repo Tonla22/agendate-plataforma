@@ -780,12 +780,19 @@ if (requierePagoOnline) {
 // GET /api/p/reservas/:uuid - ver reserva publica para cancelar
 router.get('/reservas/:uuid', async (req, res) => {
   try {
+    await expirarReservasPendientesPago();
+
     const r = await pool.query(
       `SELECT
         r.uuid,
         r.fecha,
         r.hora::text AS hora,
         r.estado,
+        r.estado_pago,
+        r.forma_pago,
+        r.sena_monto,
+        r.mercadopago_status,
+        r.pago_retencion_vence_en,
         r.cliente_nombre,
         r.cliente_apellido,
         c.nombre AS comercio_nombre,

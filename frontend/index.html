@@ -739,6 +739,22 @@ input,select,textarea { font-family: inherit; }
 .hora-b { padding:0.55rem; text-align:center; border:1px solid var(--borde2); border-radius:2px; font-size:0.82rem; cursor:pointer; background:var(--bg3); color:var(--texto); transition:all 0.12s; }
 .hora-b:hover { border-color:var(--pc-action-border); color:var(--pc-action-bg); }
 .hora-b.sel { background:var(--pc-action-bg); color:var(--pc-action-text); font-weight:700; border-color:var(--pc-action-border); }
+.pc-horas-aviso { display:none; margin-top:1rem; padding:0.8rem 0.9rem; border:1px solid var(--borde2); background:var(--bg3); color:var(--texto2); font-size:0.84rem; line-height:1.45; }
+.pc-horas-aviso.v { display:block; }
+.pc-horas-aviso.error { border-color:var(--rojo); color:var(--texto); }
+
+.pc-pago-resultado { min-height:100vh; display:flex; flex-direction:column; background:var(--bg); color:var(--texto); }
+.pc-pago-nav { min-height:72px; display:flex; align-items:center; padding:0 2rem; border-bottom:1px solid var(--borde); }
+.pc-pago-main { flex:1; display:flex; align-items:center; justify-content:center; padding:3rem 1.25rem; }
+.pc-pago-card { width:min(100%,620px); border:1px solid var(--borde); background:var(--bg2); padding:2rem; }
+.pc-pago-icono { width:54px; height:54px; display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem; border:1px solid currentColor; border-radius:50%; font-size:1.5rem; font-weight:800; }
+.pc-pago-card.aprobado .pc-pago-icono { color:var(--verde); }
+.pc-pago-card.pendiente .pc-pago-icono { color:var(--oro); }
+.pc-pago-card.rechazado .pc-pago-icono,
+.pc-pago-card.vencido .pc-pago-icono { color:var(--rojo); }
+.pc-pago-card h1 { font-family:Georgia,serif; font-size:clamp(1.8rem,5vw,2.5rem); margin:0 0 0.7rem; }
+.pc-pago-card > p { color:var(--texto2); line-height:1.6; margin:0 0 1.4rem; }
+.pc-pago-acciones { display:flex; gap:0.7rem; flex-wrap:wrap; margin-top:1.5rem; }
 
 .resumen-card { background:var(--bg3); border:1px solid var(--borde); border-radius:3px; padding:1.2rem; margin-bottom:1.5rem; }
 .res-fila { display:flex; justify-content:space-between; padding:0.4rem 0; border-bottom:1px solid var(--borde2); font-size:0.88rem; }
@@ -5159,6 +5175,7 @@ aplicarTemaPanel();
 // ROUTING
 // ============================================================
 function route() {
+  pcDetenerActualizacionHoras();
   document.getElementById('agendate-static-home')?.remove();
     window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
@@ -10700,10 +10717,118 @@ async function cargarComercioPublico(slug) {
     S.calAnio = new Date().getFullYear();
     document.title = data.nombre + ' · Reservas';
     renderComercioPublico(data);
+    const params = new URLSearchParams(location.search);
+    const pago = params.get('pago');
+    const reservaUuid = params.get('reserva');
+    if (reservaUuid && ['ok', 'pendiente', 'error'].includes(pago)) {
+      await cargarResultadoPagoPublico(slug, reservaUuid, pago);
+    }
   } catch (e) {
     el.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem">
       <h2>Comercio no encontrado</h2>
       <p style="color:var(--texto2)">El enlace puede ser incorrecto o el comercio está inactivo.</p></div>`;
+  }
+}
+
+function pcEscaparHtml(valor) {
+  return String(valor ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function pcEstadoResultadoPago(reserva, pagoHint) {
+  const estadoPago = String(reserva.estado_pago || '').toLowerCase();
+  const estadoMp = String(reserva.mercadopago_status || '').toLowerCase();
+  const estadosRechazados = ['rejected', 'cancelled', 'cancelled_by_user', 'refunded', 'charged_back'];
+
+  if (estadoPago === 'pagado' || estadoMp === 'approved') return 'aprobado';
+  if (estadoPago === 'expirado' || estadoMp === 'retencion_expirada') return 'vencido';
+  if (estadoPago === 'cancelado' || estadosRechazados.includes(estadoMp)) return 'rechazado';
+  if (pagoHint === 'error') return 'rechazado';
+  return 'pendiente';
+}
+
+function renderResultadoPagoPublico(reserva, pagoHint) {
+  const pagina = document.getElementById('pagina-comercio');
+  const estado = pcEstadoResultadoPago(reserva, pagoHint);
+  const configuracion = {
+    aprobado: {
+      icono: '✓',
+      titulo: 'Pago aprobado',
+      texto: 'Tu pago fue acreditado y la reserva quedó confirmada.'
+    },
+    pendiente: {
+      icono: '…',
+      titulo: pagoHint === 'ok' ? 'Confirmando tu pago' : 'Pago pendiente',
+      texto: pagoHint === 'ok'
+        ? 'Mercado Pago aprobó la operación. Estamos esperando la confirmación final.'
+        : 'El pago todavía se está procesando. Tu horario permanece reservado durante el plazo informado.'
+    },
+    rechazado: {
+      icono: '×',
+      titulo: 'Pago no completado',
+      texto: 'El pago fue rechazado o se interrumpió antes de finalizar. Podés volver al comercio e intentar una nueva reserva.'
+    },
+    vencido: {
+      icono: '×',
+      titulo: 'Pago vencido',
+      texto: 'El plazo para pagar terminó y el horario volvió a quedar disponible para otras personas.'
+    }
+  }[estado];
+
+  const fechaIso = String(reserva.fecha || '').slice(0, 10);
+  const fecha = new Date(`${fechaIso}T12:00:00`).toLocaleDateString('es-UY', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+  const comercioNombre = pcEscaparHtml(reserva.comercio_nombre || S.comercio?.nombre || 'Comercio');
+  const slug = encodeURIComponent(reserva.comercio_slug || S.comercio?.slug || '');
+  const sena = Number(reserva.sena_monto || 0);
+
+  document.title = `${configuracion.titulo} · ${reserva.comercio_nombre || S.comercio?.nombre || 'Agendate'}`;
+  pagina.innerHTML = `
+    <div class="pc-pago-resultado">
+      <nav class="pc-pago-nav"><div class="pc-logo">${comercioNombre}</div></nav>
+      <main class="pc-pago-main">
+        <section class="pc-pago-card ${estado}" aria-live="polite">
+          <div class="pc-pago-icono" aria-hidden="true">${configuracion.icono}</div>
+          <h1>${configuracion.titulo}</h1>
+          <p>${configuracion.texto}</p>
+          <div class="pc-conf-detalle">
+            <div class="res-fila"><span class="res-k">Servicio</span><span class="res-v">${pcEscaparHtml(reserva.servicio_nombre)}</span></div>
+            ${reserva.profesional_nombre ? `<div class="res-fila"><span class="res-k">Profesional</span><span class="res-v">${pcEscaparHtml(reserva.profesional_nombre)}</span></div>` : ''}
+            <div class="res-fila"><span class="res-k">Fecha</span><span class="res-v">${pcEscaparHtml(fecha)}</span></div>
+            <div class="res-fila"><span class="res-k">Hora</span><span class="res-v">${pcEscaparHtml(String(reserva.hora || '').slice(0, 5))} hs</span></div>
+            ${sena > 0 ? `<div class="res-fila res-total"><span class="res-k">Seña</span><span class="res-v">${pcEscaparHtml(S.comercio?.moneda || '$')} ${sena.toLocaleString('es-UY')}</span></div>` : ''}
+          </div>
+          <div class="pc-pago-acciones">
+            <a class="btn btn-oro" href="/${slug}">Volver al comercio</a>
+            ${estado === 'pendiente' ? '<button class="btn btn-ghost" type="button" onclick="location.reload()">Actualizar estado</button>' : ''}
+          </div>
+        </section>
+      </main>
+    </div>`;
+}
+
+async function cargarResultadoPagoPublico(slug, reservaUuid, pagoHint) {
+  try {
+    let reserva = await api('GET', `/p/reservas/${encodeURIComponent(reservaUuid)}`);
+    if (reserva.comercio_slug !== slug) throw new Error('La reserva no pertenece a este comercio');
+    renderResultadoPagoPublico(reserva, pagoHint);
+
+    if (pagoHint === 'ok' && pcEstadoResultadoPago(reserva, pagoHint) === 'pendiente') {
+      for (let intento = 0; intento < 6; intento++) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        reserva = await api('GET', `/p/reservas/${encodeURIComponent(reservaUuid)}`);
+        renderResultadoPagoPublico(reserva, pagoHint);
+        if (pcEstadoResultadoPago(reserva, pagoHint) !== 'pendiente') break;
+      }
+    }
+  } catch (e) {
+    const pagina = document.getElementById('pagina-comercio');
+    pagina.innerHTML = `<div class="pc-pago-main"><section class="pc-pago-card rechazado"><h1>No pudimos consultar el pago</h1><p>${pcEscaparHtml(e.message)}</p><a class="btn btn-oro" href="/${encodeURIComponent(slug)}">Volver al comercio</a></section></div>`;
   }
 }
 
@@ -10897,6 +11022,7 @@ function renderComercioPublico(d) {
             <div class="paso-sub" id="pc-paso3-sub">Turnos disponibles</div>
             <div id="pc-horas-loading" style="display:none;padding:1rem;color:var(--texto2)"><span class="loader-inline claro"></span> Consultando disponibilidad...</div>
             <div class="horas-grid" id="pc-horas-grid"></div>
+            <div id="pc-horas-aviso" class="pc-horas-aviso" role="status" aria-live="polite"></div>
             <div class="pasos-nav">
               <button class="btn-atras" onclick="pcIrPaso(3)">&larr; Atras</button>
               <button class="btn-sig" id="pc-btn45" onclick="pcIrPaso(5)" disabled>Mis datos &rarr;</button>
@@ -11051,12 +11177,36 @@ function abrirReservaPublica() {
 }
 
 function volverAInfoPublica() {
+  pcDetenerActualizacionHoras();
   const sec = document.getElementById('pc-reservas');
   sec?.classList.remove('abierto');
   document.getElementById('pc-servicios')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 let pcReservaHistorialListo = false;
+let pcHorasRefreshTimer = null;
+let pcHorasCargando = false;
+
+function pcDetenerActualizacionHoras() {
+  if (pcHorasRefreshTimer) clearInterval(pcHorasRefreshTimer);
+  pcHorasRefreshTimer = null;
+}
+
+function pcIniciarActualizacionHoras() {
+  pcDetenerActualizacionHoras();
+  pcHorasRefreshTimer = setInterval(() => {
+    if (Number(S.paso) === 4 && document.visibilityState === 'visible') {
+      pcCargarHoras({ silencioso: true });
+    }
+  }, 10000);
+}
+
+function pcMostrarAvisoHoras(mensaje = '', tipo = '') {
+  const aviso = document.getElementById('pc-horas-aviso');
+  if (!aviso) return;
+  aviso.textContent = mensaje;
+  aviso.className = `pc-horas-aviso${mensaje ? ' v' : ''}${tipo ? ` ${tipo}` : ''}`;
+}
 
 function pcSetDisabled(id, disabled) {
   const el = document.getElementById(id);
@@ -11308,30 +11458,64 @@ function pcElegirFecha(a, m, d) {
   pcRenderCalendario();
 }
 
-async function pcCargarHoras() {
+async function pcCargarHoras({ silencioso = false } = {}) {
   const grid = document.getElementById('pc-horas-grid');
   const loading = document.getElementById('pc-horas-loading');
-  if (!S.reserva.fecha || !S.reserva.servicio) return;
+  if (!grid || !loading || !S.reserva.fecha || !S.reserva.servicio || pcHorasCargando) return;
+  pcHorasCargando = true;
   const fStr = S.reserva.fecha.toISOString().split('T')[0];
   const fDisplay = S.reserva.fecha.toLocaleDateString('es-UY', { weekday:'long', day:'numeric', month:'long' });
   const prof = S.reserva.trabajador ? ` con ${S.reserva.trabajador.nombre}` : '';
   document.getElementById('pc-paso3-sub').textContent = 'Disponibilidad para ' + fDisplay.charAt(0).toUpperCase() + fDisplay.slice(1) + prof;
-  grid.innerHTML = '';
-  loading.style.display = 'block';
+  if (!silencioso) {
+    grid.innerHTML = '';
+    loading.style.display = 'block';
+  }
   try {
     const trabajadorParam = S.reserva.trabajador ? `&trabajador_id=${S.reserva.trabajador.id}` : '';
     const data = await api('GET', `/p/${S.comercio.slug}/disponibilidad?fecha=${fStr}&servicio_id=${S.reserva.servicio.id}${trabajadorParam}`);
     loading.style.display = 'none';
+    if (S.reserva.hora && !data.horas?.includes(S.reserva.hora)) {
+      S.reserva.hora = null;
+      pcSetDisabled('pc-btn45', true);
+      pcMostrarAvisoHoras('Lo sentimos, este horario acaba de ser reservado. Elegí otro horario para continuar.', 'error');
+    }
     if (!data.horas?.length) { grid.innerHTML = '<p style="color:var(--texto2);padding:1rem">Sin horarios disponibles para este día.</p>'; return; }
     grid.innerHTML = data.horas.map(h => `<button class="hora-b${S.reserva.hora===h?' sel':''}" onclick="pcElegirHora('${h}',this)">${h}</button>`).join('');
-  } catch(e) { loading.style.display = 'none'; grid.innerHTML = `<p style="color:var(--rojo)">${e.message}</p>`; }
+  } catch(e) {
+    loading.style.display = 'none';
+    if (!silencioso) grid.innerHTML = `<p style="color:var(--rojo)">${pcEscaparHtml(e.message)}</p>`;
+  } finally {
+    pcHorasCargando = false;
+  }
 }
 
 function pcElegirHora(hora, btn) {
   S.reserva.hora = hora;
+  pcMostrarAvisoHoras();
   document.getElementById('pc-btn45').disabled = false;
   document.querySelectorAll('.hora-b').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
+}
+
+async function pcHorarioSigueDisponible() {
+  const r = S.reserva;
+  if (!r.fecha || !r.servicio || !r.hora) return false;
+  const fecha = r.fecha.toISOString().split('T')[0];
+  const trabajadorParam = r.trabajador ? `&trabajador_id=${r.trabajador.id}` : '';
+  const data = await api('GET', `/p/${S.comercio.slug}/disponibilidad?fecha=${fecha}&servicio_id=${r.servicio.id}${trabajadorParam}`);
+  return Boolean(data.horas?.includes(r.hora));
+}
+
+function pcVolverAHorariosPorConflicto(mensaje) {
+  const btn = document.getElementById('pc-btn-conf');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = 'Confirmar turno ✓';
+  }
+  S.reserva.hora = null;
+  pcIrPaso(4);
+  pcMostrarAvisoHoras(mensaje || 'Lo sentimos, este horario ya fue reservado. Elegí otro horario para continuar.', 'error');
 }
 
 function pcValidarDatos() {
@@ -11394,6 +11578,12 @@ async function pcConfirmar() {
   btn.innerHTML = '<span class="loader-inline"></span> Agendando...';
   const r = S.reserva;
   try {
+    const horarioDisponible = await pcHorarioSigueDisponible();
+    if (!horarioDisponible) {
+      pcVolverAHorariosPorConflicto('Lo sentimos, este horario ya fue reservado. Elegí otro horario para continuar.');
+      return;
+    }
+
     const data = await api('POST', `/p/${S.comercio.slug}/reservar`, {
       servicio_id:  r.servicio.id,
       trabajador_id: r.trabajador?.id || null,
@@ -11437,11 +11627,16 @@ if (data.requiere_pago) {
   } catch (e) {
     btn.disabled = false;
     btn.innerHTML = 'Confirmar turno ✓';
+    if (/horario|reservad|disponible|bloqueado/i.test(e.message)) {
+      pcVolverAHorariosPorConflicto('Lo sentimos, este horario ya no está disponible. Elegí otro horario para continuar.');
+      return;
+    }
     toast(e.message, 'error');
   }
 }
 
 function pcReiniciar() {
+  pcDetenerActualizacionHoras();
   S.reserva = {
     servicio: null,
     trabajador: null,
@@ -11491,6 +11686,7 @@ function pcReiniciar() {
 
   const horasLoading = document.getElementById('pc-horas-loading');
   if (horasLoading) horasLoading.style.display = 'none';
+  pcMostrarAvisoHoras();
 
   const paso3Sub = document.getElementById('pc-paso3-sub');
   if (paso3Sub) paso3Sub.textContent = 'Turnos disponibles';
@@ -11527,6 +11723,8 @@ function pcIrPaso(n, opciones = {}) {
   ant?.classList.remove('v');
   document.getElementById('pc-paso' + destino)?.classList.add('v');
   S.paso = destino;
+  if (destino === 4) pcIniciarActualizacionHoras();
+  else pcDetenerActualizacionHoras();
   pcActualizarSteps(destino);
   if (!opciones.skipHistory) pcPushReservaHistory(destino);
   document.getElementById('pc-reservas')?.scrollIntoView({ behavior: 'smooth' });
