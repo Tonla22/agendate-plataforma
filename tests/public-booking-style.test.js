@@ -71,6 +71,12 @@ assert.ok(
 );
 
 assert.ok(
+  html.includes('<link rel="icon" type="image/png" href="/assets/agendate-isotipo.png?v=1">') &&
+    fs.existsSync(path.join(__dirname, '../frontend/assets/agendate-isotipo.png')),
+  'Todas las rutas deben usar el isotipo de Agendate como favicon.'
+);
+
+assert.ok(
   html.includes("titulo: 'Agendate'") &&
     html.includes('Agendate es una aplicación web de gestión de reservas para comercios de servicios.'),
   'La portada debe mostrar el nombre OAuth exacto y explicar explicitamente el proposito de la app.'
