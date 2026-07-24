@@ -50,11 +50,18 @@ async function registrarEvento({
       `INSERT INTO eventos_sistema (
          nivel, categoria, codigo, mensaje, comercio_id, reserva_id, contexto
        )
-       SELECT $1,$2,$3,$4,$5,$6,$7::jsonb
+       SELECT
+         $1::varchar(20),
+         $2::varchar(60),
+         $3::varchar(100),
+         $4::text,
+         $5::integer,
+         $6::integer,
+         $7::jsonb
        WHERE NOT EXISTS (
          SELECT 1
          FROM eventos_sistema
-         WHERE codigo=$3
+         WHERE codigo=$3::varchar(100)
            AND comercio_id IS NOT DISTINCT FROM $5::integer
            AND reserva_id IS NOT DISTINCT FROM $6::integer
            AND creado_en > NOW() - INTERVAL '5 minutes'

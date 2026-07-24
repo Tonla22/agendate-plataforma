@@ -35,6 +35,9 @@ const { contextoSeguro, registrarEvento } = require('../backend/services/operati
   assert.strictEqual(insercion.params[0], 'error');
   assert.strictEqual(insercion.params[1], 'pagos');
   assert.strictEqual(insercion.params[2], 'pago_rechazado');
+  assert.ok(insercion.sql.includes('$3::varchar(100)'));
+  assert.ok(insercion.sql.includes('$5::integer'));
+  assert.ok(insercion.sql.includes('$7::jsonb'));
   assert.ok(insercion.sql.includes("INTERVAL '5 minutes'"));
 
   console.log('operational-events.test ok');
