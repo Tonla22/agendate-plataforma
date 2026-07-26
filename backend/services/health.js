@@ -13,6 +13,20 @@ async function comprobarBaseDatos(pool, timeoutMs = HEALTHCHECK_TIMEOUT_MS) {
   }
 }
 
+function crearLivenessHandler({ getUptime = () => process.uptime() } = {}) {
+  return (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
+    return res.status(200).json({
+      ok: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime_seconds: Math.floor(getUptime()),
+      checks: { server: 'ok' }
+    });
+  };
+}
+
 function crearHealthHandler({ pool, getUptime = () => process.uptime() }) {
   return async (req, res) => {
     const inicio = Date.now();
@@ -48,5 +62,6 @@ function crearHealthHandler({ pool, getUptime = () => process.uptime() }) {
 module.exports = {
   HEALTHCHECK_TIMEOUT_MS,
   comprobarBaseDatos,
+  crearLivenessHandler,
   crearHealthHandler
 };

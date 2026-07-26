@@ -1,5 +1,8 @@
 const assert = require('assert');
-const { crearHealthHandler } = require('../backend/services/health');
+const {
+  crearHealthHandler,
+  crearLivenessHandler
+} = require('../backend/services/health');
 
 function crearRespuesta() {
   return {
@@ -22,6 +25,18 @@ function crearRespuesta() {
 }
 
 (async () => {
+  const respuestaLive = crearRespuesta();
+  const handlerLive = crearLivenessHandler({ getUptime: () => 42.8 });
+
+  handlerLive({}, respuestaLive);
+
+  assert.strictEqual(respuestaLive.statusCode, 200);
+  assert.strictEqual(respuestaLive.body.ok, true);
+  assert.strictEqual(respuestaLive.body.status, 'healthy');
+  assert.deepStrictEqual(respuestaLive.body.checks, { server: 'ok' });
+  assert.strictEqual(respuestaLive.body.uptime_seconds, 42);
+  assert.strictEqual(respuestaLive.headers['Cache-Control'], 'no-store');
+
   const respuestaOk = crearRespuesta();
   const handlerOk = crearHealthHandler({
     pool: { query: async () => ({ rows: [{ ok: 1 }] }) },

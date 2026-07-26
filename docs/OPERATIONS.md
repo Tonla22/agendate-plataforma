@@ -4,21 +4,22 @@ Esta guia describe los controles minimos de la beta comercial. No contiene secre
 
 ## Salud y monitoreo
 
-- Endpoint publico: `GET https://tuagendate.com/api/health`.
-- Respuesta correcta: HTTP `200`, `status: "healthy"`, servidor y base de datos en `ok`.
+- Liveness publico: `GET https://tuagendate.com/api/health/live`; comprueba solo el servidor y no consulta PostgreSQL.
+- Health completo: `GET https://tuagendate.com/api/health`; comprueba servidor y base de datos.
+- Respuesta correcta: HTTP `200`, `status: "healthy"` y los controles correspondientes en `ok`.
 - Una falla de base de datos responde HTTP `503` para que el monitor externo genere una alerta.
 - El superadmin puede abrir **Estado del sistema** para revisar actividad, pagos, sincronizacion de Google Calendar, WhatsApp y eventos recientes.
 - Los errores operativos se conservan 90 dias y los repetidos se agrupan durante cinco minutos.
 
 Monitor externo recomendado:
 
-1. Crear un monitor HTTPS para `https://tuagendate.com/api/health`.
+1. Crear un monitor HTTPS para `https://tuagendate.com/api/health/live`.
 2. Usar una frecuencia de 3 a 5 minutos.
 3. Considerar correcto solo HTTP `200` y buscar `"status":"healthy"` en el cuerpo.
 4. Enviar alertas al correo operativo del proyecto.
 5. Alertar despues de dos fallos consecutivos y volver a avisar cuando se recupere.
 
-Ademas, `.github/workflows/production-monitor.yml` consulta ese endpoint cada 10 minutos. Si falla, abre un unico issue con la etiqueta `monitoreo`, deja el workflow en rojo y cierra el issue al recuperarse. Conviene mantener activadas las notificaciones de Actions e issues del repositorio.
+Ademas, `.github/workflows/production-monitor.yml` consulta el health completo una vez por hora. Si falla, abre un unico issue con la etiqueta `monitoreo`, deja el workflow en rojo y cierra el issue al recuperarse. Conviene mantener activadas las notificaciones de Actions e issues del repositorio.
 
 Prueba mensual del monitor: pausar el servicio durante una ventana controlada o apuntar temporalmente un monitor de prueba a una URL inexistente, confirmar que llega la alerta y luego restaurarlo.
 

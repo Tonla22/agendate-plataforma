@@ -5,7 +5,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const pool = require('./db/pool');
-const { crearHealthHandler } = require('./services/health');
+const { crearHealthHandler, crearLivenessHandler } = require('./services/health');
 const { registrarEvento } = require('./services/operationalEvents');
 const {
   iniciarAutomatizacionesWhatsApp
@@ -31,6 +31,7 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 
 // Fuera del rate limit general para permitir comprobaciones externas frecuentes.
+app.get('/api/health/live', crearLivenessHandler());
 app.get('/api/health', crearHealthHandler({ pool }));
 
 app.use((req, res, next) => {
