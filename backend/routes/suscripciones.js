@@ -93,11 +93,14 @@ async function sincronizarSuscripcion(comercio, subscription) {
 
   await pool.query(`
     UPDATE comercios
-    SET suscripcion_estado=$1,
+    SET suscripcion_estado=$1::varchar(40),
         suscripcion_mp_id=COALESCE($2, suscripcion_mp_id),
         suscripcion_mp_plan_id=COALESCE($3, suscripcion_mp_plan_id),
         suscripcion_proximo_cobro=$4,
-        suscripcion_cancelada_en=CASE WHEN $1='cancelada' THEN NOW() ELSE suscripcion_cancelada_en END,
+        suscripcion_cancelada_en=CASE
+          WHEN $1::varchar(40)='cancelada' THEN NOW()
+          ELSE suscripcion_cancelada_en
+        END,
         actualizado_en=NOW()
     WHERE id=$5
   `, [

@@ -36,6 +36,7 @@ assert.match(subscriptions, /subscription_authorized_payment/);
 assert.doesNotMatch(subscriptions, /mercadopago\/oauth\/callback/);
 assert.match(subscriptions, /INSERT INTO mensualidades_plataforma/);
 assert.match(subscriptions, /suscripcion_tolerancia_hasta/);
+assert.match(subscriptions, /suscripcion_estado=\$1::varchar\(40\)/);
 
 assert.match(admin, /router\.get\('\/mensualidades'/);
 assert.match(admin, /mensualidades\/manual'/);
