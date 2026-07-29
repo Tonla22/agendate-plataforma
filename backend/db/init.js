@@ -18,6 +18,16 @@ CREATE TABLE IF NOT EXISTS admins (
 CREATE TABLE IF NOT EXISTS configuracion_plataforma (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   logo_url VARCHAR(500),
+  mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1600,
+  mensualidad_moneda VARCHAR(10) NOT NULL DEFAULT 'UYU',
+  dias_prueba INTEGER NOT NULL DEFAULT 0,
+  dias_tolerancia INTEGER NOT NULL DEFAULT 5,
+  mercadopago_plan_id VARCHAR(120),
+  mercadopago_platform_user_id VARCHAR(120),
+  mercadopago_platform_access_token TEXT,
+  mercadopago_platform_refresh_token TEXT,
+  mercadopago_platform_expires_at TIMESTAMP,
+  mercadopago_platform_conectado_en TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT NOW()
 );
 
@@ -49,8 +59,17 @@ CREATE TABLE IF NOT EXISTS comercios (
   auto_agradecimiento_activo BOOLEAN DEFAULT false,
   auto_agradecimiento_horas_despues INTEGER DEFAULT 2,
   activo BOOLEAN DEFAULT true,
-  plan VARCHAR(50) DEFAULT 'activo',
+  plan VARCHAR(50) DEFAULT 'inicial',
   fecha_pago_hasta DATE,
+  suscripcion_estado VARCHAR(40) DEFAULT 'sin_suscripcion',
+  suscripcion_monto NUMERIC(10,2) DEFAULT 1600,
+  suscripcion_moneda VARCHAR(10) DEFAULT 'UYU',
+  suscripcion_mp_id VARCHAR(120),
+  suscripcion_mp_plan_id VARCHAR(120),
+  suscripcion_proximo_cobro TIMESTAMP,
+  suscripcion_ultimo_pago_en TIMESTAMP,
+  suscripcion_tolerancia_hasta DATE,
+  suscripcion_cancelada_en TIMESTAMP,
   webhook_url VARCHAR(500),
   imagen_fondo_url VARCHAR(500),
   pago_mercadopago_link VARCHAR(500),
@@ -234,6 +253,32 @@ CREATE INDEX IF NOT EXISTS idx_eventos_sistema_creado ON eventos_sistema(creado_
 CREATE INDEX IF NOT EXISTS idx_eventos_sistema_categoria ON eventos_sistema(categoria, creado_en DESC);
 CREATE INDEX IF NOT EXISTS idx_eventos_sistema_nivel ON eventos_sistema(nivel, creado_en DESC);
 
+-- Cobros de la mensualidad de Agendate a cada comercio.
+-- No se mezcla con los pagos o senas de las reservas.
+CREATE TABLE IF NOT EXISTS mensualidades_plataforma (
+  id BIGSERIAL PRIMARY KEY,
+  comercio_id INTEGER NOT NULL REFERENCES comercios(id) ON DELETE CASCADE,
+  proveedor VARCHAR(30) NOT NULL DEFAULT 'mercadopago',
+  proveedor_pago_id VARCHAR(120),
+  proveedor_suscripcion_id VARCHAR(120),
+  estado VARCHAR(40) NOT NULL,
+  monto NUMERIC(10,2) NOT NULL,
+  moneda VARCHAR(10) NOT NULL DEFAULT 'UYU',
+  periodo_desde DATE,
+  periodo_hasta DATE,
+  vencimiento_en TIMESTAMP,
+  pagado_en TIMESTAMP,
+  detalle TEXT,
+  creado_en TIMESTAMP NOT NULL DEFAULT NOW(),
+  actualizado_en TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(proveedor, proveedor_pago_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mensualidades_comercio
+  ON mensualidades_plataforma(comercio_id, creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_mensualidades_estado
+  ON mensualidades_plataforma(estado, creado_en DESC);
+
 -- Bloqueos de disponibilidad: feriados, vacaciones, trámites, eventos, etc.
 CREATE TABLE IF NOT EXISTS disponibilidad_bloqueos (
   id SERIAL PRIMARY KEY,
@@ -357,7 +402,29 @@ DO $$ BEGIN
 EXCEPTION WHEN others THEN NULL;
 END $$;
 
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1600;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mensualidad_moneda VARCHAR(10) NOT NULL DEFAULT 'UYU';
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS dias_prueba INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS dias_tolerancia INTEGER NOT NULL DEFAULT 5;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_plan_id VARCHAR(120);
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_user_id VARCHAR(120);
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_access_token TEXT;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_refresh_token TEXT;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_expires_at TIMESTAMP;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_conectado_en TIMESTAMP;
+
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_estado VARCHAR(40) DEFAULT 'sin_suscripcion';
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_monto NUMERIC(10,2) DEFAULT 1600;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_moneda VARCHAR(10) DEFAULT 'UYU';
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_mp_id VARCHAR(120);
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_mp_plan_id VARCHAR(120);
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_proximo_cobro TIMESTAMP;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_ultimo_pago_en TIMESTAMP;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_tolerancia_hasta DATE;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_cancelada_en TIMESTAMP;
+
 CREATE INDEX IF NOT EXISTS idx_reservas_retencion_pago ON reservas(estado, estado_pago, pago_retencion_vence_en);
+CREATE INDEX IF NOT EXISTS idx_comercios_suscripcion_estado ON comercios(suscripcion_estado);
 `;
 
 async function init() {

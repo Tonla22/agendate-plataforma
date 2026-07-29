@@ -48,8 +48,244 @@
 
 .sistema-evento small { color: var(--texto2); }
 
+.admin-mobile-bar { display: none; }
+
+.admin-mp-connection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--borde2);
+  background: var(--bg);
+}
+
+.admin-mp-connection > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-mp-connection small {
+  display: block;
+  color: var(--texto2);
+  margin-top: 0.2rem;
+}
+
+.admin-config-warning {
+  color: var(--oro);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: -0.25rem 0 1rem;
+}
+
+.admin-summary-grid {
+  margin-bottom: 1rem;
+}
+
+.admin-dashboard-grid,
+.admin-settings-grid,
+.subscription-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-card-heading,
+.subscription-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-card-heading p {
+  color: var(--texto2);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+}
+
+.admin-attention-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--borde2);
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-attention-row:last-child { border-bottom: 0; }
+.admin-attention-row:hover { color: var(--oro); }
+
+.admin-recent-row,
+.subscription-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--borde2);
+}
+
+.admin-recent-row:last-child,
+.subscription-history-row:last-child { border-bottom: 0; }
+.admin-recent-row small,
+.subscription-history-row small {
+  display: block;
+  color: var(--texto2);
+  margin-top: 0.2rem;
+}
+
+.admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(180px, 260px);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-commerce-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-commerce-summary > div {
+  border: 1px solid var(--borde2);
+  background: var(--bg);
+  padding: 0.85rem;
+}
+
+.admin-commerce-summary span {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.74rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.admin-danger-zone {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--borde2);
+  color: var(--texto2);
+}
+
+.admin-danger-zone summary { cursor: pointer; color: var(--rojo); }
+.admin-danger-zone p { margin: 0.8rem 0; font-size: 0.8rem; }
+
+.subscription-card {
+  border: 1px solid var(--borde2);
+  background: var(--bg2);
+  padding: 1.25rem;
+}
+
+.subscription-profile-card {
+  grid-column: 1 / -1;
+  max-width: 720px;
+}
+
+.subscription-profile-card .negocio-card-head {
+  margin-bottom: 1rem;
+}
+
+.subscription-history {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--borde2);
+}
+
+.subscription-history summary {
+  cursor: pointer;
+  color: var(--texto2);
+  font-size: 0.82rem;
+}
+
+.subscription-eyebrow {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.subscription-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--borde2);
+  border-bottom: 1px solid var(--borde2);
+}
+
+.subscription-price strong { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.subscription-price span { color: var(--texto2); }
+
+.subscription-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+
+.subscription-meta span {
+  display: block;
+  color: var(--texto2);
+  font-size: 0.74rem;
+  margin-bottom: 0.25rem;
+}
+
+.subscription-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.subscription-warning {
+  border-left: 3px solid var(--oro);
+  background: rgba(201, 168, 76, 0.08);
+  padding: 0.8rem;
+  color: var(--texto);
+  font-size: 0.82rem;
+}
+
 @media (max-width: 760px) {
+  .admin-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--borde2);
+    background: var(--bg2);
+  }
+  .admin-mobile-bar .input { width: min(58vw, 240px); padding: 0.55rem; }
   .sistema-evento { grid-template-columns: 90px 1fr; }
   .sistema-evento-mensaje,
   .sistema-evento-fecha { grid-column: 1 / -1; }
+  .admin-dashboard-grid,
+  .admin-settings-grid,
+  .subscription-layout,
+  .admin-toolbar { grid-template-columns: 1fr; }
+  .admin-commerce-summary,
+  .subscription-meta { grid-template-columns: 1fr; }
+  .subscription-history-row { align-items: flex-start; }
+  .admin-mp-connection { align-items: flex-start; flex-direction: column; }
 }

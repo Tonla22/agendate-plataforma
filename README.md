@@ -107,10 +107,26 @@ JWT_SECRET=una_cadena_muy_larga_y_aleatoria_aqui
 PORT=3000
 BASE_URL=https://agendate.com
 ADMIN_EMAIL=tu@email.com
+MERCADOPAGO_CLIENT_ID=tu_app_id
+MERCADOPAGO_CLIENT_SECRET=tu_client_secret
+MERCADOPAGO_PLATFORM_WEBHOOK_SECRET=...
 ADMIN_PASSWORD=tu_contraseña_segura
 ```
 
 ---
+
+El superadmin vincula la cuenta que recibirá las mensualidades desde
+Configuración. Agendate guarda y renueva los tokens OAuth automáticamente.
+`MERCADOPAGO_PLATFORM_ACCESS_TOKEN` queda disponible solamente como respaldo
+opcional para instalaciones anteriores.
+Configurar como webhook:
+
+```text
+https://tu-dominio.com/api/suscripciones/webhook/mercadopago
+```
+
+Activar los eventos `subscription_preapproval`,
+`subscription_authorized_payment` y `payment`.
 
 ## Flujo de uso
 

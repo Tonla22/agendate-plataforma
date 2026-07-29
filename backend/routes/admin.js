@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { authAdmin } = require('../middleware/auth');
+const {
+  actualizarSuscripcion,
+  getPlatformOAuthRedirectUri
+} = require('../services/platformSubscriptions');
 
 function normalizarEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -12,15 +17,24 @@ function normalizarEmail(email) {
 router.get('/comercios', authAdmin, async (req, res) => {
   try {
     const r = await pool.query(`
-      SELECT c.*, 
-        COUNT(DISTINCT s.id) as total_servicios,
-        COUNT(DISTINCT res.id) as total_reservas,
-        COUNT(DISTINCT uc.id) as total_usuarios
+      SELECT c.*,
+        uc.email AS dueno_email,
+        uc.nombre AS dueno_nombre,
+        COALESCE(m.pagos_registrados, 0)::integer AS pagos_registrados
       FROM comercios c
-      LEFT JOIN servicios s ON s.comercio_id=c.id
-      LEFT JOIN reservas res ON res.comercio_id=c.id
-      LEFT JOIN usuarios_comercio uc ON uc.comercio_id=c.id
-      GROUP BY c.id ORDER BY c.creado_en DESC
+      LEFT JOIN LATERAL (
+        SELECT email, nombre
+        FROM usuarios_comercio
+        WHERE comercio_id=c.id AND activo=true
+        ORDER BY (rol='dueno') DESC, id
+        LIMIT 1
+      ) uc ON true
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*) AS pagos_registrados
+        FROM mensualidades_plataforma
+        WHERE comercio_id=c.id AND estado='approved'
+      ) m ON true
+      ORDER BY c.creado_en DESC
     `);
     res.json(r.rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -29,15 +43,48 @@ router.get('/comercios', authAdmin, async (req, res) => {
 // GET /api/admin/stats — métricas globales
 router.get('/stats', authAdmin, async (req, res) => {
   try {
-    const [comercios, reservas, hoy] = await Promise.all([
-      pool.query('SELECT COUNT(*) FROM comercios WHERE activo=true'),
-      pool.query('SELECT COUNT(*) FROM reservas WHERE estado=\'confirmada\''),
-      pool.query('SELECT COUNT(*) FROM reservas WHERE fecha=CURRENT_DATE AND estado=\'confirmada\'')
+    const [comercios, cobros, alertas, recientes] = await Promise.all([
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE activo=true)::integer AS activos,
+          COUNT(*) FILTER (WHERE suscripcion_estado='prueba')::integer AS en_prueba,
+          COUNT(*) FILTER (WHERE suscripcion_estado='activa')::integer AS al_dia,
+          COUNT(*) FILTER (
+            WHERE suscripcion_estado IN ('pago_pendiente','pausada')
+               OR (fecha_pago_hasta IS NOT NULL AND fecha_pago_hasta < CURRENT_DATE)
+          )::integer AS con_deuda
+        FROM comercios
+      `),
+      pool.query(`
+        SELECT
+          COALESCE(SUM(monto) FILTER (
+            WHERE estado='approved'
+              AND pagado_en >= date_trunc('month', NOW())
+          ), 0)::numeric AS ingresos_mes,
+          COUNT(*) FILTER (
+            WHERE estado IN ('rejected','cancelled','charged_back')
+              AND creado_en >= date_trunc('month', NOW())
+          )::integer AS cobros_fallidos
+        FROM mensualidades_plataforma
+      `),
+      pool.query(`
+        SELECT COUNT(*)::integer AS total
+        FROM eventos_sistema
+        WHERE nivel IN ('error','critical')
+          AND creado_en >= NOW() - INTERVAL '24 hours'
+      `),
+      pool.query(`
+        SELECT id, nombre, slug, suscripcion_estado, creado_en
+        FROM comercios
+        ORDER BY creado_en DESC
+        LIMIT 6
+      `)
     ]);
     res.json({
-      comercios_activos: parseInt(comercios.rows[0].count),
-      total_reservas: parseInt(reservas.rows[0].count),
-      reservas_hoy: parseInt(hoy.rows[0].count)
+      ...comercios.rows[0],
+      ...cobros.rows[0],
+      alertas_sistema: alertas.rows[0].total,
+      comercios_recientes: recientes.rows
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -145,6 +192,16 @@ router.post('/comercios', authAdmin, async (req, res) => {
       // Horarios iniciales
       horarios = []
     } = req.body;
+    const configResult = await client.query(`
+      SELECT mensualidad_monto, mensualidad_moneda, dias_prueba
+      FROM configuracion_plataforma
+      WHERE id=1
+    `);
+    const config = configResult.rows[0] || {
+      mensualidad_monto: 1600,
+      mensualidad_moneda: 'UYU',
+      dias_prueba: 0
+    };
 
     const slugNormalizado = String(slug || '').trim().toLowerCase();
     const duenoEmailNormalizado = normalizarEmail(dueno_email);
@@ -183,11 +240,18 @@ router.post('/comercios', authAdmin, async (req, res) => {
     // Crear comercio
     const c = await client.query(`
       INSERT INTO comercios (slug,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
-        direccion,instagram_url,color_acento,color_fondo,moneda,duracion_turno_min,webhook_url)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+        direccion,instagram_url,color_acento,color_fondo,moneda,duracion_turno_min,webhook_url,
+        suscripcion_estado,suscripcion_monto,suscripcion_moneda,suscripcion_tolerancia_hasta)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,
+        CASE WHEN $18::integer > 0 THEN CURRENT_DATE + $18::integer ELSE NULL END)
+      RETURNING *`,
       [slugNormalizado,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
        direccion,instagram_url,color_acento||'#C9A84C',color_fondo||'#0D0D0D',
-       moneda||'$',duracion_turno_min||30,webhook_url]
+       moneda||'$',duracion_turno_min||30,webhook_url,
+       Number(config.dias_prueba || 0) > 0 ? 'prueba' : 'sin_suscripcion',
+       Number(config.mensualidad_monto || 1600),
+       config.mensualidad_moneda || 'UYU',
+       Number(config.dias_prueba || 0)]
     );
     const comercioId = c.rows[0].id;
 
@@ -228,9 +292,29 @@ router.post('/comercios', authAdmin, async (req, res) => {
 router.put('/comercios/:id', authAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    if (req.body.suscripcion_monto !== undefined) {
+      const nuevoMonto = Number(req.body.suscripcion_monto);
+      if (!Number.isFinite(nuevoMonto) || nuevoMonto <= 0 || nuevoMonto > 1000000) {
+        return res.status(400).json({ error: 'El monto de la suscripcion no es valido' });
+      }
+      const suscripcion = await pool.query(`
+        SELECT suscripcion_mp_id, suscripcion_moneda
+        FROM comercios
+        WHERE id=$1
+      `, [id]);
+      if (suscripcion.rows[0]?.suscripcion_mp_id) {
+        await actualizarSuscripcion(suscripcion.rows[0].suscripcion_mp_id, {
+          auto_recurring: {
+            transaction_amount: nuevoMonto,
+            currency_id: req.body.suscripcion_moneda || suscripcion.rows[0].suscripcion_moneda || 'UYU'
+          }
+        });
+      }
+    }
     const campos = ['nombre','slogan','telefono','whatsapp','email_contacto','email_notificaciones',
       'direccion','instagram_url','color_acento','color_fondo','moneda','duracion_turno_min',
-      'webhook_url','activo','plan','fecha_pago_hasta'];
+      'webhook_url','activo','plan','fecha_pago_hasta','suscripcion_estado',
+      'suscripcion_monto','suscripcion_moneda','suscripcion_tolerancia_hasta'];
     const sets = []; const vals = [];
     campos.forEach(c => {
       if (req.body[c] !== undefined) { sets.push(`${c}=$${sets.length+1}`); vals.push(req.body[c]); }
@@ -304,11 +388,185 @@ router.get('/reservas', authAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/mensualidades - historial global de cobros de Agendate
+router.get('/mensualidades', authAdmin, async (req, res) => {
+  try {
+    const { estado, comercio_id: comercioId } = req.query;
+    const filtros = [];
+    const valores = [];
+
+    if (estado) {
+      valores.push(estado);
+      filtros.push(`m.estado=$${valores.length}`);
+    }
+    if (comercioId) {
+      valores.push(comercioId);
+      filtros.push(`m.comercio_id=$${valores.length}`);
+    }
+
+    const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+    const resultado = await pool.query(`
+      SELECT m.*, c.nombre AS comercio_nombre, c.slug AS comercio_slug
+      FROM mensualidades_plataforma m
+      JOIN comercios c ON c.id=m.comercio_id
+      ${where}
+      ORDER BY m.creado_en DESC
+      LIMIT 500
+    `, valores);
+
+    res.json(resultado.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/admin/comercios/:id/mensualidades/manual
+router.post('/comercios/:id/mensualidades/manual', authAdmin, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const meses = Number(req.body.meses || 1);
+    const monto = Number(req.body.monto);
+    if (!Number.isInteger(meses) || meses < 1 || meses > 24) {
+      return res.status(400).json({ error: 'Los meses deben ser un numero entero entre 1 y 24' });
+    }
+    if (!Number.isFinite(monto) || monto <= 0) {
+      return res.status(400).json({ error: 'El monto debe ser mayor que cero' });
+    }
+
+    const comercio = await client.query(
+      'SELECT id, suscripcion_moneda FROM comercios WHERE id=$1',
+      [req.params.id]
+    );
+    if (!comercio.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    await client.query('BEGIN');
+    const pago = await client.query(`
+      INSERT INTO mensualidades_plataforma (
+        comercio_id, proveedor, estado, monto, moneda,
+        periodo_desde, periodo_hasta, pagado_en, detalle
+      )
+      VALUES (
+        $1, 'manual', 'approved', $2, $3, CURRENT_DATE,
+        (CURRENT_DATE + ($4::integer * INTERVAL '1 month'))::date,
+        NOW(), $5
+      )
+      RETURNING *
+    `, [
+      req.params.id,
+      monto,
+      comercio.rows[0].suscripcion_moneda || 'UYU',
+      meses,
+      String(req.body.detalle || 'Pago registrado manualmente').slice(0, 500)
+    ]);
+
+    await client.query(`
+      UPDATE comercios
+      SET suscripcion_estado='activa',
+          suscripcion_ultimo_pago_en=NOW(),
+          fecha_pago_hasta=(CURRENT_DATE + ($1::integer * INTERVAL '1 month'))::date,
+          suscripcion_tolerancia_hasta=NULL,
+          actualizado_en=NOW()
+      WHERE id=$2
+    `, [meses, req.params.id]);
+
+    await client.query('COMMIT');
+    res.status(201).json(pago.rows[0]);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Estado de la cuenta Mercado Pago que cobra las mensualidades de Agendate.
+router.get('/mercadopago', authAdmin, async (req, res) => {
+  try {
+    const resultado = await pool.query(`
+      SELECT mercadopago_platform_user_id AS user_id,
+             mercadopago_platform_access_token IS NOT NULL AS conectado,
+             mercadopago_platform_expires_at AS expira_en,
+             mercadopago_platform_conectado_en AS conectado_en
+      FROM configuracion_plataforma
+      WHERE id=1
+    `);
+    const estado = resultado.rows[0] || {};
+
+    res.json({
+      conectado: Boolean(estado.conectado),
+      user_id: estado.user_id || null,
+      expira_en: estado.expira_en || null,
+      conectado_en: estado.conectado_en || null,
+      configuracion_oauth_disponible: Boolean(
+        process.env.MERCADOPAGO_CLIENT_ID && process.env.MERCADOPAGO_CLIENT_SECRET
+      ),
+      token_entorno_configurado: Boolean(process.env.MERCADOPAGO_PLATFORM_ACCESS_TOKEN)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/mercadopago/conectar', authAdmin, async (req, res) => {
+  try {
+    if (!process.env.MERCADOPAGO_CLIENT_ID || !process.env.MERCADOPAGO_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Faltan las credenciales OAuth de Mercado Pago' });
+    }
+
+    const state = jwt.sign(
+      { tipo: 'mp_platform_oauth', admin_id: req.admin.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+    const url = new URL(process.env.MERCADOPAGO_AUTH_URL || 'https://auth.mercadopago.com/authorization');
+    url.searchParams.set('client_id', process.env.MERCADOPAGO_CLIENT_ID);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('platform_id', 'mp');
+    url.searchParams.set('redirect_uri', getPlatformOAuthRedirectUri());
+    url.searchParams.set('state', state);
+
+    res.json({ url: url.toString() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/mercadopago/desconectar', authAdmin, async (req, res) => {
+  try {
+    const suscripciones = await pool.query(`
+      SELECT COUNT(*)::integer AS total
+      FROM comercios
+      WHERE suscripcion_mp_id IS NOT NULL
+        AND suscripcion_estado IN ('pendiente','activa','pago_pendiente','pausada')
+    `);
+    if (suscripciones.rows[0].total > 0) {
+      return res.status(409).json({
+        error: 'No se puede desvincular Mercado Pago mientras haya suscripciones activas'
+      });
+    }
+
+    await pool.query(`
+      UPDATE configuracion_plataforma
+      SET mercadopago_platform_user_id=NULL,
+          mercadopago_platform_access_token=NULL,
+          mercadopago_platform_refresh_token=NULL,
+          mercadopago_platform_expires_at=NULL,
+          mercadopago_platform_conectado_en=NULL,
+          actualizado_en=NOW()
+      WHERE id=1
+    `);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/admin/configuracion - configuración general de Agendate
 router.get('/configuracion', authAdmin, async (req, res) => {
   try {
     const resultado = await pool.query(
-      `SELECT logo_url, actualizado_en
+      `SELECT logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
+              dias_tolerancia, mercadopago_plan_id, actualizado_en
        FROM configuracion_plataforma
        WHERE id=1`
     );
@@ -316,6 +574,11 @@ router.get('/configuracion', authAdmin, async (req, res) => {
     res.json(
       resultado.rows[0] || {
         logo_url: null,
+        mensualidad_monto: 1600,
+        mensualidad_moneda: 'UYU',
+        dias_prueba: 0,
+        dias_tolerancia: 5,
+        mercadopago_plan_id: null,
         actualizado_en: null
       }
     );
@@ -327,7 +590,21 @@ router.get('/configuracion', authAdmin, async (req, res) => {
 // PUT /api/admin/configuracion - guardar logo general
 router.put('/configuracion', authAdmin, async (req, res) => {
   try {
-    const logoUrl = String(req.body.logo_url || '').trim();
+    const actualResult = await pool.query(`
+      SELECT logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
+             dias_tolerancia, mercadopago_plan_id
+      FROM configuracion_plataforma
+      WHERE id=1
+    `);
+    const actual = actualResult.rows[0] || {};
+    const logoUrl = String(
+      req.body.logo_url === undefined ? (actual.logo_url || '') : (req.body.logo_url || '')
+    ).trim();
+    const monto = Number(req.body.mensualidad_monto ?? actual.mensualidad_monto ?? 1600);
+    const moneda = String(req.body.mensualidad_moneda || actual.mensualidad_moneda || 'UYU').trim().toUpperCase();
+    const diasPrueba = Number(req.body.dias_prueba ?? actual.dias_prueba ?? 0);
+    const diasTolerancia = Number(req.body.dias_tolerancia ?? actual.dias_tolerancia ?? 5);
+    const planId = String(req.body.mercadopago_plan_id ?? actual.mercadopago_plan_id ?? '').trim();
 
     if (
       logoUrl &&
@@ -341,18 +618,38 @@ router.put('/configuracion', authAdmin, async (req, res) => {
       });
     }
 
+    if (!Number.isFinite(monto) || monto <= 0 || monto > 1000000) {
+      return res.status(400).json({ error: 'El monto de la mensualidad no es valido' });
+    }
+    if (!/^[A-Z]{3}$/.test(moneda)) {
+      return res.status(400).json({ error: 'La moneda debe tener tres letras, por ejemplo UYU' });
+    }
+    if (!Number.isInteger(diasPrueba) || diasPrueba < 0 || diasPrueba > 365) {
+      return res.status(400).json({ error: 'Los dias de prueba no son validos' });
+    }
+    if (!Number.isInteger(diasTolerancia) || diasTolerancia < 0 || diasTolerancia > 60) {
+      return res.status(400).json({ error: 'Los dias de tolerancia no son validos' });
+    }
+
     const resultado = await pool.query(
       `INSERT INTO configuracion_plataforma
-        (id, logo_url, actualizado_en)
-       VALUES (1, $1, NOW())
+        (id, logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
+         dias_tolerancia, mercadopago_plan_id, actualizado_en)
+       VALUES (1, $1, $2, $3, $4, $5, $6, NOW())
 
        ON CONFLICT (id)
        DO UPDATE SET
          logo_url=EXCLUDED.logo_url,
+         mensualidad_monto=EXCLUDED.mensualidad_monto,
+         mensualidad_moneda=EXCLUDED.mensualidad_moneda,
+         dias_prueba=EXCLUDED.dias_prueba,
+         dias_tolerancia=EXCLUDED.dias_tolerancia,
+         mercadopago_plan_id=EXCLUDED.mercadopago_plan_id,
          actualizado_en=NOW()
 
-       RETURNING logo_url, actualizado_en`,
-      [logoUrl || null]
+       RETURNING logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
+                 dias_tolerancia, mercadopago_plan_id, actualizado_en`,
+      [logoUrl || null, monto, moneda, diasPrueba, diasTolerancia, planId || null]
     );
 
     res.json({

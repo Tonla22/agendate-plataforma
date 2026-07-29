@@ -8267,16 +8267,26 @@ async function mostrarAdmin() {
   const el = document.getElementById('panel-admin');
   el.classList.add('activa');
   el.innerHTML = `
+    <div class="admin-mobile-bar">
+      <strong>Agendate Admin</strong>
+      <select class="input" aria-label="Sección del administrador" onchange="adminSec(this.value)">
+        <option value="dashboard">Inicio</option>
+        <option value="comercios">Comercios</option>
+        <option value="mensualidades">Mensualidades</option>
+        <option value="sistema">Sistema</option>
+        <option value="configuracion">Configuración</option>
+      </select>
+    </div>
     <aside class="admin-sidebar">
 <div class="admin-sidebar-logo">
   <img class="logo-plataforma-admin logo-plataforma-admin--dark" src="/assets/agendate-logo-dark.png" width="1203" height="401" alt="Agendate">
   <img class="logo-plataforma-admin logo-plataforma-admin--light" src="/assets/agendate-logo.png" width="1203" height="401" alt="Agendate">
 </div>      <nav class="admin-nav">
-        <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">Dashboard</a>
-        <a href="#" onclick="adminSec('sistema');return false" id="an-sistema">Estado del sistema</a>
+        <a href="#" onclick="adminSec('dashboard');return false" class="act" id="an-dashboard">Inicio</a>
         <a href="#" onclick="adminSec('comercios');return false" id="an-comercios">Comercios</a>
-        <a href="#" onclick="adminSec('reservas');return false" id="an-reservas">Reservas</a>
-        <a href="#" onclick="adminSec('configuracion');return false" id="an-configuracion">Identidad</a>
+        <a href="#" onclick="adminSec('mensualidades');return false" id="an-mensualidades">Mensualidades</a>
+        <a href="#" onclick="adminSec('sistema');return false" id="an-sistema">Sistema</a>
+        <a href="#" onclick="adminSec('configuracion');return false" id="an-configuracion">Configuración</a>
       </nav>
       <div class="admin-sidebar-bot">
         <div style="font-size:0.78rem;color:var(--texto2);margin-bottom:0.5rem">${S.nombre}</div>
@@ -8286,13 +8296,26 @@ async function mostrarAdmin() {
     <main class="admin-main">
       <div class="admin-secciones">
         <div id="admin-dashboard" class="admin-sec act"></div>
-        <div id="admin-sistema" class="admin-sec"></div>
         <div id="admin-comercios" class="admin-sec"></div>
-        <div id="admin-reservas"  class="admin-sec"></div>
+        <div id="admin-mensualidades" class="admin-sec"></div>
+        <div id="admin-sistema" class="admin-sec"></div>
         <div id="admin-configuracion" class="admin-sec"></div>
       </div>
     </main>`;
   cargarAdminDashboard();
+  const mpPlataforma = new URLSearchParams(location.search).get('mp_plataforma');
+  if (mpPlataforma) {
+    history.replaceState({}, '', '/admin');
+    setTimeout(() => {
+      toast(
+        mpPlataforma === 'conectado'
+          ? 'Mercado Pago de Agendate vinculado correctamente'
+          : 'No se pudo vincular Mercado Pago',
+        mpPlataforma === 'conectado' ? 'success' : 'error'
+      );
+      if (mpPlataforma === 'conectado') adminSec('configuracion');
+    }, 50);
+  }
 }
 
 function adminSec(sec) {
@@ -8301,9 +8324,9 @@ function adminSec(sec) {
   document.getElementById('admin-' + sec).classList.add('act');
   document.getElementById('an-' + sec).classList.add('act');
   if (sec === 'dashboard') cargarAdminDashboard();
-  if (sec === 'sistema') cargarAdminSistema();
   if (sec === 'comercios') cargarAdminComercios();
-  if (sec === 'reservas')  cargarAdminReservas();
+  if (sec === 'mensualidades') cargarAdminMensualidades();
+  if (sec === 'sistema') cargarAdminSistema();
   if (sec === 'configuracion') cargarAdminConfiguracion();
 }
 
@@ -8413,7 +8436,10 @@ async function cargarAdminConfiguracion() {
   `;
 
   try {
-    const data = await api('GET', '/admin/configuracion');
+    const [data, mercadoPago] = await Promise.all([
+      api('GET', '/admin/configuracion'),
+      api('GET', '/admin/mercadopago')
+    ]);
 
     el.innerHTML = `
       <div class="admin-header">
@@ -8425,7 +8451,8 @@ async function cargarAdminConfiguracion() {
         </div>
       </div>
 
-      <div class="panel-soft" style="max-width:620px;padding:1.5rem">
+      <div class="admin-settings-grid">
+      <div class="panel-soft" style="padding:1.5rem">
         <h2 style="font-size:1.1rem;margin-bottom:0.5rem">
           Logo de la plataforma
         </h2>
@@ -8479,6 +8506,58 @@ async function cargarAdminConfiguracion() {
           ` : ''}
         </div>
       </div>
+
+      <div class="panel-soft" style="padding:1.5rem">
+        <h2 style="font-size:1.1rem;margin-bottom:0.5rem">Mensualidad</h2>
+        <p style="color:var(--texto2);line-height:1.6;margin-bottom:1.2rem">
+          Estos valores se aplican a los nuevos comercios y al checkout de suscripción.
+        </p>
+        <div class="admin-mp-connection ${mercadoPago.conectado ? 'is-connected' : ''}">
+          <div>
+            <span class="sistema-dot ${mercadoPago.conectado ? '' : 'warning'}"></span>
+            <div>
+              <strong>Mercado Pago de Agendate</strong>
+              <small>${mercadoPago.conectado
+                ? `Cuenta vinculada${mercadoPago.user_id ? ` · ID ${pcEscaparHtml(mercadoPago.user_id)}` : ''}`
+                : 'Vinculá la cuenta donde querés recibir las mensualidades.'}</small>
+            </div>
+          </div>
+          ${mercadoPago.conectado
+            ? '<button class="btn btn-ghost btn-sm" onclick="desconectarMercadoPagoPlataforma()">Desvincular</button>'
+            : `<button class="btn btn-oro btn-sm" onclick="conectarMercadoPagoPlataforma()" ${mercadoPago.configuracion_oauth_disponible ? '' : 'disabled'}>Vincular Mercado Pago</button>`
+          }
+        </div>
+        ${!mercadoPago.configuracion_oauth_disponible
+          ? '<p class="admin-config-warning">Primero hay que configurar MERCADOPAGO_CLIENT_ID y MERCADOPAGO_CLIENT_SECRET en Render.</p>'
+          : ''}
+        <div class="input-grid-2">
+          <div class="form-group">
+            <label class="label">Monto mensual</label>
+            <input class="input" id="admin-mensualidad-monto" type="number" min="1" step="1" value="${Number(data.mensualidad_monto || 1600)}">
+          </div>
+          <div class="form-group">
+            <label class="label">Moneda</label>
+            <input class="input" id="admin-mensualidad-moneda" maxlength="3" value="${pcEscaparHtml(data.mensualidad_moneda || 'UYU')}">
+          </div>
+          <div class="form-group">
+            <label class="label">Días de prueba</label>
+            <input class="input" id="admin-dias-prueba" type="number" min="0" max="365" value="${Number(data.dias_prueba || 0)}">
+          </div>
+          <div class="form-group">
+            <label class="label">Días de tolerancia</label>
+            <input class="input" id="admin-dias-tolerancia" type="number" min="0" max="60" value="${Number(data.dias_tolerancia ?? 5)}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label">ID del plan de Mercado Pago</label>
+          <input class="input" id="admin-mp-plan-id" value="${pcEscaparHtml(data.mercadopago_plan_id || '')}" placeholder="Opcional: preapproval_plan_id">
+          <small style="display:block;color:var(--texto2);margin-top:0.5rem">
+            Si queda vacío, Agendate creará una suscripción mensual individual por comercio.
+          </small>
+        </div>
+        <button class="btn btn-oro" onclick="guardarConfiguracionMensualidad()">Guardar mensualidad</button>
+      </div>
+      </div>
     `;
   } catch (error) {
     el.innerHTML += `
@@ -8524,6 +8603,42 @@ async function guardarLogoPlataforma() {
   }
 }
 
+async function guardarConfiguracionMensualidad() {
+  try {
+    await api('PUT', '/admin/configuracion', {
+      mensualidad_monto: Number(document.getElementById('admin-mensualidad-monto').value),
+      mensualidad_moneda: document.getElementById('admin-mensualidad-moneda').value.trim().toUpperCase(),
+      dias_prueba: Number(document.getElementById('admin-dias-prueba').value),
+      dias_tolerancia: Number(document.getElementById('admin-dias-tolerancia').value),
+      mercadopago_plan_id: document.getElementById('admin-mp-plan-id').value.trim()
+    });
+    toast('Configuración de mensualidad guardada');
+    cargarAdminConfiguracion();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
+async function conectarMercadoPagoPlataforma() {
+  try {
+    const data = await api('GET', '/admin/mercadopago/conectar');
+    window.location.href = data.url;
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
+async function desconectarMercadoPagoPlataforma() {
+  if (!confirm('¿Querés desvincular la cuenta de Mercado Pago de Agendate?')) return;
+  try {
+    await api('POST', '/admin/mercadopago/desconectar', {});
+    toast('Mercado Pago desvinculado');
+    cargarAdminConfiguracion();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
 async function eliminarLogoPlataforma() {
   if (!confirm('¿Querés quitar el logo general de Agendate?')) return;
 
@@ -8541,30 +8656,109 @@ async function eliminarLogoPlataforma() {
   }
 }
 
+function adminLabelSuscripcion(estado) {
+  return {
+    activa: 'Al día',
+    prueba: 'En prueba',
+    pendiente: 'Pendiente',
+    pago_pendiente: 'Pago pendiente',
+    pausada: 'Pausada',
+    cancelada: 'Cancelada',
+    sin_suscripcion: 'Sin suscripción'
+  }[estado] || estado || 'Sin suscripción';
+}
+
+function adminBadgeSuscripcion(estado) {
+  const clase = estado === 'activa'
+    ? 'badge-verde'
+    : estado === 'prueba' || estado === 'pendiente'
+      ? 'badge-gris'
+      : 'badge-rojo';
+  return `<span class="badge ${clase}">${pcEscaparHtml(adminLabelSuscripcion(estado))}</span>`;
+}
+
 async function cargarAdminDashboard() {
   const el = document.getElementById('admin-dashboard');
-  el.innerHTML = `<div class="admin-header"><h1>Dashboard</h1></div><div class="stats-grid" id="stats-grid"><div class="stat-card"><div class="loader-inline claro"></div></div></div>`;
+  el.innerHTML = `<div class="admin-header"><h1>Inicio</h1></div><div class="stats-grid"><div class="stat-card"><div class="loader-inline claro"></div></div></div>`;
   try {
     const stats = await api('GET', '/admin/stats');
-    document.getElementById('stats-grid').innerHTML = `
-      <div class="stat-card"><div class="stat-num">${stats.comercios_activos}</div><div class="stat-lbl">Comercios activos</div></div>
-      <div class="stat-card"><div class="stat-num">${stats.total_reservas}</div><div class="stat-lbl">Total reservas</div></div>
-      <div class="stat-card"><div class="stat-num">${stats.reservas_hoy}</div><div class="stat-lbl">Reservas hoy</div></div>`;
-  } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
+    el.innerHTML = `
+      <div class="admin-header">
+        <div>
+          <h1>Inicio</h1>
+          <p style="color:var(--texto2);margin-top:0.35rem">Estado comercial y operativo de Agendate.</p>
+        </div>
+        <button class="btn btn-oro" onclick="abrirModalNuevoComercio()">+ Nuevo comercio</button>
+      </div>
+      <div class="stats-grid admin-summary-grid">
+        <div class="stat-card"><div class="stat-num">${Number(stats.activos || 0)}</div><div class="stat-lbl">Comercios activos</div></div>
+        <div class="stat-card"><div class="stat-num">${Number(stats.al_dia || 0)}</div><div class="stat-lbl">Mensualidades al día</div></div>
+        <div class="stat-card"><div class="stat-num">${Number(stats.con_deuda || 0)}</div><div class="stat-lbl">Requieren cobro</div></div>
+        <div class="stat-card"><div class="stat-num">${formatoDinero(stats.ingresos_mes || 0, 'UYU')}</div><div class="stat-lbl">Ingresos del mes</div></div>
+      </div>
+      <div class="admin-dashboard-grid">
+        <section class="panel-soft-card">
+          <div class="admin-card-heading">
+            <div><h3>Atención</h3><p>Lo que conviene revisar ahora.</p></div>
+          </div>
+          <button class="admin-attention-row" onclick="adminSec('comercios')">
+            <span>Comercios con deuda</span><strong>${Number(stats.con_deuda || 0)}</strong>
+          </button>
+          <button class="admin-attention-row" onclick="adminSec('mensualidades')">
+            <span>Cobros fallidos este mes</span><strong>${Number(stats.cobros_fallidos || 0)}</strong>
+          </button>
+          <button class="admin-attention-row" onclick="adminSec('sistema')">
+            <span>Alertas del sistema (24 h)</span><strong>${Number(stats.alertas_sistema || 0)}</strong>
+          </button>
+        </section>
+        <section class="panel-soft-card">
+          <div class="admin-card-heading">
+            <div><h3>Comercios recientes</h3><p>Últimas cuentas agregadas.</p></div>
+            <button class="btn btn-ghost btn-sm" onclick="adminSec('comercios')">Ver todos</button>
+          </div>
+          ${(stats.comercios_recientes || []).length
+            ? stats.comercios_recientes.map(c => `
+              <div class="admin-recent-row">
+                <div><strong>${pcEscaparHtml(c.nombre)}</strong><small>/${pcEscaparHtml(c.slug)}</small></div>
+                ${adminBadgeSuscripcion(c.suscripcion_estado)}
+              </div>`).join('')
+            : '<p style="color:var(--texto2)">Todavía no hay comercios.</p>'}
+        </section>
+      </div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="admin-header"><h1>Inicio</h1></div><p style="color:var(--rojo)">${pcEscaparHtml(e.message)}</p>`;
+  }
 }
 
 async function cargarAdminComercios() {
   const el = document.getElementById('admin-comercios');
   el.innerHTML = `
     <div class="admin-header">
-      <h1>Comercios</h1>
+      <div>
+        <h1>Comercios</h1>
+        <p style="color:var(--texto2);margin-top:0.35rem">Clientes, planes y estado de suscripción.</p>
+      </div>
       <button class="btn btn-oro" onclick="abrirModalNuevoComercio()">+ Nuevo comercio</button>
+    </div>
+    <div class="admin-toolbar">
+      <input class="input" id="admin-buscar-comercio" placeholder="Buscar por comercio, dueño, email o slug" oninput="filtrarAdminComercios(this.value)">
+      <select class="input" id="admin-filtro-suscripcion" onchange="filtrarAdminComercios()">
+        <option value="">Todos los estados</option>
+        <option value="activa">Al día</option>
+        <option value="prueba">En prueba</option>
+        <option value="pago_pendiente">Pago pendiente</option>
+        <option value="sin_suscripcion">Sin suscripción</option>
+        <option value="cancelada">Cancelada</option>
+      </select>
     </div>
     <div class="table-wrap" id="tabla-comercios-wrap">
       <div style="padding:2rem;text-align:center"><span class="loader-inline claro"></span> Cargando...</div>
     </div>`;
   try {
     const data = await api('GET', '/admin/comercios');
+    window._adminComercios = data;
+    renderAdminComercios(data);
+    return;
     const wrap = document.getElementById('tabla-comercios-wrap');
     if (!data.length) { wrap.innerHTML = '<p style="padding:2rem;color:var(--texto2)">No hay comercios todavía.</p>'; return; }
     wrap.innerHTML = `<table class="tabla">
@@ -8585,6 +8779,114 @@ async function cargarAdminComercios() {
   } catch (e) { el.innerHTML += `<p style="color:var(--rojo)">${e.message}</p>`; }
 }
 
+function renderAdminComercios(data) {
+  const wrap = document.getElementById('tabla-comercios-wrap');
+  if (!wrap) return;
+  if (!data.length) {
+    wrap.innerHTML = '<p style="padding:2rem;color:var(--texto2)">No hay comercios para mostrar.</p>';
+    return;
+  }
+
+  wrap.innerHTML = `<table class="tabla">
+    <thead><tr><th>Comercio</th><th>Responsable</th><th>Plan</th><th>Vencimiento</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${data.map(c => `
+      <tr>
+        <td><strong>${pcEscaparHtml(c.nombre)}</strong><br><small style="color:var(--texto2)">/${pcEscaparHtml(c.slug)}</small></td>
+        <td>${pcEscaparHtml(c.dueno_nombre || 'Sin nombre')}<br><small style="color:var(--texto2)">${pcEscaparHtml(c.dueno_email || c.email_contacto || '')}</small></td>
+        <td>${pcEscaparHtml(c.plan || 'Inicial')}<br><small style="color:var(--texto2)">${formatoDinero(c.suscripcion_monto || 1600, c.suscripcion_moneda || 'UYU')} / mes</small></td>
+        <td>${c.fecha_pago_hasta ? formatearFechaReserva(c.fecha_pago_hasta) : c.suscripcion_proximo_cobro ? formatearFechaReserva(c.suscripcion_proximo_cobro) : '—'}</td>
+        <td>${adminBadgeSuscripcion(c.suscripcion_estado)}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="abrirGestionComercio(${c.id})">Administrar</button></td>
+      </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function filtrarAdminComercios(valor) {
+  const texto = String(valor ?? document.getElementById('admin-buscar-comercio')?.value ?? '').trim().toLowerCase();
+  const estado = document.getElementById('admin-filtro-suscripcion')?.value || '';
+  const data = (window._adminComercios || []).filter(c => {
+    const coincideTexto = !texto || [c.nombre, c.slug, c.dueno_nombre, c.dueno_email, c.email_contacto]
+      .some(campo => String(campo || '').toLowerCase().includes(texto));
+    return coincideTexto && (!estado || c.suscripcion_estado === estado);
+  });
+  renderAdminComercios(data);
+}
+
+function abrirGestionComercio(id) {
+  const comercio = (window._adminComercios || []).find(c => Number(c.id) === Number(id));
+  if (!comercio) return;
+
+  mostrarModal(`Administrar ${pcEscaparHtml(comercio.nombre)}`, `
+    <div class="admin-commerce-detail">
+      <div class="admin-commerce-summary">
+        <div><span>Estado</span>${adminBadgeSuscripcion(comercio.suscripcion_estado)}</div>
+        <div><span>Plan</span><strong>${pcEscaparHtml(comercio.plan || 'Inicial')}</strong></div>
+        <div><span>Mensualidad</span><strong>${formatoDinero(comercio.suscripcion_monto || 1600, comercio.suscripcion_moneda || 'UYU')}</strong></div>
+        <div><span>Pagado hasta</span><strong>${comercio.fecha_pago_hasta ? formatearFechaReserva(comercio.fecha_pago_hasta) : '—'}</strong></div>
+      </div>
+      <div class="form-group">
+        <label class="label">Estado de suscripción</label>
+        <select class="input" id="ac-suscripcion-estado">
+          ${['sin_suscripcion','prueba','pendiente','activa','pago_pendiente','pausada','cancelada'].map(estado =>
+            `<option value="${estado}" ${comercio.suscripcion_estado === estado ? 'selected' : ''}>${adminLabelSuscripcion(estado)}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="input-grid-2">
+        <div class="form-group"><label class="label">Plan</label><input class="input" id="ac-plan" value="${pcEscaparHtml(comercio.plan || 'inicial')}"></div>
+        <div class="form-group"><label class="label">Monto mensual</label><input class="input" id="ac-monto" type="number" min="1" value="${Number(comercio.suscripcion_monto || 1600)}"></div>
+      </div>
+      <div class="admin-modal-actions">
+        <button class="btn btn-oro" onclick="guardarGestionComercio(${comercio.id})">Guardar cambios</button>
+        <button class="btn btn-ghost" onclick="registrarMensualidadManual(${comercio.id}, ${Number(comercio.suscripcion_monto || 1600)})">Registrar pago manual</button>
+        <button class="btn btn-ghost" onclick="window.open('/${pcEscaparHtml(comercio.slug)}','_blank')">Ver página</button>
+        <button class="btn btn-ghost" onclick="toggleComercio(${comercio.id},${comercio.activo})">${comercio.activo ? 'Desactivar cuenta' : 'Activar cuenta'}</button>
+      </div>
+      <details class="admin-danger-zone">
+        <summary>Zona de peligro</summary>
+        <p>Eliminar borra el comercio y todos sus datos de forma permanente.</p>
+        <button class="btn btn-peligro btn-sm" onclick="eliminarComercio(${comercio.id})">Eliminar comercio</button>
+      </details>
+    </div>
+  `, async () => true);
+  document.getElementById('modal-confirmar-btn').style.display = 'none';
+}
+
+async function guardarGestionComercio(id) {
+  try {
+    await api('PUT', `/admin/comercios/${id}`, {
+      plan: document.getElementById('ac-plan').value.trim(),
+      suscripcion_monto: Number(document.getElementById('ac-monto').value),
+      suscripcion_estado: document.getElementById('ac-suscripcion-estado').value
+    });
+    cerrarModal();
+    toast('Comercio actualizado');
+    cargarAdminComercios();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
+function registrarMensualidadManual(comercioId, montoSugerido) {
+  cerrarModal();
+  mostrarModal('Registrar pago manual', `
+    <div class="input-grid-2">
+      <div class="form-group"><label class="label">Monto</label><input class="input" id="amp-monto" type="number" min="1" value="${Number(montoSugerido || 1600)}"></div>
+      <div class="form-group"><label class="label">Meses cubiertos</label><input class="input" id="amp-meses" type="number" min="1" max="24" value="1"></div>
+    </div>
+    <div class="form-group"><label class="label">Detalle</label><input class="input" id="amp-detalle" value="Transferencia confirmada"></div>
+  `, async () => {
+    await api('POST', `/admin/comercios/${comercioId}/mensualidades/manual`, {
+      monto: Number(document.getElementById('amp-monto').value),
+      meses: Number(document.getElementById('amp-meses').value),
+      detalle: document.getElementById('amp-detalle').value.trim()
+    });
+    toast('Mensualidad registrada');
+    cargarAdminComercios();
+    return true;
+  });
+}
+
 async function toggleComercio(id, activo) {
   try {
     await api('PUT', `/admin/comercios/${id}`, { activo: !activo });
@@ -8594,12 +8896,116 @@ async function toggleComercio(id, activo) {
 }
 
 async function eliminarComercio(id, nombre) {
+  nombre = nombre || (window._adminComercios || []).find(c => Number(c.id) === Number(id))?.nombre || 'este comercio';
   if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer y borrará todas sus reservas.`)) return;
   try {
     await api('DELETE', `/admin/comercios/${id}`);
     toast('Comercio eliminado');
     cargarAdminComercios();
   } catch (e) { toast(e.message, 'error'); }
+}
+
+function adminLabelPago(estado) {
+  return {
+    approved: 'Aprobado',
+    pending: 'Pendiente',
+    in_process: 'En proceso',
+    rejected: 'Rechazado',
+    cancelled: 'Cancelado',
+    charged_back: 'Contracargo',
+    refunded: 'Devuelto'
+  }[estado] || estado || 'Sin estado';
+}
+
+async function cargarAdminMensualidades() {
+  const el = document.getElementById('admin-mensualidades');
+  el.innerHTML = `
+    <div class="admin-header">
+      <div>
+        <h1>Mensualidades</h1>
+        <p style="color:var(--texto2);margin-top:0.35rem">Cobros de los comercios a Agendate.</p>
+      </div>
+    </div>
+    <div><span class="loader-inline claro"></span> Cargando cobros...</div>`;
+
+  try {
+    const pagos = await api('GET', '/admin/mensualidades');
+    const aprobados = pagos.filter(p => p.estado === 'approved');
+    const pendientes = pagos.filter(p => ['pending','in_process'].includes(p.estado));
+    const fallidos = pagos.filter(p => ['rejected','cancelled','charged_back'].includes(p.estado));
+    const total = aprobados.reduce((suma, p) => suma + Number(p.monto || 0), 0);
+
+    el.innerHTML = `
+      <div class="admin-header">
+        <div>
+          <h1>Mensualidades</h1>
+          <p style="color:var(--texto2);margin-top:0.35rem">Cobros de los comercios a Agendate.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num">${formatoDinero(total, 'UYU')}</div><div class="stat-lbl">Total registrado</div></div>
+        <div class="stat-card"><div class="stat-num">${aprobados.length}</div><div class="stat-lbl">Cobros aprobados</div></div>
+        <div class="stat-card"><div class="stat-num">${pendientes.length}</div><div class="stat-lbl">Pendientes</div></div>
+        <div class="stat-card"><div class="stat-num">${fallidos.length}</div><div class="stat-lbl">Fallidos</div></div>
+      </div>
+      <div class="admin-toolbar" style="margin-top:1rem">
+        <input class="input" id="admin-buscar-mensualidad" placeholder="Buscar comercio o referencia" oninput="filtrarAdminMensualidades(this.value)">
+        <select class="input" id="admin-filtro-pago" onchange="filtrarAdminMensualidades()">
+          <option value="">Todos los estados</option>
+          <option value="approved">Aprobados</option>
+          <option value="pending">Pendientes</option>
+          <option value="rejected">Rechazados</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="tabla-mensualidades-wrap"></div>`;
+
+    window._adminMensualidades = pagos;
+    renderAdminMensualidades(pagos);
+  } catch (error) {
+    el.innerHTML = `<div class="admin-header"><h1>Mensualidades</h1></div><p style="color:var(--rojo)">${pcEscaparHtml(error.message)}</p>`;
+  }
+}
+
+function renderAdminMensualidades(pagos) {
+  const wrap = document.getElementById('tabla-mensualidades-wrap');
+  if (!wrap) return;
+  if (!pagos.length) {
+    wrap.innerHTML = '<p style="padding:2rem;color:var(--texto2)">Todavía no hay mensualidades registradas.</p>';
+    return;
+  }
+
+  wrap.innerHTML = `<table class="tabla">
+    <thead><tr><th>Comercio</th><th>Fecha</th><th>Monto</th><th>Medio</th><th>Referencia</th><th>Estado</th></tr></thead>
+    <tbody>${pagos.map(p => `
+      <tr>
+        <td><strong>${pcEscaparHtml(p.comercio_nombre)}</strong><br><small style="color:var(--texto2)">/${pcEscaparHtml(p.comercio_slug)}</small></td>
+        <td>${formatearFechaReserva(p.pagado_en || p.creado_en)}</td>
+        <td>${formatoDinero(p.monto, p.moneda || 'UYU')}</td>
+        <td>${p.proveedor === 'manual' ? 'Manual' : 'Mercado Pago'}</td>
+        <td><small>${pcEscaparHtml(p.proveedor_pago_id || p.detalle || '—')}</small></td>
+        <td>${adminBadgePago(p.estado)}</td>
+      </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function adminBadgePago(estado) {
+  const clase = estado === 'approved'
+    ? 'badge-verde'
+    : ['pending','in_process'].includes(estado)
+      ? 'badge-gris'
+      : 'badge-rojo';
+  return `<span class="badge ${clase}">${pcEscaparHtml(adminLabelPago(estado))}</span>`;
+}
+
+function filtrarAdminMensualidades(valor) {
+  const texto = String(valor ?? document.getElementById('admin-buscar-mensualidad')?.value ?? '').trim().toLowerCase();
+  const estado = document.getElementById('admin-filtro-pago')?.value || '';
+  const pagos = (window._adminMensualidades || []).filter(p => {
+    const coincide = !texto || [p.comercio_nombre, p.comercio_slug, p.proveedor_pago_id, p.detalle]
+      .some(campo => String(campo || '').toLowerCase().includes(texto));
+    return coincide && (!estado || p.estado === estado);
+  });
+  renderAdminMensualidades(pagos);
 }
 
 async function cargarAdminReservas() {
@@ -8818,6 +9224,7 @@ function navIconoComercio(nombre) {
     bloqueos: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"></rect><path d="m8 8 8 8"></path></svg>',
     calendario: '<svg viewBox="0 0 24 24"><path d="M7 3v4"></path><path d="M17 3v4"></path><rect x="4" y="5" width="16" height="16" rx="2"></rect><path d="M8 12h3"></path><path d="M13 12h3"></path><path d="M8 16h3"></path></svg>',
     pagos: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h3"></path></svg>',
+    suscripcion: '<svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path><circle cx="18" cy="17" r="2"></circle></svg>',
     ubicaciones: '<svg viewBox="0 0 24 24"><path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg>',
     automatizaciones: '<svg viewBox="0 0 24 24"><path d="M6 8a4 4 0 0 1 7-2.6"></path><path d="M18 16a4 4 0 0 1-7 2.6"></path><path d="M14 5h4V1"></path><path d="M10 19H6v4"></path></svg>',
     perfil: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg>',
@@ -8905,6 +9312,23 @@ async function mostrarPanelComercio() {
         <div id="com-cuenta" class="com-sec"></div>
       </div>
     </main>`;
+  try {
+    const suscripcion = await api('GET', `/suscripciones/${S.slug}`);
+    if (suscripcion.acceso_restringido) {
+      document.getElementById('cs-nombre').textContent = S.nombre || 'Comercio';
+      document.getElementById('cs-mobile-nombre').textContent = 'Regularizar mensualidad';
+      document.getElementById('cs-slug').textContent = '/' + S.slug;
+      document.querySelectorAll('.com-nav a').forEach(link => {
+        link.style.display = link.id === 'cn-cuenta' ? '' : 'none';
+      });
+      await cargarLogoPlataforma();
+      comSec('cuenta', false);
+      return;
+    }
+  } catch (error) {
+    console.warn('No se pudo comprobar la suscripción:', error.message);
+  }
+
   try {
     const data = await api('GET', `/comercio/${S.slug}/perfil`);
     S.comercio = data;
@@ -9387,6 +9811,83 @@ async function cargarComPagos() {
   `;
 }
 
+function renderSuscripcionPerfil(data) {
+  const activa = data.estado === 'activa';
+  const puedeActivar = !activa && data.cobro_online_disponible;
+  const enTolerancia = data.estado === 'pago_pendiente' && data.tolerancia_hasta;
+
+  return `
+    <div class="panel-soft-card subscription-profile-card">
+      <div class="negocio-card-head">
+        <div class="negocio-card-icon">MP</div>
+        <div>
+          <h3>Mi suscripción</h3>
+          <p>Plan y mensualidad de Agendate.</p>
+        </div>
+      </div>
+      <div class="subscription-card-top">
+        <div>
+          <span class="subscription-eyebrow">Plan actual</span>
+          <h2>Agendate ${pcEscaparHtml(data.plan || 'Inicial')}</h2>
+        </div>
+        ${adminBadgeSuscripcion(data.estado)}
+      </div>
+      <div class="subscription-price">
+        <strong>${formatoDinero(data.monto, data.moneda || 'UYU')}</strong><span>por mes</span>
+      </div>
+      <div class="subscription-meta">
+        <div><span>Próximo cobro</span><strong>${data.proximo_cobro ? formatearFechaReserva(data.proximo_cobro) : '—'}</strong></div>
+        <div><span>Pagado hasta</span><strong>${data.pagado_hasta ? formatearFechaReserva(data.pagado_hasta) : '—'}</strong></div>
+      </div>
+      ${enTolerancia ? `<div class="subscription-warning">El pago está pendiente. Podés regularizarlo hasta el ${formatearFechaReserva(data.tolerancia_hasta)}.</div>` : ''}
+      <div class="subscription-actions">
+        ${puedeActivar ? `<button class="btn btn-oro" id="btn-activar-suscripcion" onclick="activarSuscripcionComercio()">${data.suscripcion_configurada ? 'Continuar pago' : 'Activar suscripción'}</button>` : ''}
+        ${activa ? '<button class="btn btn-ghost" onclick="cancelarSuscripcionComercio()">Cancelar renovación</button>' : ''}
+        ${!data.cobro_online_disponible ? '<p style="color:var(--texto2)">El cobro online todavía no está habilitado.</p>' : ''}
+      </div>
+      <details class="subscription-history">
+        <summary>Ver historial de mensualidades</summary>
+        <div style="margin-top:0.75rem">
+          ${data.historial.length ? data.historial.map(p => `
+            <div class="subscription-history-row">
+              <div><strong>${formatearFechaReserva(p.pagado_en || p.creado_en)}</strong><small>${p.proveedor === 'manual' ? 'Pago registrado manualmente' : 'Mercado Pago'}</small></div>
+              <div><strong>${formatoDinero(p.monto, p.moneda)}</strong>${adminBadgePago(p.estado)}</div>
+            </div>`).join('') : '<p style="color:var(--texto2)">Todavía no hay pagos registrados.</p>'}
+        </div>
+      </details>
+    </div>`;
+}
+
+async function activarSuscripcionComercio() {
+  const boton = document.getElementById('btn-activar-suscripcion');
+  try {
+    if (boton) {
+      boton.disabled = true;
+      boton.textContent = 'Preparando Mercado Pago...';
+    }
+    const data = await api('POST', `/suscripciones/${S.slug}/iniciar`, {});
+    if (!data.payment_url) throw new Error('Mercado Pago no devolvió el enlace de suscripción');
+    window.location.href = data.payment_url;
+  } catch (error) {
+    toast(error.message, 'error');
+    if (boton) {
+      boton.disabled = false;
+      boton.textContent = 'Activar suscripción';
+    }
+  }
+}
+
+async function cancelarSuscripcionComercio() {
+  if (!confirm('¿Querés cancelar la renovación automática? El acceso continuará hasta finalizar el período abonado.')) return;
+  try {
+    await api('POST', `/suscripciones/${S.slug}/cancelar`, {});
+    toast('Renovación cancelada');
+    cargarComCuenta();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
 async function guardarComPagos() {
   try {
     const actualizado = await api('PUT', `/comercio/${S.slug}/perfil`, {
@@ -9562,6 +10063,24 @@ async function eliminarUbicacion(id) {
 async function cargarComCuenta() {
   const el = document.getElementById('com-cuenta');
   let cuenta = null;
+  let suscripcion = null;
+
+  try {
+    suscripcion = await api('GET', `/suscripciones/${S.slug}`);
+    if (suscripcion.acceso_restringido) {
+      el.innerHTML = `
+        <div class="com-header">
+          <div>
+            <h1>Perfil</h1>
+            <small style="color:var(--texto2)">Regularizá la mensualidad para recuperar el acceso completo.</small>
+          </div>
+        </div>
+        <div style="max-width:760px">${renderSuscripcionPerfil(suscripcion)}</div>`;
+      return;
+    }
+  } catch (error) {
+    console.warn('No se pudo cargar la suscripción:', error.message);
+  }
 
   try {
     cuenta = await api('GET', `/comercio/${S.slug}/cuenta`);
@@ -9608,6 +10127,8 @@ async function cargarComCuenta() {
           <button type="button" data-panel-theme="claro" class="${temaPanel === 'claro' ? 'act' : ''}" onclick="aplicarTemaPanel('claro')">Claro</button>
         </div>
       </div>
+
+      ${suscripcion ? renderSuscripcionPerfil(suscripcion) : ''}
 
       <div class="panel-soft-card" style="grid-column:1/-1;max-width:720px">
         <h3>Datos de acceso</h3>

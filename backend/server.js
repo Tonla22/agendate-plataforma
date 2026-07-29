@@ -92,6 +92,7 @@ app.use('/api/admin',   require('./routes/admin'));
 app.use('/api/comercio',require('./routes/comercio'));
 app.use('/api/automatizaciones', require('./routes/automatizaciones'));
 app.use('/api/pagos', require('./routes/pagos'));
+app.use('/api/suscripciones', require('./routes/suscripciones'));
 app.use('/api/p',       require('./routes/publico'));
 
 // Salud del servidor
