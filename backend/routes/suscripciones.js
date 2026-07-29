@@ -1,6 +1,5 @@
 const express = require('express');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 const pool = require('../db/pool');
 const { authAdminOrComercio } = require('../middleware/auth');
@@ -9,8 +8,6 @@ const {
   actualizarSuscripcion,
   comercioIdDesdeExternalReference,
   crearSuscripcionComercio,
-  getPlatformOAuthRedirectUri,
-  intercambiarCodigoOAuthPlataforma,
   normalizarEstadoSuscripcion,
   obtenerPagoAutorizado,
   obtenerPagoPlataforma,
@@ -113,34 +110,6 @@ async function sincronizarSuscripcion(comercio, subscription) {
 
   return estado;
 }
-
-router.get('/mercadopago/oauth/callback', async (req, res) => {
-  try {
-    const { code, state } = req.query;
-    if (!code || !state) return res.redirect('/admin?mp_plataforma=error');
-
-    const dataState = jwt.verify(state, process.env.JWT_SECRET);
-    if (dataState.tipo !== 'mp_platform_oauth' || !dataState.admin_id) {
-      return res.redirect('/admin?mp_plataforma=error');
-    }
-
-    await intercambiarCodigoOAuthPlataforma({
-      code,
-      redirectUri: getPlatformOAuthRedirectUri()
-    });
-
-    res.redirect('/admin?mp_plataforma=conectado');
-  } catch (error) {
-    registrarEvento({
-      nivel: 'error',
-      categoria: 'suscripciones',
-      codigo: 'mercadopago_platform_oauth_error',
-      mensaje: 'Fallo la vinculacion de Mercado Pago para las mensualidades',
-      contexto: { error: error.message }
-    });
-    res.redirect('/admin?mp_plataforma=error');
-  }
-});
 
 router.get('/:slug', authAdminOrComercio, async (req, res) => {
   try {

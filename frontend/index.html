@@ -8303,19 +8303,6 @@ async function mostrarAdmin() {
       </div>
     </main>`;
   cargarAdminDashboard();
-  const mpPlataforma = new URLSearchParams(location.search).get('mp_plataforma');
-  if (mpPlataforma) {
-    history.replaceState({}, '', '/admin');
-    setTimeout(() => {
-      toast(
-        mpPlataforma === 'conectado'
-          ? 'Mercado Pago de Agendate vinculado correctamente'
-          : 'No se pudo vincular Mercado Pago',
-        mpPlataforma === 'conectado' ? 'success' : 'error'
-      );
-      if (mpPlataforma === 'conectado') adminSec('configuracion');
-    }, 50);
-  }
 }
 
 function adminSec(sec) {
@@ -8522,12 +8509,11 @@ async function cargarAdminConfiguracion() {
                 : 'Vinculá la cuenta donde querés recibir las mensualidades.'}</small>
             </div>
           </div>
-          ${mercadoPago.conectado
-            ? '<button class="btn btn-ghost btn-sm" onclick="desconectarMercadoPagoPlataforma()">Desvincular</button>'
-            : `<button class="btn btn-oro btn-sm" onclick="conectarMercadoPagoPlataforma()" ${mercadoPago.configuracion_oauth_disponible ? '' : 'disabled'}>Vincular Mercado Pago</button>`
-          }
+          <button class="btn ${mercadoPago.conectado ? 'btn-ghost' : 'btn-oro'} btn-sm" id="btn-conectar-mp-plataforma" onclick="conectarMercadoPagoPlataforma()" ${mercadoPago.credenciales_disponibles ? '' : 'disabled'}>
+            ${mercadoPago.conectado ? 'Verificar conexión' : 'Conectar Mercado Pago'}
+          </button>
         </div>
-        ${!mercadoPago.configuracion_oauth_disponible
+        ${!mercadoPago.credenciales_disponibles
           ? '<p class="admin-config-warning">Primero hay que configurar MERCADOPAGO_CLIENT_ID y MERCADOPAGO_CLIENT_SECRET en Render.</p>'
           : ''}
         <div class="input-grid-2">
@@ -8620,22 +8606,21 @@ async function guardarConfiguracionMensualidad() {
 }
 
 async function conectarMercadoPagoPlataforma() {
+  const boton = document.getElementById('btn-conectar-mp-plataforma');
   try {
-    const data = await api('GET', '/admin/mercadopago/conectar');
-    window.location.href = data.url;
-  } catch (error) {
-    toast(error.message, 'error');
-  }
-}
-
-async function desconectarMercadoPagoPlataforma() {
-  if (!confirm('¿Querés desvincular la cuenta de Mercado Pago de Agendate?')) return;
-  try {
-    await api('POST', '/admin/mercadopago/desconectar', {});
-    toast('Mercado Pago desvinculado');
+    if (boton) {
+      boton.disabled = true;
+      boton.textContent = 'Comprobando...';
+    }
+    await api('POST', '/admin/mercadopago/conectar', {});
+    toast('Mercado Pago conectado correctamente');
     cargarAdminConfiguracion();
   } catch (error) {
     toast(error.message, 'error');
+    if (boton) {
+      boton.disabled = false;
+      boton.textContent = 'Conectar Mercado Pago';
+    }
   }
 }
 

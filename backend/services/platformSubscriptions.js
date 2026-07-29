@@ -1,10 +1,6 @@
 const { getBaseUrl } = require('./mercadopago');
 const pool = require('../db/pool');
 
-function getPlatformOAuthRedirectUri() {
-  return `${getBaseUrl()}/api/suscripciones/mercadopago/oauth/callback`;
-}
-
 async function oauthTokenRequest(body) {
   const response = await fetch('https://api.mercadopago.com/oauth/token', {
     method: 'POST',
@@ -59,13 +55,17 @@ async function guardarCredencialesOAuth(tokenData) {
   return tokenData.access_token;
 }
 
-async function intercambiarCodigoOAuthPlataforma({ code, redirectUri }) {
+async function conectarMercadoPagoPlataforma() {
+  if (!process.env.MERCADOPAGO_CLIENT_ID || !process.env.MERCADOPAGO_CLIENT_SECRET) {
+    const error = new Error('Faltan las credenciales de Mercado Pago en Render');
+    error.code = 'PLATFORM_MERCADOPAGO_CREDENTIALS_MISSING';
+    throw error;
+  }
+
   const tokenData = await oauthTokenRequest({
-    grant_type: 'authorization_code',
+    grant_type: 'client_credentials',
     client_id: process.env.MERCADOPAGO_CLIENT_ID,
-    client_secret: process.env.MERCADOPAGO_CLIENT_SECRET,
-    code,
-    redirect_uri: redirectUri
+    client_secret: process.env.MERCADOPAGO_CLIENT_SECRET
   });
   await guardarCredencialesOAuth(tokenData);
   return tokenData;
@@ -95,6 +95,11 @@ async function getPlatformAccessToken() {
       refresh_token: credenciales.refresh_token
     });
     return guardarCredencialesOAuth(tokenData);
+  }
+
+  if (process.env.MERCADOPAGO_CLIENT_ID && process.env.MERCADOPAGO_CLIENT_SECRET) {
+    const tokenData = await conectarMercadoPagoPlataforma();
+    return tokenData.access_token;
   }
 
   const token = process.env.MERCADOPAGO_PLATFORM_ACCESS_TOKEN;
@@ -210,10 +215,9 @@ function obtenerPagoAutorizado(authorizedPaymentId) {
 module.exports = {
   actualizarSuscripcion,
   comercioIdDesdeExternalReference,
+  conectarMercadoPagoPlataforma,
   crearSuscripcionComercio,
   externalReferenceComercio,
-  getPlatformOAuthRedirectUri,
-  intercambiarCodigoOAuthPlataforma,
   normalizarEstadoSuscripcion,
   obtenerPagoAutorizado,
   obtenerPagoPlataforma,

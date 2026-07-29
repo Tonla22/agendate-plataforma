@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { authAdmin } = require('../middleware/auth');
 const {
   actualizarSuscripcion,
-  getPlatformOAuthRedirectUri
+  conectarMercadoPagoPlataforma
 } = require('../services/platformSubscriptions');
 
 function normalizarEmail(email) {
@@ -497,7 +496,7 @@ router.get('/mercadopago', authAdmin, async (req, res) => {
       user_id: estado.user_id || null,
       expira_en: estado.expira_en || null,
       conectado_en: estado.conectado_en || null,
-      configuracion_oauth_disponible: Boolean(
+      credenciales_disponibles: Boolean(
         process.env.MERCADOPAGO_CLIENT_ID && process.env.MERCADOPAGO_CLIENT_SECRET
       ),
       token_entorno_configurado: Boolean(process.env.MERCADOPAGO_PLATFORM_ACCESS_TOKEN)
@@ -507,57 +506,18 @@ router.get('/mercadopago', authAdmin, async (req, res) => {
   }
 });
 
-router.get('/mercadopago/conectar', authAdmin, async (req, res) => {
+router.post('/mercadopago/conectar', authAdmin, async (req, res) => {
   try {
-    if (!process.env.MERCADOPAGO_CLIENT_ID || !process.env.MERCADOPAGO_CLIENT_SECRET) {
-      return res.status(500).json({ error: 'Faltan las credenciales OAuth de Mercado Pago' });
-    }
-
-    const state = jwt.sign(
-      { tipo: 'mp_platform_oauth', admin_id: req.admin.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '10m' }
-    );
-    const url = new URL(process.env.MERCADOPAGO_AUTH_URL || 'https://auth.mercadopago.com/authorization');
-    url.searchParams.set('client_id', process.env.MERCADOPAGO_CLIENT_ID);
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('platform_id', 'mp');
-    url.searchParams.set('redirect_uri', getPlatformOAuthRedirectUri());
-    url.searchParams.set('state', state);
-
-    res.json({ url: url.toString() });
+    const token = await conectarMercadoPagoPlataforma();
+    res.json({
+      conectado: true,
+      user_id: token.user_id ? String(token.user_id) : null,
+      expira_en: token.expires_in
+        ? new Date(Date.now() + Number(token.expires_in) * 1000).toISOString()
+        : null
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/mercadopago/desconectar', authAdmin, async (req, res) => {
-  try {
-    const suscripciones = await pool.query(`
-      SELECT COUNT(*)::integer AS total
-      FROM comercios
-      WHERE suscripcion_mp_id IS NOT NULL
-        AND suscripcion_estado IN ('pendiente','activa','pago_pendiente','pausada')
-    `);
-    if (suscripciones.rows[0].total > 0) {
-      return res.status(409).json({
-        error: 'No se puede desvincular Mercado Pago mientras haya suscripciones activas'
-      });
-    }
-
-    await pool.query(`
-      UPDATE configuracion_plataforma
-      SET mercadopago_platform_user_id=NULL,
-          mercadopago_platform_access_token=NULL,
-          mercadopago_platform_refresh_token=NULL,
-          mercadopago_platform_expires_at=NULL,
-          mercadopago_platform_conectado_en=NULL,
-          actualizado_en=NOW()
-      WHERE id=1
-    `);
-    res.json({ ok: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 

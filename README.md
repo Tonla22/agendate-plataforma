@@ -115,8 +115,9 @@ ADMIN_PASSWORD=tu_contraseña_segura
 
 ---
 
-El superadmin vincula la cuenta que recibirá las mensualidades desde
-Configuración. Agendate guarda y renueva los tokens OAuth automáticamente.
+El superadmin conecta la cuenta propietaria que recibirá las mensualidades desde
+Configuración. Agendate obtiene y renueva el token de la propia aplicación con
+`client_credentials`, sin redirigir al administrador por OAuth.
 `MERCADOPAGO_PLATFORM_ACCESS_TOKEN` queda disponible solamente como respaldo
 opcional para instalaciones anteriores.
 Configurar como webhook:

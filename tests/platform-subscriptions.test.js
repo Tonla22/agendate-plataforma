@@ -21,7 +21,8 @@ assert.match(server, /app\.use\('\/api\/suscripciones'/);
 assert.match(service, /MERCADOPAGO_PLATFORM_ACCESS_TOKEN/);
 assert.doesNotMatch(service, /comercio\.mercadopago_access_token/);
 assert.match(service, /grant_type: 'refresh_token'/);
-assert.match(service, /intercambiarCodigoOAuthPlataforma/);
+assert.match(service, /grant_type: 'client_credentials'/);
+assert.match(service, /conectarMercadoPagoPlataforma/);
 assert.match(service, /external_reference: externalReferenceComercio/);
 assert.match(service, /notification_url/);
 assert.match(service, /status: 'pending'/);
@@ -32,15 +33,15 @@ assert.match(subscriptions, /router\.post\('\/webhook\/mercadopago'/);
 assert.match(subscriptions, /MERCADOPAGO_PLATFORM_WEBHOOK_SECRET/);
 assert.match(subscriptions, /timingSafeEqual/);
 assert.match(subscriptions, /subscription_authorized_payment/);
-assert.match(subscriptions, /mercadopago\/oauth\/callback/);
+assert.doesNotMatch(subscriptions, /mercadopago\/oauth\/callback/);
 assert.match(subscriptions, /INSERT INTO mensualidades_plataforma/);
 assert.match(subscriptions, /suscripcion_tolerancia_hasta/);
 
 assert.match(admin, /router\.get\('\/mensualidades'/);
 assert.match(admin, /mensualidades\/manual'/);
 assert.match(admin, /ingresos_mes/);
-assert.match(admin, /router\.get\('\/mercadopago\/conectar'/);
-assert.match(admin, /router\.post\('\/mercadopago\/desconectar'/);
+assert.match(admin, /router\.post\('\/mercadopago\/conectar'/);
+assert.doesNotMatch(admin, /mercadopago\/desconectar/);
 
 assert.match(frontend, /id="an-mensualidades"/);
 assert.doesNotMatch(frontend, /id="an-reservas"/);
