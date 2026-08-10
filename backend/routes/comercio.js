@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { v2: cloudinary } = require('cloudinary');
 const { v4: uuidv4 } = require('uuid');
+const { obtenerPlan } = require('../config/planes');
 const {
   enviarConfirmacionReserva,
   enviarCancelacionReserva
@@ -987,41 +988,95 @@ router.get('/:slug/trabajadores', authAdminOrComercio, async (req, res) => {
 });
 
 router.post('/:slug/trabajadores', authAdminOrComercio, async (req, res) => {
+  const client = await pool.connect();
   try {
-    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
-    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+    await client.query('BEGIN');
+    const c = await client.query('SELECT id, plan FROM comercios WHERE slug=$1 FOR UPDATE', [req.params.slug]);
+    if (!c.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
 
     const { nombre, descripcion, foto_url, orden } = req.body;
 
     if (!nombre || String(nombre).trim().length < 2) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'El nombre del trabajador es obligatorio' });
     }
 
-    const r = await pool.query(
+    const plan = obtenerPlan(c.rows[0].plan);
+    if (plan.limiteProfesionales !== null) {
+      const activos = await client.query(
+        'SELECT COUNT(*)::integer AS total FROM trabajadores WHERE comercio_id=$1 AND activo=true',
+        [c.rows[0].id]
+      );
+      if (activos.rows[0].total >= plan.limiteProfesionales) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({
+          error: `El plan Agendate ${plan.nombre} admite hasta ${plan.limiteProfesionales} profesionales. Para agregar otro, cambiá de plan.`
+        });
+      }
+    }
+
+    const r = await client.query(
       `INSERT INTO trabajadores (comercio_id,nombre,descripcion,foto_url,orden)
        VALUES ($1,$2,$3,$4,$5)
        RETURNING *`,
       [c.rows[0].id, nombre.trim(), descripcion || null, foto_url || null, orden || 0]
     );
 
+    await client.query('COMMIT');
     res.status(201).json(r.rows[0]);
   } catch (e) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
   }
 });
 
 router.put('/:slug/trabajadores/:id', authAdminOrComercio, async (req, res) => {
+  const client = await pool.connect();
   try {
-    const c = await pool.query('SELECT id FROM comercios WHERE slug=$1', [req.params.slug]);
-    if (!c.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+    await client.query('BEGIN');
+    const c = await client.query('SELECT id, plan FROM comercios WHERE slug=$1 FOR UPDATE', [req.params.slug]);
+    if (!c.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comercio no encontrado' });
+    }
 
     const { nombre, descripcion, foto_url, activo, orden } = req.body;
 
     if (!nombre || String(nombre).trim().length < 2) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'El nombre del trabajador es obligatorio' });
     }
 
-    const r = await pool.query(
+    const trabajadorActual = await client.query(
+      'SELECT id, activo FROM trabajadores WHERE id=$1 AND comercio_id=$2',
+      [req.params.id, c.rows[0].id]
+    );
+    if (!trabajadorActual.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Trabajador no encontrado' });
+    }
+
+    const seReactiva = activo !== false && trabajadorActual.rows[0].activo === false;
+    const plan = obtenerPlan(c.rows[0].plan);
+    if (seReactiva && plan.limiteProfesionales !== null) {
+      const activos = await client.query(
+        'SELECT COUNT(*)::integer AS total FROM trabajadores WHERE comercio_id=$1 AND activo=true',
+        [c.rows[0].id]
+      );
+      if (activos.rows[0].total >= plan.limiteProfesionales) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({
+          error: `El plan Agendate ${plan.nombre} admite hasta ${plan.limiteProfesionales} profesionales. Para reactivarlo, cambiá de plan.`
+        });
+      }
+    }
+
+    const r = await client.query(
       `UPDATE trabajadores
        SET nombre=$1, descripcion=$2, foto_url=$3, activo=$4, orden=$5
        WHERE id=$6 AND comercio_id=$7
@@ -1029,11 +1084,13 @@ router.put('/:slug/trabajadores/:id', authAdminOrComercio, async (req, res) => {
       [nombre.trim(), descripcion || null, foto_url || null, activo !== false, orden || 0, req.params.id, c.rows[0].id]
     );
 
-    if (!r.rows[0]) return res.status(404).json({ error: 'Trabajador no encontrado' });
-
+    await client.query('COMMIT');
     res.json(r.rows[0]);
   } catch (e) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
   }
 });
 

@@ -1,5 +1,6 @@
 const { getBaseUrl } = require('./mercadopago');
 const pool = require('../db/pool');
+const { obtenerPlan } = require('../config/planes');
 
 async function oauthTokenRequest(body) {
   const response = await fetch('https://api.mercadopago.com/oauth/token', {
@@ -168,7 +169,7 @@ async function crearSuscripcionComercio({
 }) {
   const baseUrl = getBaseUrl();
   const body = {
-    reason: `Agendate ${comercio.plan || 'Inicial'}`,
+    reason: `Agendate ${obtenerPlan(comercio.plan).nombre}`,
     payer_email: payerEmail,
     external_reference: externalReferenceComercio(comercio.id),
     back_url: `${baseUrl}/panel#cuenta`,

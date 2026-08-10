@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { authAdminOrComercio } = require('../middleware/auth');
 const { registrarEvento } = require('../services/operationalEvents');
+const { obtenerPlan } = require('../config/planes');
 const {
   actualizarSuscripcion,
   comercioIdDesdeExternalReference,
@@ -55,18 +56,19 @@ function validarFirmaWebhook(req) {
 async function configuracionMensualidad(client = pool) {
   const resultado = await client.query(`
     SELECT mensualidad_monto, mensualidad_moneda, dias_prueba,
-           dias_tolerancia, mercadopago_plan_id,
+           dias_tolerancia, mercadopago_plan_comercial_id, mercadopago_plan_inicial_id,
            mercadopago_platform_access_token IS NOT NULL AS mercadopago_conectado
     FROM configuracion_plataforma
     WHERE id=1
   `);
 
   return resultado.rows[0] || {
-    mensualidad_monto: 1600,
+    mensualidad_monto: 1800,
     mensualidad_moneda: 'UYU',
     dias_prueba: 0,
     dias_tolerancia: 5,
-    mercadopago_plan_id: null
+    mercadopago_plan_comercial_id: null,
+    mercadopago_plan_inicial_id: null
   };
 }
 
@@ -120,6 +122,11 @@ router.get('/:slug', authAdminOrComercio, async (req, res) => {
     if (!comercio) return res.status(404).json({ error: 'Comercio no encontrado' });
 
     const configuracion = await configuracionMensualidad();
+    const plan = obtenerPlan(comercio.plan);
+    const profesionales = await pool.query(
+      'SELECT COUNT(*)::integer AS total FROM trabajadores WHERE comercio_id=$1 AND activo=true',
+      [comercio.id]
+    );
     const historial = await pool.query(`
       SELECT id, proveedor, proveedor_pago_id, estado, monto, moneda,
              periodo_desde, periodo_hasta, vencimiento_en, pagado_en,
@@ -145,9 +152,12 @@ router.get('/:slug', authAdminOrComercio, async (req, res) => {
       );
 
     res.json({
-      plan: comercio.plan || 'inicial',
+      plan: comercio.plan || 'comercial',
+      plan_nombre: plan.nombre,
+      limite_profesionales: plan.limiteProfesionales,
+      profesionales_activos: profesionales.rows[0]?.total || 0,
       estado: comercio.suscripcion_estado || 'sin_suscripcion',
-      monto: Number(comercio.suscripcion_monto || configuracion.mensualidad_monto || 1600),
+      monto: Number(comercio.suscripcion_monto || configuracion.mensualidad_monto || 1800),
       moneda: comercio.suscripcion_moneda || configuracion.mensualidad_moneda || 'UYU',
       proximo_cobro: comercio.suscripcion_proximo_cobro,
       ultimo_pago_en: comercio.suscripcion_ultimo_pago_en,
@@ -185,6 +195,7 @@ router.post('/:slug/iniciar', authAdminOrComercio, async (req, res) => {
     }
 
     const configuracion = await configuracionMensualidad();
+    const plan = obtenerPlan(comercio.plan);
     const payerEmail = comercio.dueno_email || comercio.email_contacto;
     if (!payerEmail) return res.status(400).json({ error: 'El comercio no tiene un email de pago configurado' });
 
@@ -193,7 +204,9 @@ router.post('/:slug/iniciar', authAdminOrComercio, async (req, res) => {
       payerEmail,
       amount: comercio.suscripcion_monto || configuracion.mensualidad_monto,
       currency: comercio.suscripcion_moneda || configuracion.mensualidad_moneda,
-      planId: configuracion.mercadopago_plan_id
+      planId: plan.codigo === 'inicial'
+        ? configuracion.mercadopago_plan_inicial_id
+        : configuracion.mercadopago_plan_comercial_id
     });
 
     await sincronizarSuscripcion(comercio, subscription);

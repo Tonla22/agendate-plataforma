@@ -7,6 +7,7 @@ const {
   actualizarSuscripcion,
   conectarMercadoPagoPlataforma
 } = require('../services/platformSubscriptions');
+const { esCodigoPlanValido, obtenerPlan } = require('../config/planes');
 
 function normalizarEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -184,6 +185,7 @@ router.post('/comercios', authAdmin, async (req, res) => {
       slug, nombre, slogan, telefono, whatsapp, email_contacto,
       email_notificaciones, direccion, instagram_url, color_acento,
       color_fondo, moneda, duracion_turno_min, webhook_url,
+      plan: planSolicitado = 'comercial',
       // Dueño
       dueno_nombre, dueno_email, dueno_password,
       // Servicios iniciales
@@ -197,10 +199,15 @@ router.post('/comercios', authAdmin, async (req, res) => {
       WHERE id=1
     `);
     const config = configResult.rows[0] || {
-      mensualidad_monto: 1600,
+      mensualidad_monto: 1800,
       mensualidad_moneda: 'UYU',
       dias_prueba: 0
     };
+    if (!esCodigoPlanValido(planSolicitado)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'El plan seleccionado no es valido' });
+    }
+    const plan = obtenerPlan(planSolicitado);
 
     const slugNormalizado = String(slug || '').trim().toLowerCase();
     const duenoEmailNormalizado = normalizarEmail(dueno_email);
@@ -240,15 +247,16 @@ router.post('/comercios', authAdmin, async (req, res) => {
     const c = await client.query(`
       INSERT INTO comercios (slug,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
         direccion,instagram_url,color_acento,color_fondo,moneda,duracion_turno_min,webhook_url,
-        suscripcion_estado,suscripcion_monto,suscripcion_moneda,suscripcion_tolerancia_hasta)
+        plan,suscripcion_estado,suscripcion_monto,suscripcion_moneda,suscripcion_tolerancia_hasta)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,
-        CASE WHEN $18::integer > 0 THEN CURRENT_DATE + $18::integer ELSE NULL END)
+        $18, CASE WHEN $19::integer > 0 THEN CURRENT_DATE + $19::integer ELSE NULL END)
       RETURNING *`,
       [slugNormalizado,nombre,slogan,telefono,whatsapp,email_contacto,email_notificaciones,
        direccion,instagram_url,color_acento||'#C9A84C',color_fondo||'#0D0D0D',
        moneda||'$',duracion_turno_min||30,webhook_url,
+       plan.codigo,
        Number(config.dias_prueba || 0) > 0 ? 'prueba' : 'sin_suscripcion',
-       Number(config.mensualidad_monto || 1600),
+       plan.monto,
        config.mensualidad_moneda || 'UYU',
        Number(config.dias_prueba || 0)]
     );
@@ -291,21 +299,43 @@ router.post('/comercios', authAdmin, async (req, res) => {
 router.put('/comercios/:id', authAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    const comercioActual = await pool.query(`
+      SELECT id, plan, suscripcion_monto, suscripcion_moneda, suscripcion_mp_id
+      FROM comercios
+      WHERE id=$1
+    `, [id]);
+    if (!comercioActual.rows[0]) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+    if (req.body.plan !== undefined) {
+      if (!esCodigoPlanValido(req.body.plan)) {
+        return res.status(400).json({ error: 'El plan seleccionado no es valido' });
+      }
+      const plan = obtenerPlan(req.body.plan);
+      req.body.plan = plan.codigo;
+      if (plan.codigo === 'inicial') {
+        const profesionales = await pool.query(
+          'SELECT COUNT(*)::integer AS total FROM trabajadores WHERE comercio_id=$1 AND activo=true',
+          [id]
+        );
+        if (profesionales.rows[0].total > plan.limiteProfesionales) {
+          return res.status(409).json({
+            error: `No se puede asignar Agendate ${plan.nombre}: el comercio tiene ${profesionales.rows[0].total} profesionales activos y el plan admite hasta ${plan.limiteProfesionales}.`
+          });
+        }
+      }
+      req.body.suscripcion_monto = plan.monto;
+    }
+
     if (req.body.suscripcion_monto !== undefined) {
       const nuevoMonto = Number(req.body.suscripcion_monto);
       if (!Number.isFinite(nuevoMonto) || nuevoMonto <= 0 || nuevoMonto > 1000000) {
         return res.status(400).json({ error: 'El monto de la suscripcion no es valido' });
       }
-      const suscripcion = await pool.query(`
-        SELECT suscripcion_mp_id, suscripcion_moneda
-        FROM comercios
-        WHERE id=$1
-      `, [id]);
-      if (suscripcion.rows[0]?.suscripcion_mp_id) {
-        await actualizarSuscripcion(suscripcion.rows[0].suscripcion_mp_id, {
+      if (comercioActual.rows[0].suscripcion_mp_id) {
+        await actualizarSuscripcion(comercioActual.rows[0].suscripcion_mp_id, {
           auto_recurring: {
             transaction_amount: nuevoMonto,
-            currency_id: req.body.suscripcion_moneda || suscripcion.rows[0].suscripcion_moneda || 'UYU'
+            currency_id: req.body.suscripcion_moneda || comercioActual.rows[0].suscripcion_moneda || 'UYU'
           }
         });
       }
@@ -526,7 +556,7 @@ router.get('/configuracion', authAdmin, async (req, res) => {
   try {
     const resultado = await pool.query(
       `SELECT logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
-              dias_tolerancia, mercadopago_plan_id, actualizado_en
+              dias_tolerancia, mercadopago_plan_comercial_id, mercadopago_plan_inicial_id, actualizado_en
        FROM configuracion_plataforma
        WHERE id=1`
     );
@@ -534,11 +564,12 @@ router.get('/configuracion', authAdmin, async (req, res) => {
     res.json(
       resultado.rows[0] || {
         logo_url: null,
-        mensualidad_monto: 1600,
+        mensualidad_monto: 1800,
         mensualidad_moneda: 'UYU',
         dias_prueba: 0,
         dias_tolerancia: 5,
-        mercadopago_plan_id: null,
+        mercadopago_plan_comercial_id: null,
+        mercadopago_plan_inicial_id: null,
         actualizado_en: null
       }
     );
@@ -552,7 +583,7 @@ router.put('/configuracion', authAdmin, async (req, res) => {
   try {
     const actualResult = await pool.query(`
       SELECT logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
-             dias_tolerancia, mercadopago_plan_id
+             dias_tolerancia, mercadopago_plan_comercial_id, mercadopago_plan_inicial_id
       FROM configuracion_plataforma
       WHERE id=1
     `);
@@ -560,11 +591,16 @@ router.put('/configuracion', authAdmin, async (req, res) => {
     const logoUrl = String(
       req.body.logo_url === undefined ? (actual.logo_url || '') : (req.body.logo_url || '')
     ).trim();
-    const monto = Number(req.body.mensualidad_monto ?? actual.mensualidad_monto ?? 1600);
+    const monto = 1800;
     const moneda = String(req.body.mensualidad_moneda || actual.mensualidad_moneda || 'UYU').trim().toUpperCase();
     const diasPrueba = Number(req.body.dias_prueba ?? actual.dias_prueba ?? 0);
     const diasTolerancia = Number(req.body.dias_tolerancia ?? actual.dias_tolerancia ?? 5);
-    const planId = String(req.body.mercadopago_plan_id ?? actual.mercadopago_plan_id ?? '').trim();
+    const planComercialId = String(
+      req.body.mercadopago_plan_comercial_id ?? actual.mercadopago_plan_comercial_id ?? ''
+    ).trim();
+    const planInicialId = String(
+      req.body.mercadopago_plan_inicial_id ?? actual.mercadopago_plan_inicial_id ?? ''
+    ).trim();
 
     if (
       logoUrl &&
@@ -594,8 +630,8 @@ router.put('/configuracion', authAdmin, async (req, res) => {
     const resultado = await pool.query(
       `INSERT INTO configuracion_plataforma
         (id, logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
-         dias_tolerancia, mercadopago_plan_id, actualizado_en)
-       VALUES (1, $1, $2, $3, $4, $5, $6, NOW())
+         dias_tolerancia, mercadopago_plan_comercial_id, mercadopago_plan_inicial_id, actualizado_en)
+       VALUES (1, $1, $2, $3, $4, $5, $6, $7, NOW())
 
        ON CONFLICT (id)
        DO UPDATE SET
@@ -604,12 +640,13 @@ router.put('/configuracion', authAdmin, async (req, res) => {
          mensualidad_moneda=EXCLUDED.mensualidad_moneda,
          dias_prueba=EXCLUDED.dias_prueba,
          dias_tolerancia=EXCLUDED.dias_tolerancia,
-         mercadopago_plan_id=EXCLUDED.mercadopago_plan_id,
+         mercadopago_plan_comercial_id=EXCLUDED.mercadopago_plan_comercial_id,
+         mercadopago_plan_inicial_id=EXCLUDED.mercadopago_plan_inicial_id,
          actualizado_en=NOW()
 
        RETURNING logo_url, mensualidad_monto, mensualidad_moneda, dias_prueba,
-                 dias_tolerancia, mercadopago_plan_id, actualizado_en`,
-      [logoUrl || null, monto, moneda, diasPrueba, diasTolerancia, planId || null]
+                 dias_tolerancia, mercadopago_plan_comercial_id, mercadopago_plan_inicial_id, actualizado_en`,
+      [logoUrl || null, monto, moneda, diasPrueba, diasTolerancia, planComercialId || null, planInicialId || null]
     );
 
     res.json({

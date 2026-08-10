@@ -18,11 +18,13 @@ CREATE TABLE IF NOT EXISTS admins (
 CREATE TABLE IF NOT EXISTS configuracion_plataforma (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   logo_url VARCHAR(500),
-  mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1600,
+  mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1800,
   mensualidad_moneda VARCHAR(10) NOT NULL DEFAULT 'UYU',
   dias_prueba INTEGER NOT NULL DEFAULT 0,
   dias_tolerancia INTEGER NOT NULL DEFAULT 5,
   mercadopago_plan_id VARCHAR(120),
+  mercadopago_plan_inicial_id VARCHAR(120),
+  mercadopago_plan_comercial_id VARCHAR(120),
   mercadopago_platform_user_id VARCHAR(120),
   mercadopago_platform_access_token TEXT,
   mercadopago_platform_refresh_token TEXT,
@@ -59,10 +61,10 @@ CREATE TABLE IF NOT EXISTS comercios (
   auto_agradecimiento_activo BOOLEAN DEFAULT false,
   auto_agradecimiento_horas_despues INTEGER DEFAULT 2,
   activo BOOLEAN DEFAULT true,
-  plan VARCHAR(50) DEFAULT 'inicial',
+  plan VARCHAR(50) DEFAULT 'comercial',
   fecha_pago_hasta DATE,
   suscripcion_estado VARCHAR(40) DEFAULT 'sin_suscripcion',
-  suscripcion_monto NUMERIC(10,2) DEFAULT 1600,
+  suscripcion_monto NUMERIC(10,2) DEFAULT 1800,
   suscripcion_moneda VARCHAR(10) DEFAULT 'UYU',
   suscripcion_mp_id VARCHAR(120),
   suscripcion_mp_plan_id VARCHAR(120),
@@ -402,11 +404,14 @@ DO $$ BEGIN
 EXCEPTION WHEN others THEN NULL;
 END $$;
 
-ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1600;
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mensualidad_monto NUMERIC(10,2) NOT NULL DEFAULT 1800;
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mensualidad_moneda VARCHAR(10) NOT NULL DEFAULT 'UYU';
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS dias_prueba INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS dias_tolerancia INTEGER NOT NULL DEFAULT 5;
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_plan_id VARCHAR(120);
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_plan_esencial_id VARCHAR(120);
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_plan_inicial_id VARCHAR(120);
+ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_plan_comercial_id VARCHAR(120);
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_user_id VARCHAR(120);
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_access_token TEXT;
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_refresh_token TEXT;
@@ -414,7 +419,7 @@ ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platfo
 ALTER TABLE configuracion_plataforma ADD COLUMN IF NOT EXISTS mercadopago_platform_conectado_en TIMESTAMP;
 
 ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_estado VARCHAR(40) DEFAULT 'sin_suscripcion';
-ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_monto NUMERIC(10,2) DEFAULT 1600;
+ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_monto NUMERIC(10,2) DEFAULT 1800;
 ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_moneda VARCHAR(10) DEFAULT 'UYU';
 ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_mp_id VARCHAR(120);
 ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_mp_plan_id VARCHAR(120);
@@ -425,6 +430,29 @@ ALTER TABLE comercios ADD COLUMN IF NOT EXISTS suscripcion_cancelada_en TIMESTAM
 
 CREATE INDEX IF NOT EXISTS idx_reservas_retencion_pago ON reservas(estado, estado_pago, pago_retencion_vence_en);
 CREATE INDEX IF NOT EXISTS idx_comercios_suscripcion_estado ON comercios(suscripcion_estado);
+
+-- Migración de los nombres anteriores: Inicial ($1.600) pasa a Comercial
+-- y el plan temporal Esencial ($1.200) pasa a llamarse Inicial.
+UPDATE configuracion_plataforma
+SET mensualidad_monto=1800,
+    mercadopago_plan_inicial_id=COALESCE(mercadopago_plan_inicial_id, mercadopago_plan_esencial_id)
+WHERE mensualidad_monto=1600;
+
+UPDATE configuracion_plataforma
+SET mercadopago_plan_inicial_id=COALESCE(mercadopago_plan_inicial_id, mercadopago_plan_esencial_id);
+
+ALTER TABLE configuracion_plataforma ALTER COLUMN mensualidad_monto SET DEFAULT 1800;
+ALTER TABLE comercios ALTER COLUMN plan SET DEFAULT 'comercial';
+ALTER TABLE comercios ALTER COLUMN suscripcion_monto SET DEFAULT 1800;
+
+UPDATE comercios
+SET plan='comercial', suscripcion_monto=1800, actualizado_en=NOW()
+WHERE LOWER(COALESCE(plan, ''))='inicial'
+  AND COALESCE(suscripcion_monto, 1600) >= 1600;
+
+UPDATE comercios
+SET plan='inicial', suscripcion_monto=1200, actualizado_en=NOW()
+WHERE LOWER(COALESCE(plan, ''))='esencial';
 `;
 
 async function init() {

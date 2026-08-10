@@ -5671,6 +5671,16 @@ body.panel-theme-light .negocio-quick-item {
   box-shadow: 0 28px 82px rgba(40, 31, 19, .11);
 }
 
+.ag-about .ag3-plans {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.ag-about .ag3-package--featured {
+  border-color: rgba(240, 217, 132, .38);
+  box-shadow: 0 34px 110px rgba(0, 0, 0, .38), 0 0 0 1px rgba(240, 217, 132, .08);
+}
+
 .ag-about .ag3-price {
   padding: 1.7rem;
   border-radius: 27px;
@@ -6357,6 +6367,11 @@ body.panel-theme-light .negocio-quick-item {
   box-shadow: 0 34px 100px rgba(0, 0, 0, .34);
 }
 
+.ag-about .ag3-package--featured {
+  border-color: rgba(240, 217, 132, .38);
+  box-shadow: 0 34px 110px rgba(0, 0, 0, .38), 0 0 0 1px rgba(240, 217, 132, .08);
+}
+
 .ag-about .ag3-price {
   background:
     radial-gradient(circle at 80% 5%, rgba(240, 217, 132, .13), transparent 35%),
@@ -6916,6 +6931,22 @@ const API = '/api';
 const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DIAS_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const PLANES_COMERCIALES = {
+  inicial: { nombre: 'Inicial', monto: 1200, limiteProfesionales: 2 },
+  comercial: { nombre: 'Comercial', monto: 1800, limiteProfesionales: null }
+};
+
+function planComercial(codigo) {
+  const normalizado = String(codigo || '').toLowerCase();
+  if (normalizado === 'esencial') return PLANES_COMERCIALES.inicial;
+  return PLANES_COMERCIALES[normalizado] || PLANES_COMERCIALES.comercial;
+}
+
+function actualizarMontoPlanAdmin(selectId, montoId) {
+  const select = document.getElementById(selectId);
+  const monto = document.getElementById(montoId);
+  if (select && monto) monto.value = planComercial(select.value).monto;
+}
 
 let logoPlataformaUrl = '';
 
@@ -7547,7 +7578,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <p>El tratamiento de datos personales se rige por la Política de Privacidad de Agendate. El comercio se compromete a utilizar los datos de sus clientes de forma responsable, únicamente para la gestión de reservas, atención comercial y comunicaciones vinculadas a su servicio.</p>
 
               <h2>11. Condiciones comerciales del paquete</h2>
-              <p>La mensualidad de Agendate Inicial es de UYU $1.600 por mes y corresponde al uso, mantenimiento y soporte de la plataforma mientras el servicio esté activo. La configuración inicial y puesta en marcha se cotiza como un pago único separado, según el alcance acordado con el comercio. Costos externos, comisiones de proveedores, producción profesional de contenido, campañas publicitarias, desarrollos a medida, migraciones complejas o configuraciones fuera del alcance inicial pueden requerir presupuesto adicional.</p>
+              <p>Agendate ofrece el plan Inicial por UYU $1.200 al mes, con un máximo de 2 profesionales activos, y el plan Comercial por UYU $1.800 al mes, sin límite de profesionales. La mensualidad corresponde al uso, mantenimiento y soporte de la plataforma mientras el servicio esté activo. La configuración inicial y puesta en marcha se cotiza como un pago único separado, según el alcance acordado con el comercio. Costos externos, comisiones de proveedores, producción profesional de contenido, campañas publicitarias, desarrollos a medida, migraciones complejas o configuraciones fuera del alcance inicial pueden requerir presupuesto adicional.</p>
 
               <h2>12. Contacto y actualizaciones</h2>
               <p>Para consultas comerciales, soporte o solicitudes relacionadas con estos términos, el usuario puede comunicarse con Agendate mediante los canales oficiales publicados. Estas condiciones pueden actualizarse para reflejar cambios del producto, mejoras operativas, integraciones nuevas o requisitos legales.</p>
@@ -7560,7 +7591,7 @@ function mostrarPaginaLegal(tipo = 'sobre') {
               <p>MercadoPago, Google Calendar, WhatsApp y otros proveedores externos funcionan bajo sus propias condiciones y tiempos de revisión.</p>
               <br>
               <strong>Última actualización</strong>
-              <p>Julio de 2026.</p>
+              <p>Agosto de 2026.</p>
             </aside>
           </div>
         </main>
@@ -7825,10 +7856,10 @@ function renderSobreAgendate(el) {
           <div class="single-package-card">
             <div class="package-main">
               <span class="payment-tag">PUESTA EN MARCHA</span>
-              <h3>Agéndate Inicial</h3>
+              <h3>Agéndate Comercial</h3>
               <p>Armamos tu presencia digital y dejamos configurado el sistema base para que puedas empezar a recibir reservas de forma simple, ordenada y profesional.</p>
               <div class="package-price">
-                <strong>UYU $1.600 / mes</strong>
+                <strong>UYU $1.800 / mes</strong>
                 <span>Mensualidad por uso y mantenimiento de la plataforma.</span>
               </div>
               <p class="package-note">+ pago único de configuración inicial. Se abona mes a mes mientras el servicio esté activo.</p>
@@ -7838,7 +7869,7 @@ function renderSobreAgendate(el) {
                 <span>Panel comercial preparado</span>
               </div>
               <div class="package-actions">
-                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20el%20paquete%20Agendate%20de%20UYU%201600" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
+                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Comercial%20de%20UYU%201800" target="_blank" rel="noopener">Solicitar por WhatsApp</a>
                 <a class="legal-btn-secondary" href="#legal-como-funciona">Ver cómo funciona</a>
               </div>
             </div>
@@ -8097,33 +8128,58 @@ function renderSobreAgendateNueva(el) {
         <section class="ag3-section rb-fade" id="legal-paquete">
           <div class="ag3-section-head">
             <div class="ag3-kicker">Puesta en marcha</div>
-            <h2>Una base profesional para empezar bien.</h2>
-            <p>Configuramos la presencia pública y el sistema operativo del comercio para que puedas comenzar a recibir reservas con claridad.</p>
+            <h2>Elegí el plan que acompaña a tu equipo.</h2>
+            <p>Los dos planes incluyen la experiencia completa de Agendate. La diferencia está en la cantidad de profesionales que necesitás administrar.</p>
           </div>
-          <div class="ag3-package">
-            <div class="ag3-price">
-              <span class="ag-product-badge">Suscripción mensual</span>
-              <h3>Agendate Inicial</h3>
-              <p>Página pública, panel comercial y configuración base para trabajar con reservas de forma simple y profesional.</p>
-              <div class="ag3-price-number">
-                <strong>UYU $1.600</strong>
-                <small>por mes + configuración inicial</small>
+          <div class="ag3-plans">
+            <article class="ag3-package ag3-package--featured">
+              <div class="ag3-price">
+                <span class="ag-product-badge">Para equipos pequeños</span>
+                <h3>Agendate Inicial</h3>
+                <p>Todo lo necesario para un comercio que trabaja solo o con un equipo compacto.</p>
+                <div class="ag3-price-number">
+                  <strong>UYU $1.200</strong>
+                  <small>por mes · hasta 2 profesionales</small>
+                </div>
+                <div class="legal-actions">
+                  <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Inicial%20de%20UYU%201200%20mensuales%20para%20hasta%202%20profesionales" target="_blank" rel="noopener">Elegir Inicial</a>
+                </div>
               </div>
-              <div class="legal-actions">
-                <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Inicial%20de%20UYU%201600%20mensuales" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+              <div class="ag3-package-list">
+                <h3>La plataforma completa, para 1 o 2 profesionales</h3>
+                <ul>
+                  <li><b>✓</b><span>Página pública responsive con identidad, servicios, contacto, WhatsApp y ubicación.</span></li>
+                  <li><b>✓</b><span>Hasta 2 profesionales con horarios y servicios propios o compartidos.</span></li>
+                  <li><b>✓</b><span>Panel comercial con reservas, clientes, estados, pagos y métricas.</span></li>
+                  <li><b>✓</b><span>Base para conectar Mercado Pago y Google Calendar.</span></li>
+                  <li><b>✓</b><span>Mantenimiento técnico y soporte de la plataforma.</span></li>
+                </ul>
               </div>
-            </div>
-            <div class="ag3-package-list">
-              <h3>Lo esencial ya viene incluido</h3>
-              <ul>
-                <li><b>✓</b><span>Página pública responsive con identidad, servicios, contacto, WhatsApp y ubicación.</span></li>
-                <li><b>✓</b><span>Carga inicial de servicios, precios, duración y condiciones de reserva.</span></li>
-                <li><b>✓</b><span>Profesionales, horarios y servicios compartidos o individuales.</span></li>
-                <li><b>✓</b><span>Panel comercial con reservas, clientes, estados, pagos y métricas.</span></li>
-                <li><b>✓</b><span>Base para conectar Mercado Pago y Google Calendar con las cuentas del comercio.</span></li>
-                <li><b>✓</b><span>Mantenimiento técnico y soporte relacionado con el uso de la plataforma.</span></li>
-              </ul>
-            </div>
+            </article>
+            <article class="ag3-package">
+              <div class="ag3-price">
+                <span class="ag-product-badge">Para equipos en crecimiento</span>
+                <h3>Agendate Comercial</h3>
+                <p>La misma base profesional, sin límite de profesionales para acompañar el crecimiento del comercio.</p>
+                <div class="ag3-price-number">
+                  <strong>UYU $1.800</strong>
+                  <small>por mes · profesionales ilimitados</small>
+                </div>
+                <div class="legal-actions">
+                  <a class="legal-btn-primary" href="https://wa.me/59898689005?text=Hola%2C%20quiero%20consultar%20por%20Agendate%20Comercial%20de%20UYU%201800%20mensuales%20con%20profesionales%20ilimitados" target="_blank" rel="noopener">Elegir Comercial</a>
+                </div>
+              </div>
+              <div class="ag3-package-list">
+                <h3>Todo Agendate, sin límite de equipo</h3>
+                <ul>
+                  <li><b>✓</b><span>Todos los beneficios del plan Inicial.</span></li>
+                  <li><b>✓</b><span>Profesionales ilimitados con agendas, horarios y servicios individuales.</span></li>
+                  <li><b>✓</b><span>Ideal para comercios que suman personal o manejan varios especialistas.</span></li>
+                  <li><b>✓</b><span>Panel operativo preparado para administrar todo el equipo.</span></li>
+                  <li><b>✓</b><span>Mantenimiento técnico y soporte de la plataforma.</span></li>
+                </ul>
+              </div>
+            </article>
           </div>
         </section>
 
@@ -8497,7 +8553,7 @@ async function cargarAdminConfiguracion() {
       <div class="panel-soft" style="padding:1.5rem">
         <h2 style="font-size:1.1rem;margin-bottom:0.5rem">Mensualidad</h2>
         <p style="color:var(--texto2);line-height:1.6;margin-bottom:1.2rem">
-          Estos valores se aplican a los nuevos comercios y al checkout de suscripción.
+          Precios vigentes: Agendate Inicial UYU $1.200 y Agendate Comercial UYU $1.800.
         </p>
         <div class="admin-mp-connection ${mercadoPago.conectado ? 'is-connected' : ''}">
           <div>
@@ -8518,8 +8574,8 @@ async function cargarAdminConfiguracion() {
           : ''}
         <div class="input-grid-2">
           <div class="form-group">
-            <label class="label">Monto mensual</label>
-            <input class="input" id="admin-mensualidad-monto" type="number" min="1" step="1" value="${Number(data.mensualidad_monto || 1600)}">
+            <label class="label">Monto plan Comercial</label>
+            <input class="input" id="admin-mensualidad-monto" type="number" min="1" step="1" value="1800" readonly>
           </div>
           <div class="form-group">
             <label class="label">Moneda</label>
@@ -8535,10 +8591,17 @@ async function cargarAdminConfiguracion() {
           </div>
         </div>
         <div class="form-group">
-          <label class="label">ID del plan de Mercado Pago</label>
-          <input class="input" id="admin-mp-plan-id" value="${pcEscaparHtml(data.mercadopago_plan_id || '')}" placeholder="Opcional: preapproval_plan_id">
+          <label class="label">ID de Mercado Pago · Plan Comercial</label>
+          <input class="input" id="admin-mp-plan-comercial-id" value="${pcEscaparHtml(data.mercadopago_plan_comercial_id || '')}" placeholder="Opcional: preapproval_plan_id">
           <small style="display:block;color:var(--texto2);margin-top:0.5rem">
             Si queda vacío, Agendate creará una suscripción mensual individual por comercio.
+          </small>
+        </div>
+        <div class="form-group">
+          <label class="label">ID de Mercado Pago · Plan Inicial ($1.200)</label>
+          <input class="input" id="admin-mp-plan-inicial-id" value="${pcEscaparHtml(data.mercadopago_plan_inicial_id || '')}" placeholder="Opcional: preapproval_plan_id">
+          <small style="display:block;color:var(--texto2);margin-top:0.5rem">
+            Si queda vacÃ­o, se crearÃ¡ una suscripciÃ³n individual por UYU $1.200.
           </small>
         </div>
         <button class="btn btn-oro" onclick="guardarConfiguracionMensualidad()">Guardar mensualidad</button>
@@ -8596,7 +8659,8 @@ async function guardarConfiguracionMensualidad() {
       mensualidad_moneda: document.getElementById('admin-mensualidad-moneda').value.trim().toUpperCase(),
       dias_prueba: Number(document.getElementById('admin-dias-prueba').value),
       dias_tolerancia: Number(document.getElementById('admin-dias-tolerancia').value),
-      mercadopago_plan_id: document.getElementById('admin-mp-plan-id').value.trim()
+      mercadopago_plan_comercial_id: document.getElementById('admin-mp-plan-comercial-id').value.trim(),
+      mercadopago_plan_inicial_id: document.getElementById('admin-mp-plan-inicial-id').value.trim()
     });
     toast('Configuración de mensualidad guardada');
     cargarAdminConfiguracion();
@@ -8778,7 +8842,7 @@ function renderAdminComercios(data) {
       <tr>
         <td><strong>${pcEscaparHtml(c.nombre)}</strong><br><small style="color:var(--texto2)">/${pcEscaparHtml(c.slug)}</small></td>
         <td>${pcEscaparHtml(c.dueno_nombre || 'Sin nombre')}<br><small style="color:var(--texto2)">${pcEscaparHtml(c.dueno_email || c.email_contacto || '')}</small></td>
-        <td>${pcEscaparHtml(c.plan || 'Inicial')}<br><small style="color:var(--texto2)">${formatoDinero(c.suscripcion_monto || 1600, c.suscripcion_moneda || 'UYU')} / mes</small></td>
+        <td>Agendate ${pcEscaparHtml(planComercial(c.plan).nombre)}<br><small style="color:var(--texto2)">${formatoDinero(c.suscripcion_monto || 1800, c.suscripcion_moneda || 'UYU')} / mes</small></td>
         <td>${c.fecha_pago_hasta ? formatearFechaReserva(c.fecha_pago_hasta) : c.suscripcion_proximo_cobro ? formatearFechaReserva(c.suscripcion_proximo_cobro) : '—'}</td>
         <td>${adminBadgeSuscripcion(c.suscripcion_estado)}</td>
         <td><button class="btn btn-ghost btn-sm" onclick="abrirGestionComercio(${c.id})">Administrar</button></td>
@@ -8805,8 +8869,8 @@ function abrirGestionComercio(id) {
     <div class="admin-commerce-detail">
       <div class="admin-commerce-summary">
         <div><span>Estado</span>${adminBadgeSuscripcion(comercio.suscripcion_estado)}</div>
-        <div><span>Plan</span><strong>${pcEscaparHtml(comercio.plan || 'Inicial')}</strong></div>
-        <div><span>Mensualidad</span><strong>${formatoDinero(comercio.suscripcion_monto || 1600, comercio.suscripcion_moneda || 'UYU')}</strong></div>
+        <div><span>Plan</span><strong>Agendate ${pcEscaparHtml(planComercial(comercio.plan).nombre)}</strong></div>
+        <div><span>Mensualidad</span><strong>${formatoDinero(comercio.suscripcion_monto || 1800, comercio.suscripcion_moneda || 'UYU')}</strong></div>
         <div><span>Pagado hasta</span><strong>${comercio.fecha_pago_hasta ? formatearFechaReserva(comercio.fecha_pago_hasta) : '—'}</strong></div>
       </div>
       <div class="form-group">
@@ -8818,12 +8882,14 @@ function abrirGestionComercio(id) {
         </select>
       </div>
       <div class="input-grid-2">
-        <div class="form-group"><label class="label">Plan</label><input class="input" id="ac-plan" value="${pcEscaparHtml(comercio.plan || 'inicial')}"></div>
-        <div class="form-group"><label class="label">Monto mensual</label><input class="input" id="ac-monto" type="number" min="1" value="${Number(comercio.suscripcion_monto || 1600)}"></div>
+        <div class="form-group"><label class="label">Plan</label><select class="input" id="ac-plan" onchange="actualizarMontoPlanAdmin('ac-plan','ac-monto')">
+          ${Object.entries(PLANES_COMERCIALES).map(([codigo, plan]) => `<option value="${codigo}" ${planComercial(comercio.plan).nombre === plan.nombre ? 'selected' : ''}>Agendate ${plan.nombre}${plan.limiteProfesionales ? ` · hasta ${plan.limiteProfesionales} profesionales` : ' · profesionales ilimitados'}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label class="label">Monto mensual</label><input class="input" id="ac-monto" type="number" min="1" value="${Number(comercio.suscripcion_monto || 1800)}" readonly><small style="display:block;color:var(--texto2);margin-top:.4rem">El monto se define automáticamente según el plan.</small></div>
       </div>
       <div class="admin-modal-actions">
         <button class="btn btn-oro" onclick="guardarGestionComercio(${comercio.id})">Guardar cambios</button>
-        <button class="btn btn-ghost" onclick="registrarMensualidadManual(${comercio.id}, ${Number(comercio.suscripcion_monto || 1600)})">Registrar pago manual</button>
+        <button class="btn btn-ghost" onclick="registrarMensualidadManual(${comercio.id}, ${Number(comercio.suscripcion_monto || 1800)})">Registrar pago manual</button>
         <button class="btn btn-ghost" onclick="window.open('/${pcEscaparHtml(comercio.slug)}','_blank')">Ver página</button>
         <button class="btn btn-ghost" onclick="toggleComercio(${comercio.id},${comercio.activo})">${comercio.activo ? 'Desactivar cuenta' : 'Activar cuenta'}</button>
       </div>
@@ -8856,7 +8922,7 @@ function registrarMensualidadManual(comercioId, montoSugerido) {
   cerrarModal();
   mostrarModal('Registrar pago manual', `
     <div class="input-grid-2">
-      <div class="form-group"><label class="label">Monto</label><input class="input" id="amp-monto" type="number" min="1" value="${Number(montoSugerido || 1600)}"></div>
+      <div class="form-group"><label class="label">Monto</label><input class="input" id="amp-monto" type="number" min="1" value="${Number(montoSugerido || 1800)}"></div>
       <div class="form-group"><label class="label">Meses cubiertos</label><input class="input" id="amp-meses" type="number" min="1" max="24" value="1"></div>
     </div>
     <div class="form-group"><label class="label">Detalle</label><input class="input" id="amp-detalle" value="Transferencia confirmada"></div>
@@ -9146,6 +9212,13 @@ function abrirModalNuevoComercio() {
     <div class="form-group"><label class="label">Dirección</label><input class="input" id="nc-dir" placeholder="Av. 18 de Julio 1234, Montevideo"></div>
     <div class="form-group"><label class="label">Moneda</label><input class="input" id="nc-moneda" placeholder="$" style="max-width:80px"></div>
     <div class="form-group"><label class="label">Webhook (n8n/Google Calendar)</label><input class="input" id="nc-webhook" placeholder="https://tu-n8n.com/webhook/..."></div>
+    <div class="input-grid-2">
+      <div class="form-group"><label class="label">Plan</label><select class="input" id="nc-plan" onchange="document.getElementById('nc-plan-monto').value='UYU $' + planComercial(this.value).monto.toLocaleString('es-UY')">
+        <option value="comercial">Agendate Comercial · $1.800 · profesionales ilimitados</option>
+        <option value="inicial">Agendate Inicial · $1.200 · hasta 2 profesionales</option>
+      </select></div>
+      <div class="form-group"><label class="label">Mensualidad</label><input class="input" id="nc-plan-monto" value="UYU $1.800" disabled></div>
+    </div>
     <hr style="border-color:var(--borde2);margin:1rem 0">
     <h4 style="margin-bottom:1rem;color:var(--texto2)">Acceso del dueño</h4>
     <div class="input-grid-2">
@@ -9183,6 +9256,7 @@ function abrirModalNuevoComercio() {
       direccion:            document.getElementById('nc-dir').value,
       moneda:               document.getElementById('nc-moneda').value || '$',
       webhook_url:          document.getElementById('nc-webhook').value,
+      plan:                 document.getElementById('nc-plan').value,
       dueno_nombre:         document.getElementById('nc-dnom').value,
       dueno_email:          demail,
       dueno_password:       dpass,
@@ -9813,7 +9887,7 @@ function renderSuscripcionPerfil(data) {
       <div class="subscription-card-top">
         <div>
           <span class="subscription-eyebrow">Plan actual</span>
-          <h2>Agendate ${pcEscaparHtml(data.plan || 'Inicial')}</h2>
+          <h2>Agendate ${pcEscaparHtml(data.plan_nombre || planComercial(data.plan).nombre)}</h2>
         </div>
         ${adminBadgeSuscripcion(data.estado)}
       </div>
@@ -9823,6 +9897,7 @@ function renderSuscripcionPerfil(data) {
       <div class="subscription-meta">
         <div><span>Próximo cobro</span><strong>${data.proximo_cobro ? formatearFechaReserva(data.proximo_cobro) : '—'}</strong></div>
         <div><span>Pagado hasta</span><strong>${data.pagado_hasta ? formatearFechaReserva(data.pagado_hasta) : '—'}</strong></div>
+        <div><span>Profesionales</span><strong>${data.limite_profesionales === null ? 'Sin límite' : `${data.profesionales_activos} de ${data.limite_profesionales}`}</strong></div>
       </div>
       ${enTolerancia ? `<div class="subscription-warning">El pago está pendiente. Podés regularizarlo hasta el ${formatearFechaReserva(data.tolerancia_hasta)}.</div>` : ''}
       <div class="subscription-actions">
@@ -11411,17 +11486,37 @@ async function cargarComTrabajadores() {
   el.innerHTML = `
     <div class="com-header">
       <h1>Profesionales</h1>
-      <button class="btn btn-oro btn-sm" onclick="abrirModalTrabajador()">+ Agregar</button>
+      <button class="btn btn-oro btn-sm" id="btn-agregar-profesional" onclick="abrirModalTrabajador()">+ Agregar</button>
     </div>
     <div id="trabajadores-lista"><span class="loader-inline claro"></span> Cargando...</div>
   `;
 
   try {
-    const data = await api('GET', `/comercio/${S.slug}/trabajadores`);
+    const [data, suscripcion] = await Promise.all([
+      api('GET', `/comercio/${S.slug}/trabajadores`),
+      api('GET', `/suscripciones/${S.slug}`).catch(() => null)
+    ]);
     const lista = document.getElementById('trabajadores-lista');
+    const limite = suscripcion?.limite_profesionales ?? null;
+    const totalActivos = Number(suscripcion?.profesionales_activos ?? data.length);
+    const cupoCompleto = limite !== null && totalActivos >= limite;
+    window._comLimiteProfesionales = { limite, totalActivos, cupoCompleto };
+
+    const botonAgregar = document.getElementById('btn-agregar-profesional');
+    if (botonAgregar) {
+      botonAgregar.disabled = cupoCompleto;
+      botonAgregar.title = cupoCompleto
+        ? `Tu plan admite hasta ${limite} profesionales`
+        : '';
+    }
+
+    const resumenPlan = limite !== null
+      ? `<div class="panel-soft-card" style="margin-bottom:1rem;padding:1rem"><strong>Plan Agendate ${pcEscaparHtml(suscripcion?.plan_nombre || 'Inicial')}</strong><p style="color:var(--texto2);margin-top:.35rem">${totalActivos} de ${limite} profesionales utilizados.${cupoCompleto ? ' Para agregar otro profesional, cambiÃ¡ de plan.' : ''}</p></div>`
+      : '';
 
     if (!data.length) {
       lista.innerHTML = `
+        ${resumenPlan}
         <div class="card" style="color:var(--texto2)">
           Todavia no hay profesionales cargados. Agrega al menos uno para usar agendas separadas.
         </div>
@@ -11429,7 +11524,7 @@ async function cargarComTrabajadores() {
       return;
     }
 
-    lista.innerHTML = `<div class="table-wrap"><table class="tabla">
+    lista.innerHTML = `${resumenPlan}<div class="table-wrap"><table class="tabla">
       <thead><tr><th>Profesional</th><th>Descripción</th><th>Orden</th><th>Acciones</th></tr></thead>
       <tbody>${data.map(t => `<tr>
         <td>
@@ -11454,6 +11549,11 @@ async function cargarComTrabajadores() {
 }
 
 function abrirModalTrabajador(t = null) {
+  if (!t && window._comLimiteProfesionales?.cupoCompleto) {
+    toast(`Tu plan admite hasta ${window._comLimiteProfesionales.limite} profesionales. CambiÃ¡ de plan para agregar otro.`, 'error');
+    return;
+  }
+
   const fotoActualHTML = t?.foto_url
     ? `<img class="img-preview visible" id="tr-foto-preview" src="${t.foto_url}" alt="preview">`
     : `<img class="img-preview" id="tr-foto-preview" alt="preview">`;
