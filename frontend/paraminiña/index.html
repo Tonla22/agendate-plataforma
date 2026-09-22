@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070c13">
+<title>Para vos 💛</title>
+<meta name="description" content="Una pequeña carta de amor en flores amarillas.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='27'%3E💛%3C/text%3E%3C/svg%3E">
+<style>
+/* COLORES Y TIPOGRAFÍA: fuentes del dispositivo; no requiere conexión. */
+:root{color-scheme:dark;--night:#070c13;--gold:#f4ce70;--ink:#efe9dd;--muted:#c4c3bd}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--night)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+main{position:relative;isolation:isolate;width:100%;height:100%;height:100svh;overflow:hidden;background:radial-gradient(ellipse at 50% 34%,#14202477,transparent 62%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.invitation{position:absolute;inset:0;display:grid;place-items:center;z-index:3;transition:opacity .8s ease,visibility .8s}
+.started .invitation{opacity:0;visibility:hidden;pointer-events:none}
+button{font:italic 28px Georgia,"Times New Roman",serif;color:var(--gold);border:1px solid #cda55466;border-radius:100px;padding:21px 39px;background:linear-gradient(130deg,#23211788,#0d131c);box-shadow:0 0 55px #e3b4430a,inset 0 0 22px #e3b44304;cursor:pointer;touch-action:manipulation;transition:box-shadow .4s,transform .4s}
+button:hover{box-shadow:0 0 45px #e3b44320;transform:translateY(-2px)}button:focus-visible{outline:2px solid var(--gold);outline-offset:7px}
+/* MENSAJE: conservar el texto y ajustar aquí tamaños y separación. */
+.letter{position:absolute;top:59%;left:50%;width:min(88%,390px);transform:translateX(-50%);text-align:center;padding-bottom:max(18px,env(safe-area-inset-bottom));visibility:hidden}
+.started .letter{visibility:visible}.line{opacity:0;transform:translateY(12px);transition:opacity 1.4s ease,transform 1.4s ease;margin:0}
+.line.visible{opacity:1;transform:translateY(0)}
+h1{font:italic 400 clamp(24px,6.7vw,30px)/1.2 Georgia,"Times New Roman",serif;color:var(--gold);text-wrap:balance;margin:0 0 18px!important}
+p{font-size:16px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.journey{position:relative;margin-top:14px}.love{margin-top:19px;font:italic 22px/1.4 Georgia,"Times New Roman",serif;color:var(--ink)}
+.brazil-flag{display:inline-block;width:1.4em;height:1em;vertical-align:-.12em;border-radius:2px;overflow:hidden}
+.love.visible{animation:love-glow 3s ease-in-out 1.1s both}.beat{display:inline-block;transform-origin:center}.visible .beat{animation:heartbeat 2.7s ease-in-out 1.5s infinite}
+.journey::before,.journey::after{content:"✦";position:absolute;color:#e8c858;opacity:0;font-size:12px;pointer-events:none;top:0}
+.journey::before{left:4%;color:#90b983}.journey::after{right:3%;top:17px}.journey.visible::before,.journey.visible::after{animation:travel-spark 3.5s ease .4s both}
+@keyframes heartbeat{0%,30%,60%,100%{transform:scale(1)}40%{transform:scale(1.12)}50%{transform:scale(1.03)}}
+@keyframes love-glow{0%,100%{text-shadow:0 0 0 transparent;transform:scale(1)}45%{text-shadow:0 0 18px #f0c45c66;transform:scale(1.025)}}
+@keyframes travel-spark{0%,100%{opacity:0;transform:translateY(5px) scale(.5)}40%{opacity:.85}80%{opacity:.2;transform:translateY(-15px) scale(1)}}
+@media(max-height:690px){.letter{top:57%}h1{font-size:24px;margin-bottom:12px!important}p{line-height:1.4}.journey{margin-top:10px}.love{margin-top:13px;font-size:21px}}
+@media(min-aspect-ratio:1/1){.letter{top:23%;left:74%;width:43%;max-width:390px}h1{font-size:30px}}
+@media(prefers-reduced-motion:reduce){.line,.invitation{transition-duration:.3s}.love.visible,.visible .beat,.journey.visible::before,.journey.visible::after{animation:none}}
+</style>
+</head>
+<body>
+<main id="experience" aria-label="Una carta de flores amarillas">
+ <canvas id="garden" aria-label="Un tallo crece y florece hasta formar un corazón de 27 girasoles" role="img"></canvas>
+ <div class="invitation"><button id="start" type="button">Para vos 💛</button></div>
+ <section class="letter" aria-label="Mi mensaje para vos" aria-hidden="true">
+  <h1 class="line">Feliz día de las flores amarillas!!!!! 💛</h1>
+  <p class="line">Era la manera que tengo para hacértelas llegar, perdón por la demora🫶🏽</p>
+  <p class="line journey">Espero que disfrutes mucho tu viaje <svg class="brazil-flag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 20" role="img" aria-label="Bandera de Brasil"><title>🇧🇷</title><path fill="#009739" d="M0 0h28v20H0z"/><path fill="#ffdf00" d="m14 2 12 8-12 8L2 10z"/><circle cx="14" cy="10" r="5" fill="#012169"/><clipPath id="brazil-disc"><circle cx="14" cy="10" r="5"/></clipPath><path d="M8 8.6q6-1.5 12 4" fill="none" stroke="#fff" stroke-width="1" clip-path="url(#brazil-disc)"/><g fill="#fff"><circle cx="12" cy="11" r=".3"/><circle cx="15" cy="12.5" r=".3"/><circle cx="13.5" cy="13.5" r=".25"/><circle cx="16.5" cy="10.8" r=".25"/><circle cx="15.5" cy="7.3" r=".25"/></g></svg></p>
+  <p class="line love">Te amo mi niña hermosa<span class="beat">❤️</span></p>
+ </section>
+</main>
+<script>
+'use strict';
+// CONFIGURACIÓN: duración de la secuencia y cantidad de flores (27 por defecto).
+// 1 girasol inicial + 20 de contorno + 6 interiores. Mantener 18–23 en el contorno.
+const SETTINGS={duration:20,outlineFlowers:20,gold:'#f3c44e',stem:'#63875b',leaf:'#426a4e'};
+const canvas=document.querySelector('#garden'),ctx=canvas.getContext('2d');
+const scene=document.querySelector('main'),button=document.querySelector('button');
+const lines=[...document.querySelectorAll('.line')];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let width=0,height=0,started=false,startTime=0,raf=0,elapsed=0;
+const clamp=x=>Math.max(0,Math.min(1,x));
+const ease=x=>{x=clamp(x);return x*x*(3-2*x)};
+// Aleatoriedad reproducible: composición estable al girar el teléfono.
+let seed=27;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+const particles=Array.from({length:42},()=>({x:random(),y:random(),r:.5+random()*1.2,v:4+random()*9,phase:random()*6.28}));
+// Flores dibujadas una sola vez en pequeños lienzos: pétalos y semillas sin imágenes externas.
+function makeFlower(variant){
+ const c=document.createElement('canvas');c.width=c.height=180;const g=c.getContext('2d');g.translate(90,90);
+ for(let layer=0;layer<2;layer++)for(let i=0;i<15;i++){
+  g.save();g.rotate(i*Math.PI*2/15+layer*.2+variant*.11);
+  const gradient=g.createLinearGradient(0,-13,0,-73);gradient.addColorStop(0,'#a76519');gradient.addColorStop(.42,layer?'#f0b82e':'#d99822');gradient.addColorStop(1,layer?'#ffe189':'#edc150');
+  g.fillStyle=gradient;g.beginPath();g.moveTo(-5,-18);g.bezierCurveTo(-18,-35,-12,-61,0,-(layer?70:76));g.bezierCurveTo(12,-62,17,-34,5,-18);g.fill();
+  g.strokeStyle='#ffe5a12e';g.lineWidth=.8;g.beginPath();g.moveTo(0,-24);g.quadraticCurveTo(3,-46,0,-63);g.stroke();g.restore();
+ }
+ const disk=g.createRadialGradient(-7,-8,1,0,0,25);disk.addColorStop(0,'#5d4127');disk.addColorStop(.65,'#30291d');disk.addColorStop(1,'#9f6a26');g.fillStyle=disk;g.beginPath();g.arc(0,0,25,0,Math.PI*2);g.fill();
+ for(let i=0;i<190;i++){const a=i*2.399963,r=Math.sqrt(i/190)*23;g.fillStyle=i%3?'#bc8d456e':'#e8b75d9c';g.beginPath();g.ellipse(Math.cos(a)*r,Math.sin(a)*r,1.1,.75,a,0,6.29);g.fill()}
+ return c;
+}
+const sprites=[0,1,2].map(makeFlower);
+// COMPOSICIÓN: el contorno matemático mantiene una silueta clara de corazón.
+const flowers=[{x:210,y:204,r:36,birth:3.1,phase:0}];
+const outline=Array.from({length:SETTINGS.outlineFlowers},(_,i)=>{
+ const a=i*Math.PI*2/SETTINGS.outlineFlowers;
+ return{x:210+9.05*16*Math.pow(Math.sin(a),3),y:230-9.05*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a)),r:25+random()*4,phase:random()*6.28};
+}).sort((a,b)=>b.y-a.y);
+const inside=[[164,180,28],[258,176,30],[127,224,26],[287,227,27],[174,269,30],[236,285,29]].map(([x,y,r])=>({x,y,r,phase:random()*6.28}));
+[...outline,...inside].forEach((f,i)=>flowers.push({...f,birth:4.7+i*.29}));
+function pathAt(p,t){const u=1-t;return{x:u*u*u*p[0]+3*u*u*t*p[2]+3*u*t*t*p[4]+t*t*t*p[6],y:u*u*u*p[1]+3*u*u*t*p[3]+3*u*t*t*p[5]+t*t*t*p[7]}}
+function stem(p,progress,lineWidth){if(progress<=0)return;ctx.beginPath();ctx.moveTo(p[0],p[1]);for(let i=1;i<=45;i++){let v=pathAt(p,progress*i/45);ctx.lineTo(v.x,v.y)}ctx.strokeStyle=SETTINGS.stem;ctx.lineWidth=lineWidth;ctx.lineCap='round';ctx.stroke()}
+function leaf(x,y,angle,size,growth){if(growth<=0)return;ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(growth,growth);const g=ctx.createLinearGradient(0,0,size,-size*.3);g.addColorStop(0,'#294c39');g.addColorStop(1,'#76915c');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(size*.22,-size*.55,size*.8,-size*.48,size,0);ctx.bezierCurveTo(size*.6,size*.29,size*.2,size*.22,0,0);ctx.fill();ctx.strokeStyle='#a1b57d55';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(size*.86,-1);ctx.stroke();ctx.restore()}
+function heart(x,y,size,opacity){ctx.save();ctx.translate(x,y);ctx.scale(size,size);ctx.globalAlpha=opacity;ctx.fillStyle='#f9d47c';ctx.shadowColor='#ffcc62';ctx.shadowBlur=12;ctx.beginPath();ctx.moveTo(0,.35);ctx.bezierCurveTo(-1,-.3,-.5,-1,0,-.5);ctx.bezierCurveTo(.5,-1,1,-.3,0,.35);ctx.fill();ctx.restore()}
+function draw(ms){
+ const t=started?(ms-startTime)/1000:0;elapsed=t;
+ const time=reduced?t*7:t*20/SETTINGS.duration;
+ ctx.clearRect(0,0,width,height);
+ const finish=ease((time-12.8)/2.1),landscape=width>height;
+ const target=Math.min(width/(landscape?900:420),height*(landscape?.88:.565)/520);
+ const scale=target*(1.18-.18*finish);
+ const cx=width*(landscape?.26:.5),rootY=height*(.9-(landscape?.04:.337)*finish);
+ // PARTÍCULAS Y PÉTALOS: luz discreta al inicio y más cálida al florecer.
+ particles.forEach((p,i)=>{const y=(p.y*height-t*p.v%height+height)%height;ctx.globalAlpha=(started?.1+.25*finish:.065)*(.6+.4*Math.sin(t+p.phase));ctx.fillStyle=SETTINGS.gold;ctx.beginPath();const px=p.x*width+Math.sin(t*.2+p.phase)*9;if(started&&i%11===0){ctx.ellipse(px,y,p.r*3.5,p.r,t*.18+p.phase,0,6.29)}else{ctx.arc(px,y,p.r,0,6.29)}ctx.fill()});ctx.globalAlpha=1;
+ if(started){
+  ctx.save();ctx.translate(cx-210*scale,rootY-510*scale);ctx.scale(scale,scale);
+  if(finish>0){const halo=ctx.createRadialGradient(210,235,30,210,235,205);halo.addColorStop(0,'#e5af2414');halo.addColorStop(.7,'#deb04408');halo.addColorStop(1,'#deb04400');ctx.globalAlpha=finish;ctx.fillStyle=halo;ctx.fillRect(0,20,420,430);ctx.globalAlpha=1}
+  const sway=reduced?0:Math.sin(t*.65)*1.6;
+  stem([210,510,188,430,227,302,210+sway,204],ease(time/3.6),3.2);
+  leaf(206,458,-2.65,48,ease((time-1.2)/1.2));leaf(208,414,-.55,51,ease((time-1.9)/1.1));leaf(212,348,-2.65,40,ease((time-2.5)/1.1));
+  flowers.slice(1).forEach((f,i)=>{const growth=ease((time-(f.birth-1.25))/1.5),base=430-(i%5)*21;const p=[210,base,210+(f.x-210)*.15,base-65,f.x, f.y+50,f.x,f.y];stem(p,growth,1.1+(i%3)*.3);const pos=pathAt(p,.62);leaf(pos.x,pos.y,f.x<210?-2.6:-.55,22+(i%4)*3,ease((time-f.birth+.5)/1.1))});
+  flowers.forEach((f,i)=>{const growth=ease((time-f.birth)/1.25);if(!growth)return;ctx.save();ctx.translate(f.x+(reduced?0:Math.sin(t*.7+f.phase)*1.4),f.y+(reduced?0:Math.cos(t*.6+f.phase)*.8));ctx.rotate(-.22*(1-growth)+(reduced?0:Math.sin(t*.65+f.phase)*.025));ctx.scale(growth,growth);ctx.drawImage(sprites[i%3],-f.r,-f.r,f.r*2,f.r*2);ctx.restore()});
+  if(time>13&&!reduced){for(let i=0;i<2;i++){const age=(time-13-i*.8);if(age>0&&age<6)heart(115+i*180,235-age*19,5+i*2,Math.sin(age/6*Math.PI)*.6)}}
+  ctx.restore();
+  [15,16.35,17.65,18.95].forEach((at,i)=>{if(time>=at&&!lines[i].classList.contains('visible')){lines[i].classList.add('visible');lines[i].removeAttribute('aria-hidden')}});
+ }
+ if(!document.hidden&&(!reduced||!started||time<21))raf=requestAnimationFrame(draw);
+}
+function resize(){width=innerWidth;height=scene.clientHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);if(reduced&&elapsed>3)draw(performance.now())}
+// Un seul départ, clavier et tactile. Les animations se mettent en pause en arrière-plan.
+button.addEventListener('click',()=>{if(started)return;started=true;startTime=performance.now();scene.classList.add('started');document.querySelector('.letter').removeAttribute('aria-hidden');lines.forEach(l=>l.setAttribute('aria-hidden','true'));button.disabled=true});
+let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=performance.now();cancelAnimationFrame(raf)}else{if(started)startTime+=performance.now()-hiddenAt;raf=requestAnimationFrame(draw)}});
+addEventListener('resize',resize);resize();raf=requestAnimationFrame(draw);
+</script>
+</body>
+</html>
